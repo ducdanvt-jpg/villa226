@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Villa 226 — Resort thu nhỏ của riêng bạn | Đặt villa Vũng Tàu</title>
+<meta name="description" content="Thuê villa nghỉ dưỡng riêng tư 4–5 sao tại Vũng Tàu. Nguyên căn, hồ bơi riêng. Đặt trực tiếp giá tốt hơn OTA. Hotline/Zalo 0387979797.">
+<link rel="icon" type="image/png" href="img/logo-226.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#14547A; --navy-d:#0F3F5C; --copper:#C89A46; --copper-l:#DDB86A;
+    --bg:#EEF3F6; --ink:#222222; --muted:#5C6B75; --line:#D6E0E6; --white:#ffffff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:'Be Vietnam Pro',system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3,.display{font-family:'Playfair Display',serif;font-weight:600;line-height:1.15}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+  .btn{display:inline-flex;align-items:center;gap:9px;padding:15px 30px;border-radius:14px;font-weight:600;font-size:16px;cursor:pointer;border:none;transition:.25s;white-space:nowrap}
+  .btn-primary{background:var(--navy);color:#fff;box-shadow:0 8px 22px rgba(20,84,122,.28)}
+  .btn-primary:hover{background:var(--navy-d);transform:translateY(-2px);box-shadow:0 12px 28px rgba(20,84,122,.36)}
+  .btn-gold{background:var(--copper);color:#fff;box-shadow:0 8px 22px rgba(200,154,70,.32)}
+  .btn-gold:hover{background:var(--copper-l);transform:translateY(-2px)}
+  .btn-ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.55)}
+  .btn-ghost:hover{background:rgba(255,255,255,.12)}
+  .eyebrow{font-family:'Be Vietnam Pro';font-weight:600;letter-spacing:.18em;text-transform:uppercase;font-size:12px;color:var(--copper)}
+  .section{padding:84px 0}
+  .center{text-align:center}
+  .muted{color:var(--muted)}
+
+  /* NAV */
+  header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:76px}
+  .logo{display:flex;align-items:center;gap:11px;font-family:'Playfair Display';font-weight:700;font-size:22px;color:var(--navy)}
+  .logo img{height:64px;width:auto;display:block;mix-blend-mode:multiply}
+  .logo .mark{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--navy),#1d6d9c);color:var(--copper-l);display:grid;place-items:center;font-size:15px;font-weight:700;letter-spacing:.02em}
+  .nav-links{display:flex;gap:28px;align-items:center;font-size:15px;font-weight:500}
+  .nav-links a.lk{color:var(--muted)}.nav-links a.lk:hover{color:var(--navy)}
+  .nav-cta{padding:10px 20px;font-size:14px}
+  @media(max-width:860px){.nav-links .lk{display:none}}
+
+  /* HERO */
+  .hero{position:relative;min-height:64vh;display:flex;align-items:center;color:#fff;overflow:hidden}
+  .hero-bg{position:absolute;inset:0;background:
+     linear-gradient(90deg,rgba(8,32,48,.88),rgba(9,40,60,.55) 55%,rgba(9,40,60,.35)),
+     linear-gradient(180deg,rgba(9,40,60,.25),rgba(8,28,44,.6)),
+     url('img/hero.jpg') center/cover no-repeat;z-index:-1}
+  .hero-bg::after{content:"";position:absolute;inset:0;background-image:radial-gradient(circle at 82% 30%,rgba(200,154,70,.18),transparent 44%)}
+  .hero-inner{padding-top:40px;padding-bottom:40px;width:100%}
+  .hero-copy{max-width:500px}
+  .hero h1{font-size:clamp(28px,3.6vw,44px);font-weight:700;max-width:13ch}
+  .hero p.sub{font-size:clamp(15px,1.6vw,18px);max-width:40ch;margin:18px 0 28px;color:#e7eef2;font-weight:300}
+  .hero .cta-row{display:flex;gap:14px;flex-wrap:wrap}
+  .hero .tag{display:inline-block;padding:7px 16px;border:1px solid rgba(255,255,255,.3);border-radius:100px;font-size:13px;letter-spacing:.04em;margin-bottom:26px;backdrop-filter:blur(4px)}
+
+  /* TRUST BAR */
+  .trust{background:var(--navy);color:#fff;padding:26px 0}
+  .trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;text-align:center}
+  .trust-grid .n{font-family:'Playfair Display';font-size:30px;font-weight:700;color:var(--copper-l)}
+  .trust-grid .l{font-size:13.5px;color:#cfe0ea;margin-top:2px}
+  @media(max-width:760px){.trust-grid{grid-template-columns:repeat(2,1fr);gap:26px}}
+
+  /* SECTION HEAD */
+  .shead{max-width:640px;margin:0 auto 54px;text-align:center}
+  .shead h2{font-size:clamp(28px,3.6vw,42px);color:var(--navy);margin:12px 0 14px}
+  .shead p{color:var(--muted);font-size:17px}
+
+  /* VILLA CARDS */
+  .villas{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  #villas{position:relative;padding:58px 0 66px;overflow:hidden}
+  #villas::before{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(9,40,60,.82),rgba(8,28,44,.92)),url('img/hero.jpg') center/cover no-repeat}
+  #villas .wrap{position:relative;z-index:1}
+  #villas .shead{margin-bottom:32px}
+  #villas .shead h2{font-size:clamp(26px,3.4vw,42px);color:#fff}
+  #villas .shead p{color:#dbe6ee}
+  #villas .shead .eyebrow{color:var(--copper-l)}
+  #villas .center.muted{color:#b9cad6}
+  @media(max-width:900px){.villas{grid-template-columns:1fr;max-width:440px;margin:0 auto}}
+  .vcard{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 4px 16px rgba(20,84,122,.06);transition:.28s;display:flex;flex-direction:column}
+  .vcard:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(20,84,122,.15)}
+  .vphoto{aspect-ratio:16/10;position:relative;display:grid;place-items:center;color:#fff;text-align:center;font-size:13px;overflow:hidden}
+  .vphoto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+  .vphoto span{position:relative;z-index:2;background:rgba(0,0,0,.34);padding:6px 12px;border-radius:8px;backdrop-filter:blur(2px)}
+  .v1{background:linear-gradient(140deg,#0f3f5c,#2b7ca8)}
+  .v2{background:linear-gradient(140deg,#1d6d9c,#3f96c4)}
+  .v3{background:linear-gradient(140deg,#14547a,#c89a46)}
+  .badge{position:absolute;top:14px;left:14px;z-index:3;background:var(--copper);color:#fff;font-size:12px;font-weight:600;padding:6px 12px;border-radius:100px}
+  .vbody{padding:16px 18px;display:flex;flex-direction:column;gap:9px;flex:1}
+  .vbody h3{font-size:20px;color:var(--navy)}
+  .vfeat{display:flex;flex-wrap:wrap;gap:8px}
+  .vfeat span{font-size:12.5px;background:var(--bg);color:var(--navy);padding:5px 11px;border-radius:8px;border:1px solid var(--line)}
+  .price{margin-top:auto;padding-top:8px;border-top:1px dashed var(--line)}
+  .price .from{font-size:13px;color:var(--muted)}
+  .price .amt{font-family:'Playfair Display';font-size:23px;font-weight:700;color:var(--navy)}
+  .price .amt small{font-size:14px;font-weight:400;color:var(--muted)}
+
+  /* GALLERY */
+  .gtabs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:30px}
+  .gtab{padding:11px 22px;border-radius:100px;border:1.5px solid var(--line);background:#fff;color:var(--muted);font-weight:600;font-size:14.5px;cursor:pointer;font-family:inherit;transition:.2s}
+  .gtab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .gtab:hover:not(.active){border-color:var(--navy);color:var(--navy)}
+  .gpane{display:none}
+  .gpane.active{display:block}
+  .ggrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  @media(max-width:900px){.ggrid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:560px){.ggrid{grid-template-columns:repeat(2,1fr)}}
+  .gthumb{aspect-ratio:1;overflow:hidden;border-radius:12px;cursor:pointer;position:relative;background:var(--line)}
+  .gthumb img{width:100%;height:100%;object-fit:cover;transition:.35s}
+  .gthumb:hover img{transform:scale(1.07)}
+  .gthumb::after{content:"🔍";position:absolute;inset:0;display:grid;place-items:center;font-size:22px;opacity:0;background:rgba(15,63,92,.35);transition:.25s}
+  .gthumb:hover::after{opacity:1}
+  /* LIGHTBOX */
+  .lb{position:fixed;inset:0;z-index:100;background:rgba(10,30,44,.94);display:none;align-items:center;justify-content:center}
+  .lb.open{display:flex}
+  .lb img#lbImg{max-width:92vw;max-height:86vh;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .lb-close{position:absolute;top:18px;right:26px;color:#fff;font-size:38px;cursor:pointer;line-height:1;background:none;border:none}
+  .lb-nav{position:absolute;top:50%;transform:translateY(-50%);color:#fff;font-size:40px;cursor:pointer;background:rgba(255,255,255,.1);border:none;width:58px;height:58px;border-radius:50%;display:grid;place-items:center}
+  .lb-prev{left:20px}.lb-next{right:20px}
+  .lb-nav:hover{background:rgba(200,154,70,.6)}
+  .lb-count{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:#fff;font-size:14px;background:rgba(0,0,0,.4);padding:6px 16px;border-radius:100px}
+  @media(max-width:560px){.lb-nav{width:44px;height:44px;font-size:30px}}
+
+  /* PACKAGES */
+  .pkgs{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  @media(max-width:900px){.pkgs{grid-template-columns:1fr;max-width:440px;margin:0 auto}}
+  .pkg{background:#fff;border:1px solid var(--line);border-radius:20px;padding:30px 26px;position:relative;transition:.25s}
+  .pkg:hover{border-color:var(--copper)}
+  .pkg.feat{border:2px solid var(--copper);box-shadow:0 14px 36px rgba(200,154,70,.18)}
+  .pkg.feat::before{content:"⭐ Được chọn nhiều nhất";position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--copper);color:#fff;font-size:12px;font-weight:600;padding:6px 16px;border-radius:100px;white-space:nowrap}
+  .pkg .icon{font-size:32px}
+  .pkg h3{font-size:22px;color:var(--navy);margin:12px 0 6px}
+  .pkg ul{list-style:none;margin:16px 0 0;display:flex;flex-direction:column;gap:10px}
+  .pkg li{font-size:14.5px;padding-left:26px;position:relative;color:#33434d}
+  .pkg li::before{content:"✓";position:absolute;left:0;top:0;color:var(--copper);font-weight:700}
+
+  /* WHY / USP */
+  .why{background:#fff}
+  .why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+  @media(max-width:900px){.why-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.why-grid{grid-template-columns:1fr}}
+  .why-item{padding:26px;border:1px solid var(--line);border-radius:16px;background:var(--bg)}
+  .why-item .ic{width:48px;height:48px;border-radius:12px;background:var(--navy);color:var(--copper-l);display:grid;place-items:center;font-size:22px;margin-bottom:14px}
+  .why-item h4{font-size:17px;color:var(--navy);font-family:'Be Vietnam Pro';font-weight:600;margin-bottom:6px}
+  .why-item p{font-size:14px;color:var(--muted)}
+
+  /* REVIEWS */
+  .rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  @media(max-width:900px){.rev-grid{grid-template-columns:1fr;max-width:520px;margin:0 auto}}
+  .rev{background:#fff;border:1px solid var(--line);border-radius:16px;padding:26px}
+  .rev .stars{color:var(--copper);letter-spacing:2px;margin-bottom:10px}
+  .rev p{font-size:15px;color:#33434d;font-style:italic}
+  .rev .who{margin-top:16px;font-size:13.5px;font-weight:600;color:var(--navy)}
+  .rev .ph{font-size:12px;color:var(--muted);margin-top:2px}
+
+  /* GUARANTEE */
+  .guar{background:linear-gradient(135deg,var(--navy),var(--navy-d));color:#fff;border-radius:24px;padding:52px 44px;text-align:center;position:relative;overflow:hidden}
+  .guar::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% 20%,rgba(200,154,70,.24),transparent 45%)}
+  .guar .seal{position:relative;width:76px;height:76px;border-radius:50%;border:2.5px solid var(--copper-l);display:grid;place-items:center;font-size:34px;margin:0 auto 20px}
+  .guar h2{position:relative;color:#fff;font-size:clamp(26px,3.4vw,38px)}
+  .guar p{position:relative;max-width:60ch;margin:16px auto 0;color:#dce8ef;font-size:16.5px;font-weight:300}
+
+  /* BOOKING FORM */
+  #dat{background:#fff}
+  .form-wrap{display:grid;grid-template-columns:1fr 1.05fr;gap:0;border:1px solid var(--line);border-radius:24px;overflow:hidden;box-shadow:0 14px 44px rgba(20,84,122,.10)}
+  @media(max-width:860px){.form-wrap{grid-template-columns:1fr}}
+  .form-side{background:linear-gradient(160deg,var(--navy),#0d3450);color:#fff;padding:44px 38px;position:relative;overflow:hidden}
+  .form-side::after{content:"";position:absolute;bottom:-40px;right:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(200,154,70,.3),transparent 70%)}
+  .form-side h2{color:#fff;font-size:30px;position:relative}
+  .form-side p{color:#cfe0ea;margin-top:14px;position:relative;font-weight:300}
+  .form-side .contact{position:relative;margin-top:30px;display:flex;flex-direction:column;gap:14px}
+  .form-side .contact a{display:flex;align-items:center;gap:12px;font-weight:500}
+  .form-side .contact .ci{width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.12);display:grid;place-items:center;font-size:18px}
+  .form-body{padding:40px 38px;background:#fff}
+  .field{margin-bottom:18px}
+  .field label{display:block;font-size:13.5px;font-weight:600;color:var(--navy);margin-bottom:7px}
+  .field input,.field select{width:100%;padding:13px 15px;border:1.5px solid var(--line);border-radius:11px;font-size:15px;font-family:inherit;background:#fbfcfd;transition:.2s}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--navy);background:#fff}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:480px){.frow{grid-template-columns:1fr}}
+  .form-note{font-size:12.5px;color:var(--muted);margin-top:10px;text-align:center}
+  #okMsg{display:none;background:#e8f5ec;border:1px solid #b7ddc4;color:#1c6b3a;padding:14px;border-radius:11px;font-size:14px;margin-bottom:16px}
+
+  /* FOOTER */
+  footer{background:var(--navy-d);color:#cfe0ea;padding:50px 0 26px;font-size:14px}
+  .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:34px;margin-bottom:34px}
+  @media(max-width:760px){.foot-grid{grid-template-columns:1fr;gap:24px}}
+  footer h5{color:#fff;font-family:'Be Vietnam Pro';font-weight:600;font-size:15px;margin-bottom:14px}
+  footer a:hover{color:var(--copper-l)}
+  .foot-bot{border-top:1px solid rgba(255,255,255,.12);padding-top:20px;text-align:center;font-size:12.5px;color:#8fb0c2}
+
+  /* FLOATING ZALO */
+  .fab{position:fixed;bottom:22px;right:22px;z-index:60;background:var(--copper);color:#fff;padding:14px 22px;border-radius:100px;font-weight:600;box-shadow:0 10px 30px rgba(200,154,70,.45);display:flex;align-items:center;gap:9px;animation:pulse 2.4s infinite}
+  @keyframes pulse{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#" aria-label="Villa 226 — Coastal Retreat"><img src="img/logo-226.png" alt="Villa 226 — Coastal Retreat"></a>
+    <nav class="nav-links">
+      <a class="lk" href="#villas">Villa</a>
+      <a class="lk" href="#gallery">Ảnh</a>
+      <a class="lk" href="#packages">Ưu đãi</a>
+      <a class="lk" href="#why">Vì sao 226</a>
+      <a class="lk" href="#reviews">Đánh giá</a>
+      <a class="btn btn-primary nav-cta" href="#dat">Giữ chỗ ngay</a>
+    </nav>
+  </div>
+</header>
+
+<!-- VILLAS -->
+<section class="section" id="villas">
+  <div class="wrap">
+    <div class="shead">
+      <span class="eyebrow">🏝 Vũng Tàu · Villa nghỉ dưỡng 4–5 sao</span>
+      <h2>Resort thu nhỏ của riêng bạn</h2>
+      <p>Chọn nguyên căn villa riêng tư có hồ bơi tại Vũng Tàu — đặt trực tiếp, giá tốt hơn OTA. Ba villa, cùng một chuẩn 226.</p>
+    </div>
+    <div class="villas">
+
+      <div class="vcard">
+        <div class="vphoto"><img src="img/thuy-van.jpg" alt="Villa 81 Thùy Vân — hồ bơi sân trong, vòm màu"><div class="badge">Sang trọng nhất</div></div>
+        <div class="vbody">
+          <h3>81 Thùy Vân</h3>
+          <p class="muted" style="font-size:14.5px">Biệt thự trệt 400m², <strong>cách biển chỉ 100m — đi bộ 1 phút</strong>. 6 phòng ngủ, hồ bơi 50m² jacuzzi thác nước đôi, karaoke 2 mic, bida. Sức chứa 15–25 khách.</p>
+          <div class="vfeat"><span>🏖 Biển 100m</span><span>🏊 Hồ bơi jacuzzi</span><span>🛏 6 phòng ngủ</span><span>👥 15–25 khách</span><span>🎤 Karaoke</span><span>🎱 Bida</span></div>
+          <div class="price"><div class="from">Giá từ</div><div class="amt">3.000.000đ <small>/đêm (ngày thường)</small></div></div>
+          <a class="btn btn-primary" style="width:100%;justify-content:center" href="#dat" data-villa="81 Thùy Vân">Hỏi phòng trống</a>
+        </div>
+      </div>
+
+      <div class="vcard">
+        <div class="vphoto"><img src="img/vi-ba.jpg" alt="Villa 31 Vi Ba — villa hiện đại có hồ bơi"></div>
+        <div class="vbody">
+          <h3>31 Vi Ba</h3>
+          <p class="muted" style="font-size:14.5px">Villa xanh mát 5 phòng ngủ — hồ bơi 40m² sục massage, sân thượng ngắm thành phố. Karaoke 2 mic, bida. Cách biển 3 phút xe máy. Sức chứa 15–20 khách.</p>
+          <div class="vfeat"><span>🏊 Hồ bơi massage</span><span>🛏 5 phòng ngủ</span><span>👥 15–20 khách</span><span>🌆 Sân thượng</span><span>🎱 Bida</span></div>
+          <div class="price"><div class="from">Giá từ</div><div class="amt">1.500.000đ <small>/đêm (ngày thường)</small></div></div>
+          <a class="btn btn-primary" style="width:100%;justify-content:center" href="#dat" data-villa="31 Vi Ba">Hỏi phòng trống</a>
+        </div>
+      </div>
+
+      <div class="vcard">
+        <div class="vphoto"><img src="img/phuong-nam.jpg" alt="Villa E2 Phương Nam — hồ bơi jacuzzi thác nước đôi"><div class="badge">Ưu đãi ngày thường</div></div>
+        <div class="vbody">
+          <h3>E2 Phương Nam</h3>
+          <p class="muted" style="font-size:14.5px">7 phòng ngủ, sức chứa 15–20 khách — villa lớn cho nhóm đông. Hồ bơi jacuzzi có thác nước đôi, cách biển Bãi Sau chỉ 500m.</p>
+          <div class="vfeat"><span>🏊 Hồ bơi jacuzzi</span><span>🛏 7 phòng ngủ</span><span>👥 15–20 khách</span><span>🎱 Bida</span><span>⛱ Biển 500m</span></div>
+          <div class="price"><div class="from">Giá từ</div><div class="amt">1.500.000đ <small>/đêm (ngày thường)</small></div></div>
+          <a class="btn btn-primary" style="width:100%;justify-content:center" href="#dat" data-villa="E2 Phương Nam">Hỏi phòng trống</a>
+        </div>
+      </div>
+
+    </div>
+    <p class="center muted" style="margin-top:22px;font-size:13px">* Giá cuối tuần & dịp lễ khác nhau theo từng villa. Nhắn Zalo để nhận báo giá chính xác theo ngày bạn chọn.</p>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust">
+  <div class="wrap trust-grid">
+    <div><div class="n">3</div><div class="l">Villa nguyên căn tại Vũng Tàu</div></div>
+    <div><div class="n">4–5★</div><div class="l">Tiêu chuẩn nghỉ dưỡng</div></div>
+    <div><div class="n">Hồ bơi</div><div class="l">Riêng từng villa</div></div>
+    <div><div class="n">0đ phí sàn</div><div class="l">Đặt trực tiếp, giá tốt hơn OTA</div></div>
+  </div>
+</div>
+
+<!-- GALLERY -->
+<section class="section" id="gallery" style="background:var(--bg)">
+  <div class="wrap">
+    <div class="shead">
+      <span class="eyebrow">Thư viện ảnh</span>
+      <h2>Ngắm trọn không gian villa</h2>
+      <p>Ảnh thật 100% — chọn villa để xem chi tiết từng góc. Nhấn vào ảnh để phóng to.</p>
+    </div>
+    <div class="gtabs">
+      <button class="gtab active" data-pane="g-thuy-van">🏖 81 Thùy Vân</button>
+      <button class="gtab" data-pane="g-vi-ba">🌆 31 Vi Ba</button>
+      <button class="gtab" data-pane="g-phuong-nam">🏊 E2 Phương Nam</button>
+    </div>
+
+    <div class="gpane active" id="g-thuy-van"><div class="ggrid">
+      <div class="gthumb" data-full="img/gallery/thuy-van/thuy-van-1.jpg"><img src="img/gallery/thuy-van/thuy-van-1.jpg" alt="Villa 81 Thùy Vân — ảnh 1" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/thuy-van/thuy-van-2.jpg"><img src="img/gallery/thuy-van/thuy-van-2.jpg" alt="Villa 81 Thùy Vân — ảnh 2" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/thuy-van/thuy-van-3.jpg"><img src="img/gallery/thuy-van/thuy-van-3.jpg" alt="Villa 81 Thùy Vân — ảnh 3" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/thuy-van/thuy-van-4.jpg"><img src="img/gallery/thuy-van/thuy-van-4.jpg" alt="Villa 81 Thùy Vân — ảnh 4" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/thuy-van/thuy-van-5.jpg"><img src="img/gallery/thuy-van/thuy-van-5.jpg" alt="Villa 81 Thùy Vân — ảnh 5" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/thuy-van/thuy-van-6.jpg"><img src="img/gallery/thuy-van/thuy-van-6.jpg" alt="Villa 81 Thùy Vân — ảnh 6" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/thuy-van/thuy-van-7.jpg"><img src="img/gallery/thuy-van/thuy-van-7.jpg" alt="Villa 81 Thùy Vân — ảnh 7" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/thuy-van/thuy-van-8.jpg"><img src="img/gallery/thuy-van/thuy-van-8.jpg" alt="Villa 81 Thùy Vân — ảnh 8" loading="lazy"></div>
+    </div></div>
+
+    <div class="gpane" id="g-vi-ba"><div class="ggrid">
+      <div class="gthumb" data-full="img/gallery/vi-ba/vi-ba-1.jpg"><img src="img/gallery/vi-ba/vi-ba-1.jpg" alt="Villa 31 Vi Ba — ảnh 1" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/vi-ba/vi-ba-2.jpg"><img src="img/gallery/vi-ba/vi-ba-2.jpg" alt="Villa 31 Vi Ba — ảnh 2" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/vi-ba/vi-ba-3.jpg"><img src="img/gallery/vi-ba/vi-ba-3.jpg" alt="Villa 31 Vi Ba — ảnh 3" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/vi-ba/vi-ba-4.jpg"><img src="img/gallery/vi-ba/vi-ba-4.jpg" alt="Villa 31 Vi Ba — ảnh 4" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/vi-ba/vi-ba-5.jpg"><img src="img/gallery/vi-ba/vi-ba-5.jpg" alt="Villa 31 Vi Ba — ảnh 5" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/vi-ba/vi-ba-6.jpg"><img src="img/gallery/vi-ba/vi-ba-6.jpg" alt="Villa 31 Vi Ba — ảnh 6" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/vi-ba/vi-ba-7.jpg"><img src="img/gallery/vi-ba/vi-ba-7.jpg" alt="Villa 31 Vi Ba — ảnh 7" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/vi-ba/vi-ba-8.jpg"><img src="img/gallery/vi-ba/vi-ba-8.jpg" alt="Villa 31 Vi Ba — ảnh 8" loading="lazy"></div>
+    </div></div>
+
+    <div class="gpane" id="g-phuong-nam"><div class="ggrid">
+      <div class="gthumb" data-full="img/gallery/phuong-nam/phuong-nam-1.jpg"><img src="img/gallery/phuong-nam/phuong-nam-1.jpg" alt="Villa E2 Phương Nam — ảnh 1" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/phuong-nam/phuong-nam-2.jpg"><img src="img/gallery/phuong-nam/phuong-nam-2.jpg" alt="Villa E2 Phương Nam — ảnh 2" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/phuong-nam/phuong-nam-3.jpg"><img src="img/gallery/phuong-nam/phuong-nam-3.jpg" alt="Villa E2 Phương Nam — ảnh 3" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/phuong-nam/phuong-nam-4.jpg"><img src="img/gallery/phuong-nam/phuong-nam-4.jpg" alt="Villa E2 Phương Nam — ảnh 4" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/phuong-nam/phuong-nam-5.jpg"><img src="img/gallery/phuong-nam/phuong-nam-5.jpg" alt="Villa E2 Phương Nam — ảnh 5" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/phuong-nam/phuong-nam-6.jpg"><img src="img/gallery/phuong-nam/phuong-nam-6.jpg" alt="Villa E2 Phương Nam — ảnh 6" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/phuong-nam/phuong-nam-7.jpg"><img src="img/gallery/phuong-nam/phuong-nam-7.jpg" alt="Villa E2 Phương Nam — ảnh 7" loading="lazy"></div>
+      <div class="gthumb" data-full="img/gallery/phuong-nam/phuong-nam-8.jpg"><img src="img/gallery/phuong-nam/phuong-nam-8.jpg" alt="Villa E2 Phương Nam — ảnh 8" loading="lazy"></div>
+    </div></div>
+  </div>
+</section>
+
+<!-- LIGHTBOX -->
+<div class="lb" id="lb">
+  <button class="lb-close" id="lbClose" aria-label="Đóng">&times;</button>
+  <button class="lb-nav lb-prev" id="lbPrev" aria-label="Ảnh trước">&#8249;</button>
+  <img id="lbImg" src="" alt="Ảnh villa phóng to">
+  <button class="lb-nav lb-next" id="lbNext" aria-label="Ảnh sau">&#8250;</button>
+  <div class="lb-count" id="lbCount"></div>
+</div>
+
+<!-- PACKAGES -->
+<section class="section" id="packages" style="background:#fff">
+  <div class="wrap">
+    <div class="shead">
+      <span class="eyebrow">Gói đặt phòng</span>
+      <h2>Chọn kiểu nghỉ dưỡng của bạn</h2>
+      <p>Ba lựa chọn linh hoạt — dù đi cuối tuần, giữa tuần hay tổ chức sự kiện riêng.</p>
+    </div>
+    <div class="pkgs">
+      <div class="pkg">
+        <div class="icon">🏝</div>
+        <h3>Trốn phố cuối tuần</h3>
+        <p class="muted" style="font-size:14px">Nguyên villa 2N1Đ, nhận T7 – trả CN.</p>
+        <ul>
+          <li>Trọn villa riêng có hồ bơi</li>
+          <li>Nước suối welcome</li>
+          <li>Hướng dẫn check-in tận tình</li>
+          <li>Gợi ý quán ăn & điểm chơi gần</li>
+        </ul>
+      </div>
+      <div class="pkg feat">
+        <div class="icon">💼</div>
+        <h3>Ngày thường giá mềm</h3>
+        <p class="muted" style="font-size:14px">Nhận phòng T2 – T5, ưu đãi so với cuối tuần.</p>
+        <ul>
+          <li><strong>Giá ưu đãi</strong> cho các đêm trong tuần</li>
+          <li>Nhận sớm / trả muộn (tùy lịch trống)</li>
+          <li>Hợp nhóm bạn linh hoạt, retreat, làm online</li>
+          <li>Toàn bộ tiện nghi như cuối tuần</li>
+        </ul>
+      </div>
+      <div class="pkg">
+        <div class="icon">🎉</div>
+        <h3>Trọn gói sự kiện</h3>
+        <p class="muted" style="font-size:14px">Sinh nhật · team building · tiệc nhóm.</p>
+        <ul>
+          <li>Thuê trọn villa cho sự kiện riêng</li>
+          <li>Hỗ trợ kết nối đầu bếp tại chỗ</li>
+          <li>Set up BBQ, karaoke sẵn có</li>
+          <li>Phù hợp villa lớn 81 Thùy Vân</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="section why" id="why">
+  <div class="wrap">
+    <div class="shead">
+      <span class="eyebrow">Vì sao chọn Villa 226</span>
+      <h2>Đặt trực tiếp — an tâm & tiết kiệm</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-item"><div class="ic">🔑</div><h4>Nguyên căn riêng tư</h4><p>Trọn villa & hồ bơi cho riêng nhóm bạn — không chung đụng như khách sạn.</p></div>
+      <div class="why-item"><div class="ic">✨</div><h4>Chuẩn chuỗi 226</h4><p>3 villa cùng một mức sạch & dịch vụ 4–5 sao. Khăn trắng thêu logo, thay mỗi lượt khách.</p></div>
+      <div class="why-item"><div class="ic">💰</div><h4>Giá tốt hơn OTA</h4><p>Đặt thẳng với chủ villa — không gánh 15–18% phí sàn, ưu đãi về thẳng cho bạn.</p></div>
+      <div class="why-item"><div class="ic">📸</div><h4>Đúng như ảnh</h4><p>Hình ảnh & video thật 100%. Cam kết đúng cam kết — hoặc hỗ trợ đổi villa/hoàn cọc.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="section" id="reviews">
+  <div class="wrap">
+    <div class="shead">
+      <span class="eyebrow">Khách nói gì</span>
+      <h2>Trải nghiệm của khách 226</h2>
+      <p>Thay bằng review thật của khách (screenshot Zalo/Facebook hoặc trích lời).</p>
+    </div>
+    <div class="rev-grid">
+      <div class="rev"><div class="stars">★★★★★</div><p>"Villa sạch, hồ bơi đẹp đúng như hình. Cả nhà mình có không gian riêng thoải mái, chủ nhà hỗ trợ nhiệt tình."</p><div class="who">— [Tên khách]</div><div class="ph">Nhóm gia đình · 81 Thùy Vân</div></div>
+      <div class="rev"><div class="stars">★★★★★</div><p>"Đặt ngày thường giá rất hợp lý mà villa vẫn xịn. Nhóm mình 8 người ở thoải mái, sẽ quay lại."</p><div class="who">— [Tên khách]</div><div class="ph">Nhóm bạn · E2 Phương Nam</div></div>
+      <div class="rev"><div class="stars">★★★★★</div><p>"Book trực tiếp qua Zalo nhanh gọn, rẻ hơn trên app. Villa ấm cúng, hồ bơi sạch, rất đáng tiền."</p><div class="who">— [Tên khách]</div><div class="ph">Gia đình nhỏ · 31 Vi Ba</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- GUARANTEE -->
+<section class="section" style="background:var(--bg)">
+  <div class="wrap">
+    <div class="guar">
+      <div class="seal">🛡️</div>
+      <h2>Đúng như ảnh — hoặc hỗ trợ đổi villa/hoàn cọc</h2>
+      <p>Chúng tôi cam kết villa đúng hình ảnh và mô tả. Nếu tới nơi không đúng cam kết trọng yếu, quý khách được hỗ trợ đổi căn phù hợp hoặc hoàn cọc. Đặt phòng với sự an tâm trọn vẹn.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BOOKING FORM -->
+<section class="section" id="dat">
+  <div class="wrap">
+    <div class="form-wrap">
+      <div class="form-side">
+        <h2>Giữ chỗ villa của bạn</h2>
+        <p>Điền thông tin, đội ngũ 226 sẽ xác nhận phòng trống & báo giá chính xác qua Zalo trong ít phút. Cuối tuần & dịp lễ kín lịch sớm — nên giữ chỗ trước.</p>
+        <div class="contact">
+          <a href="https://zalo.me/0387979797" target="_blank" rel="noopener"><span class="ci">💬</span> Zalo: 0387979797</a>
+          <a href="tel:0387979797"><span class="ci">📞</span> Hotline: 0387 979 797</a>
+        </div>
+      </div>
+      <div class="form-body">
+        <div id="okMsg">✓ Cảm ơn quý khách! Nhấn nút Zalo bên dưới để gửi yêu cầu — đội ngũ 226 sẽ phản hồi ngay.</div>
+        <form id="bookForm">
+          <div class="field"><label>Họ và tên</label><input type="text" id="f_name" placeholder="Nguyễn Văn A" required></div>
+          <div class="field"><label>Số điện thoại / Zalo</label><input type="tel" id="f_phone" placeholder="09xx xxx xxx" required></div>
+          <div class="frow">
+            <div class="field"><label>Chọn villa</label>
+              <select id="f_villa">
+                <option>81 Thùy Vân</option>
+                <option>31 Vi Ba</option>
+                <option>E2 Phương Nam</option>
+                <option>Chưa chắc — cần tư vấn</option>
+              </select>
+            </div>
+            <div class="field"><label>Số khách</label><input type="number" id="f_guests" min="1" placeholder="8"></div>
+          </div>
+          <div class="frow">
+            <div class="field"><label>Nhận phòng</label><input type="date" id="f_in"></div>
+            <div class="field"><label>Trả phòng</label><input type="date" id="f_out"></div>
+          </div>
+          <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center">Gửi yêu cầu qua Zalo →</button>
+          <p class="form-note">Không thu phí khi gửi yêu cầu. Chỉ giữ chỗ sau khi bạn xác nhận & đặt cọc.</p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div style="display:inline-block;background:#fff;padding:12px 16px;border-radius:14px;margin-bottom:16px"><img src="img/logo-226.png" alt="Villa 226 — Coastal Retreat" style="height:70px;display:block"></div>
+        <p style="max-width:36ch">Resort thu nhỏ của riêng bạn — chuỗi villa nghỉ dưỡng riêng tư 4–5 sao tại Vũng Tàu.</p>
+      </div>
+      <div>
+        <h5>Liên hệ</h5>
+        <p>Hotline/Zalo: <a href="tel:0387979797">0387 979 797</a></p>
+        <p>Email: 226villa.travel@gmail.com</p>
+        <p>Vũng Tàu, Việt Nam</p>
+      </div>
+      <div>
+        <h5>Villa</h5>
+        <p><a href="#villas">81 Thùy Vân</a></p>
+        <p><a href="#villas">31 Vi Ba</a></p>
+        <p><a href="#villas">E2 Phương Nam</a></p>
+      </div>
+    </div>
+    <div class="foot-bot">
+      © 2026 Villa 226 — Coastal Retreat · Công ty Cổ phần Du lịch 226 · MST: 3502546503
+    </div>
+  </div>
+</footer>
+
+<a class="fab" href="#dat">💬 Giữ chỗ ngay</a>
+
+<script>
+  // Pre-select villa when clicking a villa's "Hỏi phòng trống"
+  document.querySelectorAll('[data-villa]').forEach(function(el){
+    el.addEventListener('click',function(){
+      var v=el.getAttribute('data-villa');
+      var sel=document.getElementById('f_villa');
+      for(var i=0;i<sel.options.length;i++){if(sel.options[i].text===v){sel.selectedIndex=i;}}
+    });
+  });
+
+  // Booking form -> compose message + open Zalo
+  document.getElementById('bookForm').addEventListener('submit',function(e){
+    e.preventDefault();
+    var name=document.getElementById('f_name').value.trim();
+    var phone=document.getElementById('f_phone').value.trim();
+    var villa=document.getElementById('f_villa').value;
+    var guests=document.getElementById('f_guests').value;
+    var cin=document.getElementById('f_in').value;
+    var cout=document.getElementById('f_out').value;
+    var msg='Xin chào Villa 226, tôi muốn giữ chỗ:\n'
+      +'• Tên: '+name+'\n'
+      +'• SĐT/Zalo: '+phone+'\n'
+      +'• Villa: '+villa+'\n'
+      +(guests?'• Số khách: '+guests+'\n':'')
+      +(cin?'• Nhận phòng: '+cin+'\n':'')
+      +(cout?'• Trả phòng: '+cout+'\n':'')
+      +'Vui lòng xác nhận phòng trống & báo giá giúp tôi. Cảm ơn!';
+    document.getElementById('okMsg').style.display='block';
+    document.getElementById('okMsg').scrollIntoView({behavior:'smooth',block:'center'});
+    // Open Zalo chat (guest pastes the prefilled message)
+    try{ navigator.clipboard && navigator.clipboard.writeText(msg); }catch(err){}
+    window.open('https://zalo.me/0387979797','_blank');
+    console.log(msg);
+  });
+
+  // Gallery tabs
+  document.querySelectorAll('.gtab').forEach(function(t){
+    t.addEventListener('click',function(){
+      document.querySelectorAll('.gtab').forEach(function(x){x.classList.remove('active')});
+      document.querySelectorAll('.gpane').forEach(function(x){x.classList.remove('active')});
+      t.classList.add('active');
+      document.getElementById(t.dataset.pane).classList.add('active');
+    });
+  });
+
+  // Lightbox
+  var lb=document.getElementById('lb'),lbImg=document.getElementById('lbImg'),lbCount=document.getElementById('lbCount');
+  var curList=[],curIdx=0;
+  function showLb(){lbImg.src=curList[curIdx];lbCount.textContent=(curIdx+1)+' / '+curList.length;}
+  function openLb(list,idx){curList=list;curIdx=idx;showLb();lb.classList.add('open');document.body.style.overflow='hidden';}
+  function closeLb(){lb.classList.remove('open');document.body.style.overflow='';}
+  document.querySelectorAll('.gpane').forEach(function(pane){
+    var thumbs=Array.prototype.slice.call(pane.querySelectorAll('.gthumb'));
+    var list=thumbs.map(function(t){return t.dataset.full});
+    thumbs.forEach(function(t,i){t.addEventListener('click',function(){openLb(list,i)})});
+  });
+  document.getElementById('lbClose').onclick=closeLb;
+  document.getElementById('lbPrev').onclick=function(e){e.stopPropagation();curIdx=(curIdx-1+curList.length)%curList.length;showLb();};
+  document.getElementById('lbNext').onclick=function(e){e.stopPropagation();curIdx=(curIdx+1)%curList.length;showLb();};
+  lb.addEventListener('click',function(e){if(e.target===lb)closeLb();});
+  document.addEventListener('keydown',function(e){
+    if(!lb.classList.contains('open'))return;
+    if(e.key==='Escape')closeLb();
+    if(e.key==='ArrowRight')document.getElementById('lbNext').click();
+    if(e.key==='ArrowLeft')document.getElementById('lbPrev').click();
+  });
+</script>
+</body>
+</html>
