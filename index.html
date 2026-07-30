@@ -83,9 +83,12 @@
   @media(max-width:900px){.villas{grid-template-columns:1fr;max-width:440px;margin:0 auto}}
   .vcard{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:0 4px 16px rgba(20,84,122,.06);transition:.28s;display:flex;flex-direction:column}
   .vcard:hover{transform:translateY(-6px);box-shadow:0 18px 40px rgba(20,84,122,.15)}
-  .vphoto{aspect-ratio:16/10;position:relative;display:grid;place-items:center;color:#fff;text-align:center;font-size:13px;overflow:hidden}
-  .vphoto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+  .vphoto{aspect-ratio:16/10;position:relative;display:grid;place-items:center;color:#fff;text-align:center;font-size:13px;overflow:hidden;cursor:pointer}
+  .vphoto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;transition:.35s}
+  .vphoto:hover img{transform:scale(1.05)}
   .vphoto span{position:relative;z-index:2;background:rgba(0,0,0,.34);padding:6px 12px;border-radius:8px;backdrop-filter:blur(2px)}
+  .vphoto .viewhint{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:14.5px;background:rgba(15,63,92,0);opacity:0;transition:.25s}
+  .vphoto:hover .viewhint{opacity:1;background:rgba(15,63,92,.5)}
   .v1{background:linear-gradient(140deg,#0f3f5c,#2b7ca8)}
   .v2{background:linear-gradient(140deg,#1d6d9c,#3f96c4)}
   .v3{background:linear-gradient(140deg,#14547a,#c89a46)}
@@ -99,13 +102,7 @@
   .price .amt{font-family:'Playfair Display';font-size:23px;font-weight:700;color:var(--navy)}
   .price .amt small{font-size:14px;font-weight:400;color:var(--muted)}
 
-  /* GALLERY */
-  .gtabs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:30px}
-  .gtab{padding:11px 22px;border-radius:100px;border:1.5px solid var(--line);background:#fff;color:var(--muted);font-weight:600;font-size:14.5px;cursor:pointer;font-family:inherit;transition:.2s}
-  .gtab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
-  .gtab:hover:not(.active){border-color:var(--navy);color:var(--navy)}
-  .gpane{display:none}
-  .gpane.active{display:block}
+  /* VILLA PHOTOS GRID (used inside modal) */
   .ggrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
   @media(max-width:900px){.ggrid{grid-template-columns:repeat(3,1fr)}}
   @media(max-width:560px){.ggrid{grid-template-columns:repeat(2,1fr)}}
@@ -114,6 +111,14 @@
   .gthumb:hover img{transform:scale(1.07)}
   .gthumb::after{content:"🔍";position:absolute;inset:0;display:grid;place-items:center;font-size:22px;opacity:0;background:rgba(15,63,92,.35);transition:.25s}
   .gthumb:hover::after{opacity:1}
+  /* VILLA PHOTOS MODAL */
+  .gmodal{position:fixed;inset:0;z-index:99;background:rgba(10,30,44,.92);display:none;align-items:flex-start;justify-content:center;padding:50px 16px;overflow-y:auto}
+  .gmodal.open{display:flex}
+  .gmodal-card{background:#fff;border-radius:20px;max-width:1020px;width:100%;padding:28px 30px 34px;position:relative}
+  .gmodal-close{position:absolute;top:14px;right:18px;font-size:34px;line-height:1;background:none;border:none;cursor:pointer;color:var(--muted)}
+  .gmodal-close:hover{color:var(--navy)}
+  .gmodal-title{font-family:'Playfair Display';color:var(--navy);font-size:clamp(20px,2.6vw,28px);margin:0 44px 20px 0}
+
   /* LIGHTBOX */
   .lb{position:fixed;inset:0;z-index:100;background:rgba(10,30,44,.94);display:none;align-items:center;justify-content:center}
   .lb.open{display:flex}
@@ -206,7 +211,6 @@
     <a class="logo" href="#" aria-label="Villa 226 — Coastal Retreat"><img src="img/logo-226.png" alt="Villa 226 — Coastal Retreat"></a>
     <nav class="nav-links">
       <a class="lk" href="#villas">Villa</a>
-      <a class="lk" href="#gallery">Ảnh</a>
       <a class="lk" href="#packages">Ưu đãi</a>
       <a class="lk" href="#why">Vì sao 226</a>
       <a class="lk" href="#reviews">Đánh giá</a>
@@ -226,7 +230,7 @@
     <div class="villas">
 
       <div class="vcard">
-        <div class="vphoto"><img src="img/thuy-van.jpg" alt="Villa 81 Thùy Vân — hồ bơi sân trong, vòm màu"><div class="badge">Sang trọng nhất</div></div>
+        <div class="vphoto" data-gallery="g-thuy-van"><img src="img/thuy-van.jpg" alt="Villa 81 Thùy Vân — hồ bơi sân trong, vòm màu"><div class="badge">Sang trọng nhất</div><div class="viewhint">📷 Xem 16 ảnh</div></div>
         <div class="vbody">
           <h3>81 Thùy Vân</h3>
           <p class="muted" style="font-size:14.5px">Biệt thự trệt 400m², <strong>cách biển chỉ 100m — đi bộ 1 phút</strong>. 6 phòng ngủ, hồ bơi 50m² jacuzzi thác nước đôi, karaoke 2 mic, bida. Sức chứa 15–25 khách.</p>
@@ -237,7 +241,7 @@
       </div>
 
       <div class="vcard">
-        <div class="vphoto"><img src="img/vi-ba.jpg" alt="Villa 31 Vi Ba — villa hiện đại có hồ bơi"></div>
+        <div class="vphoto" data-gallery="g-vi-ba"><img src="img/vi-ba.jpg" alt="Villa 31 Vi Ba — villa hiện đại có hồ bơi"><div class="viewhint">📷 Xem 16 ảnh</div></div>
         <div class="vbody">
           <h3>31 Vi Ba</h3>
           <p class="muted" style="font-size:14.5px">Villa xanh mát 5 phòng ngủ — hồ bơi 40m² sục massage, sân thượng ngắm thành phố. Karaoke 2 mic, bida. Cách biển 3 phút xe máy. Sức chứa 15–20 khách.</p>
@@ -248,7 +252,7 @@
       </div>
 
       <div class="vcard">
-        <div class="vphoto"><img src="img/phuong-nam.jpg" alt="Villa E2 Phương Nam — hồ bơi jacuzzi thác nước đôi"><div class="badge">Ưu đãi ngày thường</div></div>
+        <div class="vphoto" data-gallery="g-phuong-nam"><img src="img/phuong-nam.jpg" alt="Villa E2 Phương Nam — hồ bơi jacuzzi thác nước đôi"><div class="badge">Ưu đãi ngày thường</div><div class="viewhint">📷 Xem 16 ảnh</div></div>
         <div class="vbody">
           <h3>E2 Phương Nam</h3>
           <p class="muted" style="font-size:14.5px">7 phòng ngủ, sức chứa 15–20 khách — villa lớn cho nhóm đông. Hồ bơi jacuzzi có thác nước đôi, cách biển Bãi Sau chỉ 500m.</p>
@@ -273,55 +277,6 @@
   </div>
 </div>
 
-<!-- GALLERY -->
-<section class="section" id="gallery" style="background:var(--bg)">
-  <div class="wrap">
-    <div class="shead">
-      <span class="eyebrow">Thư viện ảnh</span>
-      <h2>Ngắm trọn không gian villa</h2>
-      <p>Ảnh thật 100% — chọn villa để xem chi tiết từng góc. Nhấn vào ảnh để phóng to.</p>
-    </div>
-    <div class="gtabs">
-      <button class="gtab active" data-pane="g-thuy-van">🏖 81 Thùy Vân</button>
-      <button class="gtab" data-pane="g-vi-ba">🌆 31 Vi Ba</button>
-      <button class="gtab" data-pane="g-phuong-nam">🏊 E2 Phương Nam</button>
-    </div>
-
-    <div class="gpane active" id="g-thuy-van"><div class="ggrid">
-      <div class="gthumb" data-full="img/gallery/thuy-van/thuy-van-1.jpg"><img src="img/gallery/thuy-van/thuy-van-1.jpg" alt="Villa 81 Thùy Vân — ảnh 1" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/thuy-van/thuy-van-2.jpg"><img src="img/gallery/thuy-van/thuy-van-2.jpg" alt="Villa 81 Thùy Vân — ảnh 2" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/thuy-van/thuy-van-3.jpg"><img src="img/gallery/thuy-van/thuy-van-3.jpg" alt="Villa 81 Thùy Vân — ảnh 3" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/thuy-van/thuy-van-4.jpg"><img src="img/gallery/thuy-van/thuy-van-4.jpg" alt="Villa 81 Thùy Vân — ảnh 4" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/thuy-van/thuy-van-5.jpg"><img src="img/gallery/thuy-van/thuy-van-5.jpg" alt="Villa 81 Thùy Vân — ảnh 5" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/thuy-van/thuy-van-6.jpg"><img src="img/gallery/thuy-van/thuy-van-6.jpg" alt="Villa 81 Thùy Vân — ảnh 6" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/thuy-van/thuy-van-7.jpg"><img src="img/gallery/thuy-van/thuy-van-7.jpg" alt="Villa 81 Thùy Vân — ảnh 7" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/thuy-van/thuy-van-8.jpg"><img src="img/gallery/thuy-van/thuy-van-8.jpg" alt="Villa 81 Thùy Vân — ảnh 8" loading="lazy"></div>
-    </div></div>
-
-    <div class="gpane" id="g-vi-ba"><div class="ggrid">
-      <div class="gthumb" data-full="img/gallery/vi-ba/vi-ba-1.jpg"><img src="img/gallery/vi-ba/vi-ba-1.jpg" alt="Villa 31 Vi Ba — ảnh 1" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/vi-ba/vi-ba-2.jpg"><img src="img/gallery/vi-ba/vi-ba-2.jpg" alt="Villa 31 Vi Ba — ảnh 2" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/vi-ba/vi-ba-3.jpg"><img src="img/gallery/vi-ba/vi-ba-3.jpg" alt="Villa 31 Vi Ba — ảnh 3" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/vi-ba/vi-ba-4.jpg"><img src="img/gallery/vi-ba/vi-ba-4.jpg" alt="Villa 31 Vi Ba — ảnh 4" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/vi-ba/vi-ba-5.jpg"><img src="img/gallery/vi-ba/vi-ba-5.jpg" alt="Villa 31 Vi Ba — ảnh 5" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/vi-ba/vi-ba-6.jpg"><img src="img/gallery/vi-ba/vi-ba-6.jpg" alt="Villa 31 Vi Ba — ảnh 6" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/vi-ba/vi-ba-7.jpg"><img src="img/gallery/vi-ba/vi-ba-7.jpg" alt="Villa 31 Vi Ba — ảnh 7" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/vi-ba/vi-ba-8.jpg"><img src="img/gallery/vi-ba/vi-ba-8.jpg" alt="Villa 31 Vi Ba — ảnh 8" loading="lazy"></div>
-    </div></div>
-
-    <div class="gpane" id="g-phuong-nam"><div class="ggrid">
-      <div class="gthumb" data-full="img/gallery/phuong-nam/phuong-nam-1.jpg"><img src="img/gallery/phuong-nam/phuong-nam-1.jpg" alt="Villa E2 Phương Nam — ảnh 1" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/phuong-nam/phuong-nam-2.jpg"><img src="img/gallery/phuong-nam/phuong-nam-2.jpg" alt="Villa E2 Phương Nam — ảnh 2" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/phuong-nam/phuong-nam-3.jpg"><img src="img/gallery/phuong-nam/phuong-nam-3.jpg" alt="Villa E2 Phương Nam — ảnh 3" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/phuong-nam/phuong-nam-4.jpg"><img src="img/gallery/phuong-nam/phuong-nam-4.jpg" alt="Villa E2 Phương Nam — ảnh 4" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/phuong-nam/phuong-nam-5.jpg"><img src="img/gallery/phuong-nam/phuong-nam-5.jpg" alt="Villa E2 Phương Nam — ảnh 5" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/phuong-nam/phuong-nam-6.jpg"><img src="img/gallery/phuong-nam/phuong-nam-6.jpg" alt="Villa E2 Phương Nam — ảnh 6" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/phuong-nam/phuong-nam-7.jpg"><img src="img/gallery/phuong-nam/phuong-nam-7.jpg" alt="Villa E2 Phương Nam — ảnh 7" loading="lazy"></div>
-      <div class="gthumb" data-full="img/gallery/phuong-nam/phuong-nam-8.jpg"><img src="img/gallery/phuong-nam/phuong-nam-8.jpg" alt="Villa E2 Phương Nam — ảnh 8" loading="lazy"></div>
-    </div></div>
-  </div>
-</section>
-
 <!-- LIGHTBOX -->
 <div class="lb" id="lb">
   <button class="lb-close" id="lbClose" aria-label="Đóng">&times;</button>
@@ -329,6 +284,15 @@
   <img id="lbImg" src="" alt="Ảnh villa phóng to">
   <button class="lb-nav lb-next" id="lbNext" aria-label="Ảnh sau">&#8250;</button>
   <div class="lb-count" id="lbCount"></div>
+</div>
+
+<!-- VILLA PHOTOS MODAL -->
+<div class="gmodal" id="gmodal">
+  <div class="gmodal-card">
+    <button class="gmodal-close" id="gmodalClose" aria-label="Đóng">&times;</button>
+    <h3 class="gmodal-title" id="gmodalTitle"></h3>
+    <div class="ggrid" id="gmodalGrid"></div>
+  </div>
 </div>
 
 <!-- PACKAGES -->
@@ -524,26 +488,55 @@
     console.log(msg);
   });
 
-  // Gallery tabs
-  document.querySelectorAll('.gtab').forEach(function(t){
-    t.addEventListener('click',function(){
-      document.querySelectorAll('.gtab').forEach(function(x){x.classList.remove('active')});
-      document.querySelectorAll('.gpane').forEach(function(x){x.classList.remove('active')});
-      t.classList.add('active');
-      document.getElementById(t.dataset.pane).classList.add('active');
-    });
-  });
-
   // Lightbox
   var lb=document.getElementById('lb'),lbImg=document.getElementById('lbImg'),lbCount=document.getElementById('lbCount');
   var curList=[],curIdx=0;
   function showLb(){lbImg.src=curList[curIdx];lbCount.textContent=(curIdx+1)+' / '+curList.length;}
   function openLb(list,idx){curList=list;curIdx=idx;showLb();lb.classList.add('open');document.body.style.overflow='hidden';}
   function closeLb(){lb.classList.remove('open');document.body.style.overflow='';}
-  document.querySelectorAll('.gpane').forEach(function(pane){
-    var thumbs=Array.prototype.slice.call(pane.querySelectorAll('.gthumb'));
-    var list=thumbs.map(function(t){return t.dataset.full});
-    thumbs.forEach(function(t,i){t.addEventListener('click',function(){openLb(list,i)})});
+
+  // Villa photo lists (16 ảnh/villa, khớp thư mục img/gallery/{slug}/{slug}-{n}.jpg)
+  function buildList(slug,count){
+    var arr=[];
+    for(var i=1;i<=count;i++){arr.push('img/gallery/'+slug+'/'+slug+'-'+i+'.jpg')}
+    return arr;
+  }
+  var galleryMap={
+    'g-thuy-van': buildList('thuy-van',16),
+    'g-vi-ba': buildList('vi-ba',16),
+    'g-phuong-nam': buildList('phuong-nam',16)
+  };
+
+  // Villa photos modal — shows all photos of one villa on a single page
+  var gmodal=document.getElementById('gmodal'),gmodalGrid=document.getElementById('gmodalGrid'),gmodalTitle=document.getElementById('gmodalTitle');
+  function openGmodal(list,title){
+    gmodalGrid.innerHTML='';
+    list.forEach(function(src,i){
+      var d=document.createElement('div');
+      d.className='gthumb';
+      d.innerHTML='<img src="'+src+'" loading="lazy" alt="'+title+' — ảnh '+(i+1)+'">';
+      d.addEventListener('click',function(){openLb(list,i);});
+      gmodalGrid.appendChild(d);
+    });
+    gmodalTitle.textContent=title;
+    gmodal.classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeGmodal(){gmodal.classList.remove('open');document.body.style.overflow='';}
+  document.getElementById('gmodalClose').onclick=closeGmodal;
+  gmodal.addEventListener('click',function(e){if(e.target===gmodal)closeGmodal();});
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && gmodal.classList.contains('open') && !lb.classList.contains('open')) closeGmodal();
+  });
+
+  // Click villa card photo -> open modal with all photos of that villa
+  document.querySelectorAll('.vphoto[data-gallery]').forEach(function(v){
+    v.addEventListener('click',function(){
+      var list=galleryMap[v.dataset.gallery];
+      var card=v.closest('.vcard');
+      var title=card ? card.querySelector('h3').textContent : 'Villa 226';
+      if(list && list.length) openGmodal(list,title);
+    });
   });
   document.getElementById('lbClose').onclick=closeLb;
   document.getElementById('lbPrev').onclick=function(e){e.stopPropagation();curIdx=(curIdx-1+curList.length)%curList.length;showLb();};
