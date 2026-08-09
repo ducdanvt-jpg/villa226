@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bảo trì &amp; Kỹ thuật — Quy trình Villa 226</title>
+<link rel="icon" type="image/png" href="../img/logo-226.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>:root{--navy:#14547A;--navy-d:#0F3F5C;--copper:#C89A46;--copper-l:#DDB86A;
+--bg:#EEF3F6;--ink:#222;--muted:#5C6B75;--line:#D6E0E6;--white:#fff;
+--core:#0F7A4E;--core-bg:#E4F3EC;--flex:#B07A16;--flex-bg:#FBF1DC;}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Be Vietnam Pro',system-ui,-apple-system,sans-serif;color:var(--ink);
+background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.display{font-family:'Playfair Display',serif;font-weight:600;line-height:1.18}
+a{color:inherit;text-decoration:none}
+img,svg{max-width:100%;display:block}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+.muted{color:var(--muted)}
+/* top bar */
+.topbar{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid var(--line)}
+.topbar .in{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand img{height:44px;width:auto;mix-blend-mode:multiply}
+.brand b{font-family:'Playfair Display';color:var(--navy);font-size:19px;font-weight:700}
+.back{font-size:14px;font-weight:600;color:var(--navy);border:1.5px solid var(--line);
+padding:8px 14px;border-radius:10px}
+.back:hover{border-color:var(--navy)}
+/* hero */
+.phero{background:linear-gradient(150deg,var(--navy),var(--navy-d));color:#fff;padding:46px 0 40px;position:relative;overflow:hidden}
+.phero::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% 15%,rgba(200,154,70,.22),transparent 45%)}
+.phero .wrap{position:relative}
+.eyebrow{font-weight:600;letter-spacing:.16em;text-transform:uppercase;font-size:12px;color:var(--copper-l)}
+.phero h1{font-size:clamp(26px,4vw,40px);margin:10px 0 8px;color:#fff}
+.phero p{color:#d3e2ec;max-width:60ch;font-weight:300}
+.tagcode{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);
+color:#fff;font-weight:600;font-size:13px;padding:5px 13px;border-radius:100px;margin-bottom:6px}
+/* section */
+.section{padding:40px 0}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 26px;
+margin-bottom:20px;box-shadow:0 4px 16px rgba(20,84,122,.05)}
+.card h2{color:var(--navy);font-size:22px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.card h2 .no{width:30px;height:30px;border-radius:8px;background:var(--navy);color:var(--copper-l);
+font-family:'Be Vietnam Pro';font-weight:700;font-size:15px;display:grid;place-items:center;flex:none}
+.role{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.role{grid-template-columns:1fr}}
+.role .box{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.role .box .lb{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--copper)}
+.role .box .vl{font-size:15px;color:var(--ink);margin-top:3px}
+ul.clean{list-style:none;display:flex;flex-direction:column;gap:11px}
+ul.clean li{padding-left:28px;position:relative;font-size:15.3px}
+ul.clean li::before{content:"✓";position:absolute;left:0;top:0;color:var(--copper);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.03em;padding:2px 8px;
+border-radius:6px;margin-right:8px;vertical-align:middle}
+.tag.core{background:var(--core-bg);color:var(--core)}
+.tag.flex{background:var(--flex-bg);color:var(--flex)}
+ol.steps{list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:14px}
+ol.steps li{counter-increment:s;position:relative;padding:14px 16px 14px 56px;background:var(--bg);
+border:1px solid var(--line);border-radius:12px}
+ol.steps li::before{content:counter(s);position:absolute;left:14px;top:14px;width:30px;height:30px;
+border-radius:8px;background:var(--copper);color:#fff;font-weight:700;display:grid;place-items:center}
+ol.steps li b{color:var(--navy);display:block;margin-bottom:2px}
+ol.steps li span{font-size:14.6px;color:#33434d}
+.chk{display:flex;flex-direction:column;gap:10px}
+.chk .row{display:flex;align-items:flex-start;gap:11px;font-size:15px;background:var(--bg);
+border:1px solid var(--line);border-radius:10px;padding:11px 14px}
+.chk .bx{width:20px;height:20px;border:2px solid var(--copper);border-radius:5px;flex:none;margin-top:1px}
+table{width:100%;border-collapse:collapse;font-size:14.6px}
+table th,table td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--line)}
+table th{background:var(--navy);color:#fff;font-weight:600;font-size:13.5px}
+table tr:last-child td{border-bottom:none}
+table td.t{font-weight:600;color:var(--navy)}
+.exc{display:flex;flex-direction:column;gap:14px}
+.exc .e{border-left:4px solid var(--copper);background:var(--bg);border-radius:0 12px 12px 0;padding:13px 16px}
+.exc .e b{color:var(--navy)}
+.exc .e p{font-size:14.6px;color:#33434d;margin-top:3px}
+/* self qr */
+.selfqr{display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:#fff;border:1px dashed var(--copper);
+border-radius:14px;padding:16px 18px;margin-top:20px}
+.selfqr svg{width:96px;height:96px}
+.selfqr .t{font-size:13.5px;color:var(--muted)}
+.selfqr .t b{color:var(--navy);display:block;font-size:15px}
+footer{background:var(--navy-d);color:#bcd2df;padding:30px 0;font-size:13px;text-align:center;margin-top:20px}
+footer a:hover{color:var(--copper-l)}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap in">
+<a class="brand" href="index.html"><img src="../img/logo-226.png" alt="Villa 226"><b>Villa 226</b></a>
+<a class="back" href="index.html">← Tất cả bộ phận</a>
+</div></header>
+<section class="phero"><div class="wrap">
+  <span class="tagcode">🔧 Mã bộ phận: BT</span>
+  <div class="eyebrow">Quy trình vận hành số hoá</div>
+  <h1>Bảo trì &amp; Kỹ thuật</h1>
+  <p>Giữ hạ tầng &amp; thiết bị villa luôn hoạt động an toàn: điện, nước, điều hoà, thiết bị bếp, karaoke, hệ thống hồ bơi; xử lý sự cố theo mức độ.</p>
+</div></section>
+
+<div class="wrap section">
+
+  <div class="card">
+    <h2><span class="no">i</span> Vị trí &amp; Chức năng</h2>
+    <div class="role">
+      <div class="box"><div class="lb">Chức năng chính</div><div class="vl">Giữ hạ tầng &amp; thiết bị villa luôn hoạt động an toàn: điện, nước, điều hoà, thiết bị bếp, karaoke, hệ thống hồ bơi; xử lý sự cố theo mức độ.</div></div>
+      <div class="box"><div class="lb">Tuyến báo cáo</div><div class="vl">Báo cáo: Quản lý Villa</div></div>
+      <div class="box"><div class="lb">Phối hợp / Quản lý</div><div class="vl">Phối hợp: Buồng phòng, Hồ bơi &amp; cảnh quan</div></div>
+      <div class="box"><div class="lb">Mục tiêu</div><div class="vl">Sự cố được xử lý đúng cam kết thời gian theo mức độ, không làm gián đoạn trải nghiệm khách.</div></div>
+    </div>
+    <div class="selfqr">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 41 41" class="segno"><path class="qrline" stroke="#0f3f5c" d="M2 2.5h7m1 0h5m2 0h1m3 0h2m2 0h3m4 0h7m-37 1h1m5 0h1m1 0h1m2 0h4m3 0h3m1 0h1m2 0h1m2 0h1m1 0h1m5 0h1m-37 1h1m1 0h3m1 0h1m2 0h1m5 0h3m1 0h1m1 0h1m2 0h1m2 0h1m2 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m2 0h1m1 0h2m1 0h1m3 0h2m1 0h1m2 0h2m2 0h1m1 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m5 0h1m2 0h3m2 0h2m1 0h2m5 0h1m1 0h3m1 0h1m-37 1h1m5 0h1m6 0h2m2 0h2m1 0h2m6 0h1m1 0h1m5 0h1m-37 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-27 1h2m2 0h3m1 0h3m3 0h1m2 0h2m-28 1h1m4 0h3m2 0h3m2 0h3m3 0h2m5 0h1m5 0h2m-37 1h2m5 0h1m3 0h2m1 0h3m1 0h1m1 0h4m1 0h2m1 0h2m1 0h2m1 0h1m-35 1h1m5 0h1m1 0h2m3 0h2m2 0h2m2 0h2m1 0h4m2 0h1m5 0h1m-37 1h1m4 0h1m1 0h2m2 0h2m1 0h3m5 0h1m3 0h1m1 0h1m1 0h1m1 0h2m2 0h1m-37 1h1m1 0h1m2 0h3m1 0h4m1 0h3m1 0h1m1 0h1m2 0h2m5 0h2m3 0h1m-34 1h2m3 0h2m1 0h1m1 0h1m1 0h3m4 0h3m2 0h4m1 0h1m2 0h2m-32 1h1m1 0h4m1 0h2m2 0h3m2 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m2 0h1m-37 1h4m3 0h2m4 0h2m3 0h1m2 0h2m6 0h1m2 0h3m-34 1h4m1 0h4m1 0h1m3 0h2m3 0h11m1 0h1m1 0h1m1 0h1m-36 1h1m2 0h2m1 0h1m1 0h2m1 0h4m1 0h3m5 0h4m2 0h1m1 0h1m-31 1h1m1 0h2m4 0h1m1 0h1m1 0h1m2 0h5m1 0h4m5 0h1m2 0h1m-37 1h1m1 0h1m1 0h2m6 0h2m1 0h5m2 0h2m2 0h4m6 0h1m-37 1h2m1 0h1m1 0h2m2 0h1m1 0h1m1 0h1m1 0h1m2 0h1m4 0h1m1 0h1m4 0h7m-37 1h1m1 0h2m3 0h3m2 0h1m1 0h1m1 0h2m2 0h2m1 0h1m1 0h4m2 0h3m-33 1h1m1 0h2m1 0h2m2 0h2m2 0h1m2 0h1m1 0h1m1 0h1m3 0h3m1 0h2m3 0h3m-36 1h3m1 0h1m1 0h1m1 0h4m1 0h1m1 0h1m5 0h4m1 0h1m2 0h2m1 0h1m1 0h2m-35 1h3m1 0h1m4 0h1m1 0h1m3 0h1m7 0h1m2 0h1m1 0h2m1 0h1m2 0h1m-37 1h6m2 0h3m2 0h1m1 0h1m7 0h1m3 0h2m2 0h1m1 0h1m-34 1h1m1 0h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h2m1 0h2m2 0h4m1 0h1m1 0h2m1 0h2m-37 1h1m4 0h1m1 0h1m2 0h5m1 0h1m3 0h1m1 0h1m3 0h1m2 0h1m1 0h1m2 0h1m-35 1h1m1 0h3m1 0h2m3 0h1m2 0h1m1 0h2m1 0h1m2 0h5m1 0h8m-28 1h1m1 0h2m3 0h4m4 0h1m1 0h1m1 0h2m3 0h2m1 0h1m-36 1h7m1 0h2m1 0h3m1 0h2m1 0h2m1 0h3m1 0h2m1 0h1m1 0h1m1 0h5m-37 1h1m5 0h1m2 0h1m2 0h5m2 0h2m1 0h1m1 0h1m1 0h3m3 0h2m-34 1h1m1 0h3m1 0h1m7 0h1m3 0h1m2 0h1m1 0h1m1 0h1m1 0h6m1 0h1m1 0h1m-37 1h1m1 0h3m1 0h1m4 0h2m1 0h1m6 0h1m2 0h5m1 0h1m2 0h1m1 0h1m-36 1h1m1 0h3m1 0h1m3 0h1m1 0h3m1 0h1m2 0h1m1 0h1m4 0h1m1 0h2m1 0h1m1 0h2m1 0h1m-37 1h1m5 0h1m1 0h3m2 0h1m1 0h2m1 0h3m3 0h1m1 0h1m1 0h2m2 0h2m2 0h1m-37 1h7m4 0h4m2 0h1m5 0h2m2 0h2m1 0h4m2 0h1"/></svg>
+
+      <div class="t"><b>Mã QR bộ phận BT</b>Dán mã này tại vị trí làm việc. Nhân viên quét để mở đúng quy trình của mình bất cứ lúc nào.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="no">1</span> Tiêu chuẩn bắt buộc</h2>
+    <ul class="clean"><li><span class="tag core">CORE</span>4 mức sự cố: Khẩn cấp ≤2h · Nghiêm trọng ≤4h · Thông thường ≤24h · Định kỳ theo lịch.</li><li><span class="tag core">CORE</span>Thiết bị an toàn (điện, gas, hồ bơi) kiểm tra định kỳ và ghi nhật ký.</li><li><span class="tag core">CORE</span>Không bàn giao phòng có lỗi an toàn trọng yếu cho khách.</li><li><span class="tag flex">FLEX</span>Nhà thầu kỹ thuật ngoài &amp; chu kỳ bảo trì sâu tuỳ villa.</li></ul>
+    <p class="muted" style="margin-top:14px;font-size:13px"><span class="tag core">CORE</span> chuẩn lõi — giống hệt mọi villa 226. &nbsp; <span class="tag flex">FLEX</span> linh hoạt theo từng cơ sở.</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="no">2</span> Quy trình thực hiện</h2>
+    <ol class="steps"><li><b>Tiếp nhận báo sự cố</b><span>Nhận từ Buồng phòng/Đón tiếp/khách; ghi: vị trí, mô tả, mức độ (Khẩn cấp/Nghiêm trọng/Thông thường/Định kỳ).</span></li><li><b>Phân loại &amp; cam kết thời gian</b><span>Gán mức độ và mốc xử lý tương ứng; báo lại người liên quan mốc dự kiến.</span></li><li><b>Xử lý</b><span>Khắc phục an toàn; nếu cần dừng thiết bị/khu vực, cô lập và cảnh báo rõ ràng.</span></li><li><b>Kiểm tra lại</b><span>Chạy thử sau sửa; xác nhận an toàn trước khi đưa vào sử dụng.</span></li><li><b>Ghi nhật ký &amp; báo cáo</b><span>Ghi nhật ký kỹ thuật: sự cố, nguyên nhân, cách xử lý, vật tư dùng; báo Quản lý.</span></li><li><b>Bảo trì định kỳ</b><span>Theo lịch tháng/quý: điện, nước, điều hoà, thiết bị bếp, bơm hồ bơi, PCCC.</span></li></ol>
+  </div>
+
+  <div class="card">
+    <h2><span class="no">3</span> Checklist / Biểu mẫu</h2>
+    <div class="chk"><div class="row"><div class="bx"></div><div>Sự cố đã được phân mức và gán mốc thời gian.</div></div><div class="row"><div class="bx"></div><div>Khu vực nguy hiểm đã cô lập &amp; cảnh báo (nếu cần).</div></div><div class="row"><div class="bx"></div><div>Đã chạy thử lại sau khi sửa.</div></div><div class="row"><div class="bx"></div><div>Nhật ký kỹ thuật đã ghi đầy đủ.</div></div><div class="row"><div class="bx"></div><div>Hạng mục bảo trì định kỳ tháng này đã thực hiện.</div></div></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="no">4</span> Điểm kiểm soát &amp; KPI</h2>
+    <table><thead><tr><th>Chỉ số</th><th>Mục tiêu</th></tr></thead><tbody><tr><td class="t">Tỷ lệ sự cố xử lý đúng cam kết thời gian</td><td>≥ 95%</td></tr><tr><td class="t">Sự cố lặp lại cùng hạng mục trong 30 ngày</td><td>≤ 1</td></tr><tr><td class="t">Hạng mục bảo trì định kỳ hoàn thành đúng lịch</td><td>100%</td></tr><tr><td class="t">Sự cố an toàn nghiêm trọng</td><td>0</td></tr></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2><span class="no">5</span> Xử lý ngoại lệ</h2>
+    <div class="exc"><div class="e"><b>Sự cố khẩn cấp ảnh hưởng an toàn khách</b><p>Bảo đảm an toàn trước; cô lập nguồn nguy hiểm; xử lý mức Khẩn cấp ≤2h; báo Quản lý &amp; Ban điều hành.</p></div><div class="e"><b>Vượt năng lực xử lý tại chỗ</b><p>Gọi nhà thầu đã duyệt; nếu ảnh hưởng lưu trú, phối hợp Đón tiếp phương án cho khách.</p></div></div>
+  </div>
+
+</div>
+<footer><div class="wrap">
+VILLA 226 — COASTAL RETREAT · Công ty Cổ phần Du lịch 226 · MST 3502546503<br>
+Hotline/Zalo 0387 979 797 · Hệ thống quy trình số hoá nội bộ · Phiên bản 1.0 · 08/2026
+</div></footer>
+</body></html>

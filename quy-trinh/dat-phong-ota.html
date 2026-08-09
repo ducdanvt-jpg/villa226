@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đặt phòng &amp; OTA — Quy trình Villa 226</title>
+<link rel="icon" type="image/png" href="../img/logo-226.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>:root{--navy:#14547A;--navy-d:#0F3F5C;--copper:#C89A46;--copper-l:#DDB86A;
+--bg:#EEF3F6;--ink:#222;--muted:#5C6B75;--line:#D6E0E6;--white:#fff;
+--core:#0F7A4E;--core-bg:#E4F3EC;--flex:#B07A16;--flex-bg:#FBF1DC;}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Be Vietnam Pro',system-ui,-apple-system,sans-serif;color:var(--ink);
+background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.display{font-family:'Playfair Display',serif;font-weight:600;line-height:1.18}
+a{color:inherit;text-decoration:none}
+img,svg{max-width:100%;display:block}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+.muted{color:var(--muted)}
+/* top bar */
+.topbar{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid var(--line)}
+.topbar .in{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand img{height:44px;width:auto;mix-blend-mode:multiply}
+.brand b{font-family:'Playfair Display';color:var(--navy);font-size:19px;font-weight:700}
+.back{font-size:14px;font-weight:600;color:var(--navy);border:1.5px solid var(--line);
+padding:8px 14px;border-radius:10px}
+.back:hover{border-color:var(--navy)}
+/* hero */
+.phero{background:linear-gradient(150deg,var(--navy),var(--navy-d));color:#fff;padding:46px 0 40px;position:relative;overflow:hidden}
+.phero::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% 15%,rgba(200,154,70,.22),transparent 45%)}
+.phero .wrap{position:relative}
+.eyebrow{font-weight:600;letter-spacing:.16em;text-transform:uppercase;font-size:12px;color:var(--copper-l)}
+.phero h1{font-size:clamp(26px,4vw,40px);margin:10px 0 8px;color:#fff}
+.phero p{color:#d3e2ec;max-width:60ch;font-weight:300}
+.tagcode{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);
+color:#fff;font-weight:600;font-size:13px;padding:5px 13px;border-radius:100px;margin-bottom:6px}
+/* section */
+.section{padding:40px 0}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 26px;
+margin-bottom:20px;box-shadow:0 4px 16px rgba(20,84,122,.05)}
+.card h2{color:var(--navy);font-size:22px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.card h2 .no{width:30px;height:30px;border-radius:8px;background:var(--navy);color:var(--copper-l);
+font-family:'Be Vietnam Pro';font-weight:700;font-size:15px;display:grid;place-items:center;flex:none}
+.role{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.role{grid-template-columns:1fr}}
+.role .box{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.role .box .lb{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--copper)}
+.role .box .vl{font-size:15px;color:var(--ink);margin-top:3px}
+ul.clean{list-style:none;display:flex;flex-direction:column;gap:11px}
+ul.clean li{padding-left:28px;position:relative;font-size:15.3px}
+ul.clean li::before{content:"✓";position:absolute;left:0;top:0;color:var(--copper);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.03em;padding:2px 8px;
+border-radius:6px;margin-right:8px;vertical-align:middle}
+.tag.core{background:var(--core-bg);color:var(--core)}
+.tag.flex{background:var(--flex-bg);color:var(--flex)}
+ol.steps{list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:14px}
+ol.steps li{counter-increment:s;position:relative;padding:14px 16px 14px 56px;background:var(--bg);
+border:1px solid var(--line);border-radius:12px}
+ol.steps li::before{content:counter(s);position:absolute;left:14px;top:14px;width:30px;height:30px;
+border-radius:8px;background:var(--copper);color:#fff;font-weight:700;display:grid;place-items:center}
+ol.steps li b{color:var(--navy);display:block;margin-bottom:2px}
+ol.steps li span{font-size:14.6px;color:#33434d}
+.chk{display:flex;flex-direction:column;gap:10px}
+.chk .row{display:flex;align-items:flex-start;gap:11px;font-size:15px;background:var(--bg);
+border:1px solid var(--line);border-radius:10px;padding:11px 14px}
+.chk .bx{width:20px;height:20px;border:2px solid var(--copper);border-radius:5px;flex:none;margin-top:1px}
+table{width:100%;border-collapse:collapse;font-size:14.6px}
+table th,table td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--line)}
+table th{background:var(--navy);color:#fff;font-weight:600;font-size:13.5px}
+table tr:last-child td{border-bottom:none}
+table td.t{font-weight:600;color:var(--navy)}
+.exc{display:flex;flex-direction:column;gap:14px}
+.exc .e{border-left:4px solid var(--copper);background:var(--bg);border-radius:0 12px 12px 0;padding:13px 16px}
+.exc .e b{color:var(--navy)}
+.exc .e p{font-size:14.6px;color:#33434d;margin-top:3px}
+/* self qr */
+.selfqr{display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:#fff;border:1px dashed var(--copper);
+border-radius:14px;padding:16px 18px;margin-top:20px}
+.selfqr svg{width:96px;height:96px}
+.selfqr .t{font-size:13.5px;color:var(--muted)}
+.selfqr .t b{color:var(--navy);display:block;font-size:15px}
+footer{background:var(--navy-d);color:#bcd2df;padding:30px 0;font-size:13px;text-align:center;margin-top:20px}
+footer a:hover{color:var(--copper-l)}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap in">
+<a class="brand" href="index.html"><img src="../img/logo-226.png" alt="Villa 226"><b>Villa 226</b></a>
+<a class="back" href="index.html">← Tất cả bộ phận</a>
+</div></header>
+<section class="phero"><div class="wrap">
+  <span class="tagcode">🗓️ Mã bộ phận: OTA</span>
+  <div class="eyebrow">Quy trình vận hành số hoá</div>
+  <h1>Đặt phòng &amp; OTA</h1>
+  <p>Tiếp nhận và xử lý yêu cầu đặt phòng đa kênh (Zalo, Facebook/Messenger, form website, Booking/Agoda/Airbnb); quản lý lịch &amp; giá; tuyệt đối chống trùng lịch.</p>
+</div></section>
+
+<div class="wrap section">
+
+  <div class="card">
+    <h2><span class="no">i</span> Vị trí &amp; Chức năng</h2>
+    <div class="role">
+      <div class="box"><div class="lb">Chức năng chính</div><div class="vl">Tiếp nhận và xử lý yêu cầu đặt phòng đa kênh (Zalo, Facebook/Messenger, form website, Booking/Agoda/Airbnb); quản lý lịch &amp; giá; tuyệt đối chống trùng lịch.</div></div>
+      <div class="box"><div class="lb">Tuyến báo cáo</div><div class="vl">Báo cáo: Quản lý Villa / Điều hành chuỗi</div></div>
+      <div class="box"><div class="lb">Phối hợp / Quản lý</div><div class="vl">Phối hợp: Đón tiếp &amp; CSKH, Tài chính</div></div>
+      <div class="box"><div class="lb">Mục tiêu</div><div class="vl">Không bỏ lỡ yêu cầu nào, phản hồi nhanh, chốt cọc gọn, lịch mọi kênh luôn khớp.</div></div>
+    </div>
+    <div class="selfqr">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 41 41" class="segno"><path class="qrline" stroke="#0f3f5c" d="M2 2.5h7m3 0h1m5 0h3m2 0h1m5 0h2m1 0h7m-37 1h1m5 0h1m2 0h1m3 0h2m3 0h3m1 0h5m1 0h1m1 0h1m5 0h1m-37 1h1m1 0h3m1 0h1m1 0h2m1 0h2m1 0h2m2 0h5m1 0h1m2 0h2m1 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m3 0h2m1 0h4m2 0h1m5 0h4m1 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h4m4 0h2m5 0h1m2 0h2m2 0h1m1 0h3m1 0h1m-37 1h1m5 0h1m1 0h1m4 0h2m1 0h6m6 0h1m1 0h1m5 0h1m-37 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-28 1h1m3 0h1m2 0h2m3 0h5m-25 1h1m2 0h1m1 0h1m1 0h2m2 0h1m1 0h5m1 0h4m1 0h1m1 0h3m1 0h2m1 0h1m-35 1h1m1 0h1m7 0h4m4 0h4m1 0h1m2 0h1m3 0h3m1 0h1m-29 1h1m1 0h1m2 0h2m1 0h2m7 0h1m1 0h3m1 0h1m3 0h3m-36 1h2m5 0h3m5 0h3m3 0h1m1 0h2m1 0h4m1 0h2m1 0h2m-35 1h4m1 0h3m4 0h3m1 0h1m2 0h3m1 0h1m4 0h2m2 0h2m-33 1h1m4 0h1m3 0h7m1 0h1m2 0h2m1 0h1m1 0h3m2 0h1m1 0h2m-36 1h1m1 0h2m2 0h1m9 0h2m1 0h5m2 0h3m1 0h2m1 0h3m-35 1h2m1 0h2m3 0h2m2 0h1m1 0h1m1 0h1m3 0h1m1 0h2m1 0h3m1 0h1m3 0h3m-33 1h1m1 0h1m3 0h5m1 0h5m2 0h1m4 0h4m1 0h2m1 0h1m-35 1h1m2 0h1m1 0h2m1 0h1m1 0h2m1 0h1m2 0h3m1 0h1m1 0h1m2 0h2m3 0h2m-34 1h1m1 0h2m2 0h1m2 0h5m1 0h1m3 0h9m3 0h3m-33 1h3m1 0h1m3 0h1m1 0h1m1 0h2m2 0h2m1 0h2m1 0h1m2 0h1m2 0h1m3 0h2m-35 1h7m2 0h5m2 0h4m1 0h1m2 0h1m2 0h1m2 0h1m3 0h1m1 0h1m-37 1h1m3 0h2m1 0h9m1 0h1m3 0h7m4 0h3m-35 1h2m1 0h1m1 0h2m1 0h1m2 0h1m1 0h1m2 0h1m1 0h7m2 0h3m-30 1h1m1 0h3m2 0h1m5 0h1m1 0h4m2 0h1m2 0h1m1 0h1m1 0h2m1 0h1m2 0h3m-36 1h1m1 0h1m1 0h2m2 0h3m1 0h1m2 0h1m4 0h2m2 0h3m2 0h2m2 0h2m-36 1h1m2 0h1m1 0h1m1 0h1m1 0h2m5 0h1m2 0h2m2 0h1m1 0h1m2 0h1m1 0h1m1 0h2m-32 1h1m3 0h1m1 0h2m1 0h1m2 0h2m2 0h2m1 0h1m1 0h4m1 0h2m1 0h1m1 0h2m-32 1h1m3 0h2m1 0h1m2 0h2m2 0h1m3 0h4m5 0h3m1 0h3m-37 1h3m3 0h1m4 0h2m1 0h2m1 0h1m3 0h4m2 0h6m1 0h2m-28 1h1m1 0h6m2 0h2m1 0h1m1 0h1m2 0h3m3 0h2m1 0h1m-36 1h7m2 0h1m2 0h1m1 0h1m1 0h3m1 0h1m2 0h2m3 0h1m1 0h1m1 0h4m-36 1h1m5 0h1m3 0h2m1 0h2m2 0h1m2 0h1m1 0h2m2 0h1m1 0h1m3 0h1m1 0h3m-37 1h1m1 0h3m1 0h1m1 0h1m2 0h3m1 0h1m2 0h2m2 0h3m1 0h1m1 0h7m1 0h1m-37 1h1m1 0h3m1 0h1m6 0h2m1 0h1m2 0h2m5 0h2m2 0h2m1 0h3m-36 1h1m1 0h3m1 0h1m3 0h1m1 0h1m1 0h1m2 0h1m2 0h3m2 0h2m3 0h2m1 0h1m1 0h1m-36 1h1m5 0h1m1 0h5m1 0h1m2 0h1m3 0h1m2 0h1m2 0h1m2 0h1m3 0h2m-36 1h7m5 0h5m1 0h4m1 0h2m4 0h2m1 0h1m1 0h3"/></svg>
+
+      <div class="t"><b>Mã QR bộ phận OTA</b>Dán mã này tại vị trí làm việc. Nhân viên quét để mở đúng quy trình của mình bất cứ lúc nào.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="no">1</span> Tiêu chuẩn bắt buộc</h2>
+    <ul class="clean"><li><span class="tag core">CORE</span>Phản hồi ≤ 30 phút trong giờ hành chính, ≤ 2 giờ ngoài giờ.</li><li><span class="tag core">CORE</span>Giá thống nhất mọi kênh (price parity) — ưu đãi đặt trực tiếp không phá giá công bố.</li><li><span class="tag core">CORE</span>Đồng bộ lịch mọi kênh ≤ 15 phút sau khi có thay đổi.</li><li><span class="tag core">CORE</span>Trùng lịch (overbooking) = 0.</li><li><span class="tag flex">FLEX</span>Kênh OTA đang mở &amp; tỷ trọng ngân sách quảng cáo theo từng villa/mùa.</li></ul>
+    <p class="muted" style="margin-top:14px;font-size:13px"><span class="tag core">CORE</span> chuẩn lõi — giống hệt mọi villa 226. &nbsp; <span class="tag flex">FLEX</span> linh hoạt theo từng cơ sở.</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="no">2</span> Quy trình thực hiện</h2>
+    <ol class="steps"><li><b>Tiếp nhận yêu cầu</b><span>Ghi nhận mọi tin nhắn/inquiry vào một sổ đặt phòng chung (kênh, tên, SĐT/Zalo, villa, ngày, số khách). Không để tin nào ở trạng thái chưa phản hồi quá SLA.</span></li><li><b>Xác định nhu cầu</b><span>Hỏi đủ: villa mong muốn, ngày nhận–trả, số khách (người lớn/trẻ em), nhu cầu đặc biệt (BBQ, đón đoàn, sự kiện).</span></li><li><b>Kiểm tra phòng trống</b><span>Đối chiếu lịch chung TẤT CẢ kênh. Nếu sát ngày/đoàn lớn, xác nhận lại tồn phòng thực tế trước khi báo còn phòng.</span></li><li><b>Báo giá</b><span>Báo giá đúng bảng giá theo mùa (thường/cuối tuần/cao điểm) + phụ thu vượt khách; nêu rõ ưu đãi đặt trực tiếp. Không tự ý phá giá.</span></li><li><b>Chốt &amp; thu cọc</b><span>Chốt villa + ngày; gửi thông tin cọc (mức cọc &amp; tài khoản 226 TRAVEL); xác nhận đã nhận cọc mới coi là giữ chỗ.</span></li><li><b>Xác nhận đặt phòng</b><span>Gửi bản Xác nhận đặt phòng: villa, ngày nhận (14h)–trả (12h), số khách, tổng tiền, đã cọc/còn lại, chính sách huỷ.</span></li><li><b>Khoá lịch &amp; đồng bộ</b><span>Cập nhật lịch chung + đóng ngày trên mọi kênh OTA trong ≤15 phút để tránh trùng.</span></li><li><b>Bàn giao</b><span>Chuyển thông tin khách cho Đón tiếp &amp; CSKH để chăm sóc trước nhận phòng.</span></li></ol>
+  </div>
+
+  <div class="card">
+    <h2><span class="no">3</span> Checklist / Biểu mẫu</h2>
+    <div class="chk"><div class="row"><div class="bx"></div><div>Yêu cầu đã ghi vào sổ đặt phòng chung.</div></div><div class="row"><div class="bx"></div><div>Đã đối chiếu lịch tất cả kênh trước khi báo còn phòng.</div></div><div class="row"><div class="bx"></div><div>Báo giá đúng bảng giá mùa + phụ thu.</div></div><div class="row"><div class="bx"></div><div>Đã nhận cọc trước khi khoá giữ chỗ.</div></div><div class="row"><div class="bx"></div><div>Đã đóng ngày trên mọi kênh OTA ≤15 phút.</div></div><div class="row"><div class="bx"></div><div>Đã bàn giao khách cho Đón tiếp &amp; CSKH.</div></div></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="no">4</span> Điểm kiểm soát &amp; KPI</h2>
+    <table><thead><tr><th>Chỉ số</th><th>Mục tiêu</th></tr></thead><tbody><tr><td class="t">Tỷ lệ phản hồi đúng SLA</td><td>≥ 95%</td></tr><tr><td class="t">Trùng lịch / overbooking</td><td>0</td></tr><tr><td class="t">Tỷ lệ chốt trên số inquiry</td><td>≥ 30%</td></tr><tr><td class="t">Tỷ trọng booking đặt trực tiếp</td><td>tăng theo quý</td></tr></tbody></table>
+  </div>
+
+  <div class="card">
+    <h2><span class="no">5</span> Xử lý ngoại lệ</h2>
+    <div class="exc"><div class="e"><b>Trùng lịch / overbooking</b><p>Xin lỗi ngay; ưu tiên chuyển khách sang villa 226 khác cùng phân khúc; nếu không được, hỗ trợ tìm chỗ tương đương + bù chênh lệch; ghi sự vụ và truy nguyên nguyên nhân đồng bộ.</p></div><div class="e"><b>Khách huỷ / đổi ngày</b><p>Áp đúng chính sách huỷ đã công bố; đổi ngày tuỳ tồn phòng; mọi ngoại lệ do Quản lý duyệt.</p></div><div class="e"><b>No-show</b><p>Giữ liên lạc đến hết giờ nhận phòng; áp chính sách cọc; mở lại ngày trên kênh nếu chắc chắn khách không đến.</p></div></div>
+  </div>
+
+</div>
+<footer><div class="wrap">
+VILLA 226 — COASTAL RETREAT · Công ty Cổ phần Du lịch 226 · MST 3502546503<br>
+Hotline/Zalo 0387 979 797 · Hệ thống quy trình số hoá nội bộ · Phiên bản 1.0 · 08/2026
+</div></footer>
+</body></html>
