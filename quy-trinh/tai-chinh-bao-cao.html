@@ -6,143 +6,95 @@
 <title>Tài chính &amp; Báo cáo cơ sở — Quy trình Villa 226</title>
 <link rel="icon" type="image/png" href="../img/logo-226.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>:root{--navy:#14547A;--navy-d:#0F3F5C;--copper:#C89A46;--copper-l:#DDB86A;
+<style>
+:root{--navy:#14547A;--navy-d:#0F3F5C;--copper:#C89A46;--copper-l:#DDB86A;
 --bg:#EEF3F6;--ink:#222;--muted:#5C6B75;--line:#D6E0E6;--white:#fff;
 --core:#0F7A4E;--core-bg:#E4F3EC;--flex:#B07A16;--flex-bg:#FBF1DC;}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:'Be Vietnam Pro',system-ui,-apple-system,sans-serif;color:var(--ink);
-background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
+background:var(--bg);line-height:1.62;-webkit-font-smoothing:antialiased}
 h1,h2,h3,.display{font-family:'Playfair Display',serif;font-weight:600;line-height:1.18}
 a{color:inherit;text-decoration:none}
 img,svg{max-width:100%;display:block}
 .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
 .muted{color:var(--muted)}
-/* top bar */
 .topbar{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid var(--line)}
-.topbar .in{display:flex;align-items:center;justify-content:space-between;height:64px}
+.topbar .in{display:flex;align-items:center;justify-content:space-between;height:62px}
 .brand{display:flex;align-items:center;gap:10px}
-.brand img{height:44px;width:auto;mix-blend-mode:multiply}
+.brand img{height:42px;width:auto;mix-blend-mode:multiply}
 .brand b{font-family:'Playfair Display';color:var(--navy);font-size:19px;font-weight:700}
-.back{font-size:14px;font-weight:600;color:var(--navy);border:1.5px solid var(--line);
-padding:8px 14px;border-radius:10px}
+.back{font-size:14px;font-weight:600;color:var(--navy);border:1.5px solid var(--line);padding:8px 14px;border-radius:10px}
 .back:hover{border-color:var(--navy)}
-/* hero */
-.phero{background:linear-gradient(150deg,var(--navy),var(--navy-d));color:#fff;padding:46px 0 40px;position:relative;overflow:hidden}
+.phero{background:linear-gradient(150deg,var(--navy),var(--navy-d));color:#fff;padding:42px 0 38px;position:relative;overflow:hidden}
 .phero::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% 15%,rgba(200,154,70,.22),transparent 45%)}
 .phero .wrap{position:relative}
 .eyebrow{font-weight:600;letter-spacing:.16em;text-transform:uppercase;font-size:12px;color:var(--copper-l)}
-.phero h1{font-size:clamp(26px,4vw,40px);margin:10px 0 8px;color:#fff}
-.phero p{color:#d3e2ec;max-width:60ch;font-weight:300}
-.tagcode{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);
-color:#fff;font-weight:600;font-size:13px;padding:5px 13px;border-radius:100px;margin-bottom:6px}
-/* section */
-.section{padding:40px 0}
-.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:26px 26px;
-margin-bottom:20px;box-shadow:0 4px 16px rgba(20,84,122,.05)}
-.card h2{color:var(--navy);font-size:22px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
-.card h2 .no{width:30px;height:30px;border-radius:8px;background:var(--navy);color:var(--copper-l);
-font-family:'Be Vietnam Pro';font-weight:700;font-size:15px;display:grid;place-items:center;flex:none}
-.role{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.phero h1{font-size:clamp(25px,4vw,38px);margin:9px 0 8px;color:#fff}
+.phero p{color:#d3e2ec;max-width:64ch;font-weight:300}
+.tagcode{display:inline-flex;gap:8px;align-items:center;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);
+color:#fff;font-weight:600;font-size:13px;padding:5px 13px;border-radius:100px;margin-bottom:8px}
+.section{padding:36px 0}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px 26px;margin-bottom:18px;box-shadow:0 4px 16px rgba(20,84,122,.05)}
+.card>h2{color:var(--navy);font-size:21px;margin-bottom:15px;display:flex;align-items:center;gap:11px}
+.card>h2 .no{width:30px;height:30px;border-radius:8px;background:var(--navy);color:var(--copper-l);
+font-family:'Be Vietnam Pro';font-weight:700;font-size:14px;display:grid;place-items:center;flex:none}
+.card h3.sub{color:var(--navy);font-size:16.5px;font-family:'Be Vietnam Pro';font-weight:700;margin:18px 0 10px}
+.card h3.sub:first-child{margin-top:0}
+.card p{margin:0 0 4px;font-size:15.2px}
+.card p.lead{font-size:16px;color:#33434d}
+.role{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px}
 @media(max-width:640px){.role{grid-template-columns:1fr}}
-.role .box{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
-.role .box .lb{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--copper)}
-.role .box .vl{font-size:15px;color:var(--ink);margin-top:3px}
-ul.clean{list-style:none;display:flex;flex-direction:column;gap:11px}
-ul.clean li{padding-left:28px;position:relative;font-size:15.3px}
+.role .box{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+.role .box .lb{font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--copper)}
+.role .box .vl{font-size:14.6px;color:var(--ink);margin-top:3px}
+ul.clean{list-style:none;display:flex;flex-direction:column;gap:9px;margin:2px 0}
+ul.clean li{padding-left:26px;position:relative;font-size:15px}
 ul.clean li::before{content:"✓";position:absolute;left:0;top:0;color:var(--copper);font-weight:700}
-.tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.03em;padding:2px 8px;
-border-radius:6px;margin-right:8px;vertical-align:middle}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;padding:2px 7px;border-radius:6px;margin-right:7px;vertical-align:middle}
 .tag.core{background:var(--core-bg);color:var(--core)}
 .tag.flex{background:var(--flex-bg);color:var(--flex)}
-ol.steps{list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:14px}
-ol.steps li{counter-increment:s;position:relative;padding:14px 16px 14px 56px;background:var(--bg);
-border:1px solid var(--line);border-radius:12px}
-ol.steps li::before{content:counter(s);position:absolute;left:14px;top:14px;width:30px;height:30px;
-border-radius:8px;background:var(--copper);color:#fff;font-weight:700;display:grid;place-items:center}
+ol.steps{list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:12px;margin:0}
+ol.steps li{counter-increment:s;position:relative;padding:13px 15px 13px 54px;background:var(--bg);border:1px solid var(--line);border-radius:12px}
+ol.steps li::before{content:counter(s);position:absolute;left:13px;top:13px;width:29px;height:29px;border-radius:8px;background:var(--copper);color:#fff;font-weight:700;display:grid;place-items:center}
 ol.steps li b{color:var(--navy);display:block;margin-bottom:2px}
-ol.steps li span{font-size:14.6px;color:#33434d}
-.chk{display:flex;flex-direction:column;gap:10px}
-.chk .row{display:flex;align-items:flex-start;gap:11px;font-size:15px;background:var(--bg);
-border:1px solid var(--line);border-radius:10px;padding:11px 14px}
-.chk .bx{width:20px;height:20px;border:2px solid var(--copper);border-radius:5px;flex:none;margin-top:1px}
-table{width:100%;border-collapse:collapse;font-size:14.6px}
-table th,table td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--line)}
-table th{background:var(--navy);color:#fff;font-weight:600;font-size:13.5px}
+ol.steps li span{font-size:14.4px;color:#33434d}
+.tbl{overflow-x:auto;margin:4px 0}
+table{width:100%;border-collapse:collapse;font-size:14.3px;min-width:440px}
+table th,table td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table th{background:var(--navy);color:#fff;font-weight:600;font-size:13px}
 table tr:last-child td{border-bottom:none}
-table td.t{font-weight:600;color:var(--navy)}
-.exc{display:flex;flex-direction:column;gap:14px}
-.exc .e{border-left:4px solid var(--copper);background:var(--bg);border-radius:0 12px 12px 0;padding:13px 16px}
-.exc .e b{color:var(--navy)}
-.exc .e p{font-size:14.6px;color:#33434d;margin-top:3px}
-/* self qr */
-.selfqr{display:flex;align-items:center;gap:18px;flex-wrap:wrap;background:#fff;border:1px dashed var(--copper);
-border-radius:14px;padding:16px 18px;margin-top:20px}
-.selfqr svg{width:96px;height:96px}
-.selfqr .t{font-size:13.5px;color:var(--muted)}
-.selfqr .t b{color:var(--navy);display:block;font-size:15px}
-footer{background:var(--navy-d);color:#bcd2df;padding:30px 0;font-size:13px;text-align:center;margin-top:20px}
+table td:first-child{font-weight:600;color:var(--navy)}
+table.kpi td:nth-child(2),table.kpi td:nth-child(3){font-weight:400;color:var(--ink)}
+.co{border-radius:0 12px 12px 0;padding:14px 16px 14px 17px;margin:12px 0 2px;border-left:4px solid}
+.co .ct{font-weight:700;margin-bottom:3px;font-size:14.5px}
+.co .cb{font-size:14.4px;color:#33434d}
+.co.day{background:var(--flex-bg);border-color:var(--copper)}.co.day .ct{color:#8a5e12}
+.co.never{background:#FBEBE7;border-color:#C0492E}.co.never .ct{color:#A33A22}
+.co.note{background:#EAF1F6;border-color:var(--navy)}.co.note .ct{color:var(--navy-d)}
+.co.script{background:#EFF6F1;border-color:var(--core)}.co.script .ct{color:var(--core)}
+.co.script .cb{font-style:italic}
+.selfqr{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:#fff;border:1px dashed var(--copper);border-radius:14px;padding:14px 16px;margin:14px 0 2px}
+.selfqr svg{width:88px;height:88px}
+.selfqr .t{font-size:13px;color:var(--muted)}.selfqr .t b{color:var(--navy);display:block;font-size:14.5px}
+footer{background:var(--navy-d);color:#bcd2df;padding:28px 0;font-size:13px;text-align:center;margin-top:16px}
 footer a:hover{color:var(--copper-l)}
 </style>
 </head>
 <body>
 <header class="topbar"><div class="wrap in">
 <a class="brand" href="index.html"><img src="../img/logo-226.png" alt="Villa 226"><b>Villa 226</b></a>
-<a class="back" href="index.html">← Tất cả bộ phận</a>
+<a class="back" href="index.html">← Tất cả quy trình</a>
 </div></header>
 <section class="phero"><div class="wrap">
-  <span class="tagcode">📊 Mã bộ phận: TC</span>
+  <span class="tagcode">📊 Mã: TC · Cẩm nang SOP Các Bộ Phận</span>
   <div class="eyebrow">Quy trình vận hành số hoá</div>
   <h1>Tài chính &amp; Báo cáo cơ sở</h1>
-  <p>Ghi nhận doanh thu – chi phí của villa theo mẫu chuẩn chuỗi; theo dõi cọc, công nợ; chốt báo cáo Thu–Chi đúng hạn.</p>
+  <p>Ghi chép trung thực, thống nhất mọi khoản thu–chi; cung cấp số liệu chuẩn để chuỗi so sánh chéo.</p>
 </div></section>
-
 <div class="wrap section">
-
-  <div class="card">
-    <h2><span class="no">i</span> Vị trí &amp; Chức năng</h2>
-    <div class="role">
-      <div class="box"><div class="lb">Chức năng chính</div><div class="vl">Ghi nhận doanh thu – chi phí của villa theo mẫu chuẩn chuỗi; theo dõi cọc, công nợ; chốt báo cáo Thu–Chi đúng hạn.</div></div>
-      <div class="box"><div class="lb">Tuyến báo cáo</div><div class="vl">Báo cáo: Kế toán chuỗi 226</div></div>
-      <div class="box"><div class="lb">Phối hợp / Quản lý</div><div class="vl">Phối hợp: mọi bộ phận phát sinh thu/chi</div></div>
-      <div class="box"><div class="lb">Mục tiêu</div><div class="vl">Số liệu minh bạch, đối chiếu được, báo cáo đúng hạn để so sánh chéo toàn chuỗi.</div></div>
-    </div>
-    <div class="selfqr">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 41 41" class="segno"><path class="qrline" stroke="#0f3f5c" d="M2 2.5h7m3 0h2m1 0h1m1 0h1m6 0h2m6 0h7m-37 1h1m5 0h1m1 0h4m10 0h5m1 0h1m1 0h1m5 0h1m-37 1h1m1 0h3m1 0h1m5 0h1m2 0h1m1 0h7m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h1m2 0h4m1 0h3m2 0h1m1 0h3m2 0h1m1 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h1m4 0h2m3 0h1m1 0h2m3 0h2m3 0h1m1 0h3m1 0h1m-37 1h1m5 0h1m3 0h1m2 0h1m4 0h6m2 0h1m3 0h1m5 0h1m-37 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-29 1h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h1m4 0h4m-28 1h1m1 0h4m1 0h1m1 0h1m1 0h1m2 0h1m1 0h2m4 0h1m1 0h1m2 0h3m1 0h2m1 0h1m-35 1h2m4 0h1m3 0h2m1 0h2m2 0h1m1 0h1m1 0h2m1 0h3m3 0h2m1 0h1m-32 1h1m1 0h2m2 0h1m1 0h1m1 0h1m3 0h2m1 0h1m2 0h3m1 0h4m3 0h3m-37 1h1m6 0h4m1 0h3m1 0h2m4 0h2m2 0h1m2 0h8m-37 1h1m5 0h2m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m4 0h2m3 0h1m1 0h2m1 0h1m1 0h1m-34 1h4m1 0h2m1 0h2m1 0h2m3 0h2m3 0h1m1 0h1m1 0h3m2 0h1m1 0h2m-35 1h1m1 0h1m1 0h3m2 0h1m2 0h1m3 0h6m1 0h4m1 0h1m3 0h2m1 0h1m-37 1h5m2 0h1m1 0h2m2 0h4m3 0h1m6 0h3m2 0h3m-34 1h3m1 0h3m1 0h1m2 0h1m1 0h3m1 0h1m2 0h1m3 0h1m1 0h2m1 0h1m3 0h3m-36 1h1m2 0h2m6 0h6m1 0h1m3 0h5m1 0h1m1 0h1m1 0h3m-36 1h1m2 0h1m1 0h3m2 0h1m3 0h2m3 0h5m1 0h3m1 0h1m3 0h1m2 0h1m-37 1h1m6 0h1m4 0h5m2 0h1m2 0h1m1 0h2m1 0h6m2 0h2m-33 1h1m1 0h1m1 0h2m1 0h2m2 0h1m2 0h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h2m-37 1h1m1 0h2m1 0h1m3 0h3m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m1 0h3m2 0h3m-34 1h2m2 0h3m1 0h1m1 0h2m2 0h3m4 0h1m1 0h2m1 0h2m1 0h1m2 0h1m1 0h1m1 0h1m-35 1h3m2 0h1m1 0h1m5 0h1m1 0h1m1 0h1m3 0h2m2 0h5m1 0h2m1 0h1m-36 1h1m1 0h2m1 0h2m3 0h1m4 0h2m7 0h2m1 0h1m1 0h2m-32 1h3m2 0h1m1 0h1m2 0h1m4 0h1m1 0h1m1 0h2m2 0h1m1 0h5m1 0h2m-33 1h3m1 0h5m1 0h1m1 0h2m1 0h1m1 0h1m3 0h2m3 0h3m1 0h1m1 0h1m1 0h3m-37 1h1m1 0h1m1 0h2m1 0h1m2 0h4m1 0h1m1 0h1m2 0h1m5 0h1m2 0h1m1 0h1m1 0h2m-35 1h1m1 0h6m1 0h1m2 0h9m1 0h1m1 0h2m1 0h8m-27 1h1m2 0h1m2 0h1m2 0h1m3 0h2m2 0h1m2 0h1m3 0h3m-35 1h7m2 0h1m2 0h2m1 0h1m1 0h1m2 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h5m-37 1h1m5 0h1m1 0h1m3 0h1m4 0h2m1 0h2m2 0h2m1 0h2m3 0h2m-34 1h1m1 0h3m1 0h1m1 0h9m2 0h3m1 0h2m2 0h6m3 0h1m-37 1h1m1 0h3m1 0h1m1 0h1m2 0h1m1 0h2m5 0h3m2 0h4m1 0h1m2 0h1m1 0h1m-36 1h1m1 0h3m1 0h1m3 0h2m2 0h1m1 0h2m4 0h1m1 0h2m2 0h1m2 0h6m-37 1h1m5 0h1m1 0h3m2 0h1m1 0h1m1 0h1m15 0h4m-37 1h7m2 0h1m2 0h2m3 0h4m1 0h1m1 0h1m2 0h2m1 0h1m1 0h2m2 0h1"/></svg>
-
-      <div class="t"><b>Mã QR bộ phận TC</b>Dán mã này tại vị trí làm việc. Nhân viên quét để mở đúng quy trình của mình bất cứ lúc nào.</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2><span class="no">1</span> Tiêu chuẩn bắt buộc</h2>
-    <ul class="clean"><li><span class="tag core">CORE</span>Dùng mẫu Thu–Chi thống nhất toàn chuỗi.</li><li><span class="tag core">CORE</span>Ghi doanh thu theo ngày lưu trú; tách chi phí đầu tư khỏi chi phí vận hành.</li><li><span class="tag core">CORE</span>Chốt báo cáo trước ngày 05 hằng tháng.</li><li><span class="tag core">CORE</span>Thu cọc/thanh toán qua tài khoản 226 TRAVEL, đối chiếu được.</li><li><span class="tag flex">FLEX</span>Cơ cấu chi phí chi tiết tuỳ mô hình hợp tác từng villa.</li></ul>
-    <p class="muted" style="margin-top:14px;font-size:13px"><span class="tag core">CORE</span> chuẩn lõi — giống hệt mọi villa 226. &nbsp; <span class="tag flex">FLEX</span> linh hoạt theo từng cơ sở.</p>
-  </div>
-
-  <div class="card">
-    <h2><span class="no">2</span> Quy trình thực hiện</h2>
-    <ol class="steps"><li><b>Ghi nhận doanh thu</b><span>Ghi doanh thu phòng theo ngày lưu trú + doanh thu dịch vụ; đối chiếu với sổ đặt phòng.</span></li><li><b>Theo dõi cọc &amp; công nợ</b><span>Ghi cọc đã thu, số còn lại; nhắc khách/đối tác khoản đến hạn.</span></li><li><b>Ghi nhận chi phí</b><span>Phân loại chi phí vận hành theo mẫu; tách riêng chi phí đầu tư; lưu chứng từ.</span></li><li><b>Đối chiếu</b><span>Đối chiếu thu–chi với sao kê tài khoản 226 TRAVEL; xử lý lệch.</span></li><li><b>Chốt &amp; báo cáo</b><span>Chốt Thu–Chi trước ngày 05; gửi Kế toán chuỗi để tổng hợp &amp; so sánh chéo.</span></li></ol>
-  </div>
-
-  <div class="card">
-    <h2><span class="no">3</span> Checklist / Biểu mẫu</h2>
-    <div class="chk"><div class="row"><div class="bx"></div><div>Doanh thu ghi theo ngày lưu trú, khớp sổ đặt phòng.</div></div><div class="row"><div class="bx"></div><div>Cọc &amp; công nợ được theo dõi.</div></div><div class="row"><div class="bx"></div><div>Chi phí phân loại đúng mẫu, có chứng từ.</div></div><div class="row"><div class="bx"></div><div>Đã đối chiếu với sao kê tài khoản.</div></div><div class="row"><div class="bx"></div><div>Báo cáo chốt trước ngày 05.</div></div></div>
-  </div>
-
-  <div class="card">
-    <h2><span class="no">4</span> Điểm kiểm soát &amp; KPI</h2>
-    <table><thead><tr><th>Chỉ số</th><th>Mục tiêu</th></tr></thead><tbody><tr><td class="t">Báo cáo Thu–Chi đúng hạn</td><td>100%</td></tr><tr><td class="t">Chênh lệch đối chiếu chưa xử lý</td><td>0</td></tr><tr><td class="t">Chứng từ đầy đủ cho khoản chi</td><td>100%</td></tr><tr><td class="t">Công suất &amp; doanh thu cập nhật kịp so sánh chéo</td><td>hằng tháng</td></tr></tbody></table>
-  </div>
-
-  <div class="card">
-    <h2><span class="no">5</span> Xử lý ngoại lệ</h2>
-    <div class="exc"><div class="e"><b>Lệch thu–chi khi đối chiếu</b><p>Truy nguyên chứng từ &amp; sao kê; không chốt khi còn khoản chưa rõ; báo Kế toán chuỗi.</p></div><div class="e"><b>Khách chậm thanh toán phần còn lại</b><p>Áp chính sách thanh toán trước nhận phòng; phối hợp Đón tiếp nhắc khách.</p></div></div>
-  </div>
-
+<div class="card"><h2><span class="no">i</span> Vị trí &amp; Chức năng</h2><div class="role"><div class="box"><div class="lb">Chức năng</div><div class="vl">Bộ phận chức năng — ghi lại dòng tiền của villa — nền tảng để chuỗi so sánh và ra quyết định</div></div><div class="box"><div class="lb">Mục tiêu</div><div class="vl">Số liệu minh bạch, đối chiếu được, báo cáo đúng hạn để so sánh chéo toàn chuỗi.</div></div><div class="box"><div class="lb">Nhãn tiêu chuẩn</div><div class="vl">CORE = giống hệt mọi villa · FLEX = linh hoạt theo cơ sở</div></div></div><div class="selfqr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 41 41" class="segno"><path class="qrline" stroke="#0f3f5c" d="M2 2.5h7m3 0h2m1 0h1m1 0h1m6 0h2m6 0h7m-37 1h1m5 0h1m1 0h4m10 0h5m1 0h1m1 0h1m5 0h1m-37 1h1m1 0h3m1 0h1m5 0h1m2 0h1m1 0h7m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h1m2 0h4m1 0h3m2 0h1m1 0h3m2 0h1m1 0h1m1 0h3m1 0h1m-37 1h1m1 0h3m1 0h1m1 0h1m4 0h2m3 0h1m1 0h2m3 0h2m3 0h1m1 0h3m1 0h1m-37 1h1m5 0h1m3 0h1m2 0h1m4 0h6m2 0h1m3 0h1m5 0h1m-37 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-29 1h1m1 0h2m1 0h2m1 0h1m1 0h1m1 0h1m4 0h4m-28 1h1m1 0h4m1 0h1m1 0h1m1 0h1m2 0h1m1 0h2m4 0h1m1 0h1m2 0h3m1 0h2m1 0h1m-35 1h2m4 0h1m3 0h2m1 0h2m2 0h1m1 0h1m1 0h2m1 0h3m3 0h2m1 0h1m-32 1h1m1 0h2m2 0h1m1 0h1m1 0h1m3 0h2m1 0h1m2 0h3m1 0h4m3 0h3m-37 1h1m6 0h4m1 0h3m1 0h2m4 0h2m2 0h1m2 0h8m-37 1h1m5 0h2m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m4 0h2m3 0h1m1 0h2m1 0h1m1 0h1m-34 1h4m1 0h2m1 0h2m1 0h2m3 0h2m3 0h1m1 0h1m1 0h3m2 0h1m1 0h2m-35 1h1m1 0h1m1 0h3m2 0h1m2 0h1m3 0h6m1 0h4m1 0h1m3 0h2m1 0h1m-37 1h5m2 0h1m1 0h2m2 0h4m3 0h1m6 0h3m2 0h3m-34 1h3m1 0h3m1 0h1m2 0h1m1 0h3m1 0h1m2 0h1m3 0h1m1 0h2m1 0h1m3 0h3m-36 1h1m2 0h2m6 0h6m1 0h1m3 0h5m1 0h1m1 0h1m1 0h3m-36 1h1m2 0h1m1 0h3m2 0h1m3 0h2m3 0h5m1 0h3m1 0h1m3 0h1m2 0h1m-37 1h1m6 0h1m4 0h5m2 0h1m2 0h1m1 0h2m1 0h6m2 0h2m-33 1h1m1 0h1m1 0h2m1 0h2m2 0h1m2 0h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h2m-37 1h1m1 0h2m1 0h1m3 0h3m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m1 0h3m2 0h3m-34 1h2m2 0h3m1 0h1m1 0h2m2 0h3m4 0h1m1 0h2m1 0h2m1 0h1m2 0h1m1 0h1m1 0h1m-35 1h3m2 0h1m1 0h1m5 0h1m1 0h1m1 0h1m3 0h2m2 0h5m1 0h2m1 0h1m-36 1h1m1 0h2m1 0h2m3 0h1m4 0h2m7 0h2m1 0h1m1 0h2m-32 1h3m2 0h1m1 0h1m2 0h1m4 0h1m1 0h1m1 0h2m2 0h1m1 0h5m1 0h2m-33 1h3m1 0h5m1 0h1m1 0h2m1 0h1m1 0h1m3 0h2m3 0h3m1 0h1m1 0h1m1 0h3m-37 1h1m1 0h1m1 0h2m1 0h1m2 0h4m1 0h1m1 0h1m2 0h1m5 0h1m2 0h1m1 0h1m1 0h2m-35 1h1m1 0h6m1 0h1m2 0h9m1 0h1m1 0h2m1 0h8m-27 1h1m2 0h1m2 0h1m2 0h1m3 0h2m2 0h1m2 0h1m3 0h3m-35 1h7m2 0h1m2 0h2m1 0h1m1 0h1m2 0h1m2 0h1m1 0h2m1 0h1m1 0h1m1 0h5m-37 1h1m5 0h1m1 0h1m3 0h1m4 0h2m1 0h2m2 0h2m1 0h2m3 0h2m-34 1h1m1 0h3m1 0h1m1 0h9m2 0h3m1 0h2m2 0h6m3 0h1m-37 1h1m1 0h3m1 0h1m1 0h1m2 0h1m1 0h2m5 0h3m2 0h4m1 0h1m2 0h1m1 0h1m-36 1h1m1 0h3m1 0h1m3 0h2m2 0h1m1 0h2m4 0h1m1 0h2m2 0h1m2 0h6m-37 1h1m5 0h1m1 0h3m2 0h1m1 0h1m1 0h1m15 0h4m-37 1h7m2 0h1m2 0h2m3 0h4m1 0h1m1 0h1m2 0h2m1 0h1m1 0h2m2 0h1"/></svg>
+<div class="t"><b>Mã QR quy trình này</b>Dán tại vị trí làm việc. Nhân viên quét để mở đúng quy trình bất cứ lúc nào.</div></div><div class="co day"><div class="ct">Ngày đầu tiên — Bắt đầu từ đây</div><div class="cb">1) Xem mẫu báo cáo Thu–Chi chuẩn của chuỗi — mọi villa dùng cùng một mẫu. 2) Nguyên tắc: ghi doanh thu theo NGÀY LƯU TRÚ, không phải ngày nhận tiền. 3) Tách riêng chi phí đầu tư (một lần) &amp; chi phí vận hành (hằng tháng). 4) Hạn chốt: báo cáo tháng trước ngày 05 tháng sau.</div></div></div><div class="card"><h2><span class="no">1</span> Tiêu chuẩn bắt buộc</h2><ul class="clean"><li><span class="tag core">CORE</span>Dùng đúng mẫu Thu–Chi thống nhất của chuỗi — không tự tạo mẫu riêng.</li><li><span class="tag core">CORE</span>Ghi doanh thu theo ngày lưu trú của khách (không theo ngày nhận tiền).</li><li><span class="tag core">CORE</span>Tách bạch chi phí đầu tư (một lần) khỏi chi phí vận hành (định kỳ).</li><li><span class="tag core">CORE</span>Chốt sổ và nộp báo cáo trước ngày 05 hằng tháng.</li><li><span class="tag flex">FLEX</span>Nhà cung cấp/đối tác thanh toán tại chỗ linh hoạt theo villa.</li></ul></div><div class="card"><h2><span class="no">2</span> Các bước thực hiện</h2><ol class="steps"><li><span>Ghi mọi khoản thu (tiền phòng, dịch vụ) vào mẫu Thu–Chi ngay khi phát sinh.</span></li><li><span>Ghi mọi khoản chi kèm chứng từ; phân loại đúng nhóm (vận hành / đầu tư).</span></li><li><span>Đối chiếu số tiền thực nhận với đơn đặt phòng OTA.</span></li><li><span>Cuối tháng: tổng hợp thu–chi, tính lợi nhuận ròng của villa.</span></li><li><span>Chốt sổ trước ngày 05, gửi báo cáo cho kế toán chuỗi.</span></li><li><span>Lưu chứng từ tối thiểu theo quy định để phục vụ kiểm tra và brand audit.</span></li></ol></div><div class="card"><h2><span class="no">3</span> Điểm kiểm soát (làm đúng = biết ngay)</h2><ul class="clean"><li>Báo cáo nộp đúng hạn (trước ngày 05) = 100%.</li><li>Số liệu khớp giữa OTA, tiền thực nhận và báo cáo.</li><li>Phân loại chi phí đúng, không lẫn đầu tư vào vận hành.</li></ul><div class="co note"><div class="ct">Lưu ý quan trọng</div><div class="cb">Ghi doanh thu theo ngày lưu trú và tách chi phí đầu tư khỏi vận hành là hai nguyên tắc giúp so sánh công bằng giữa các villa. Ghi sai hai điểm này sẽ làm sai lệch toàn bộ đánh giá hiệu quả của cơ sở.</div></div></div>
 </div>
-<footer><div class="wrap">
-VILLA 226 — COASTAL RETREAT · Công ty Cổ phần Du lịch 226 · MST 3502546503<br>
-Hotline/Zalo 0387 979 797 · Hệ thống quy trình số hoá nội bộ · Phiên bản 1.0 · 08/2026
-</div></footer>
+<footer><div class="wrap">226 VILLA — COASTAL RETREAT · Công ty Cổ phần Du lịch 226 · MST 3502546503<br>226 Huyền Trân Công Chúa, Phường Tam Thắng, TP. Hồ Chí Minh · 226villa.travel@gmail.com · Hotline/Zalo 0387 979 797<br>Hệ thống quy trình số hoá nội bộ · Phiên bản 1.0 · 2026</div></footer>
 </body></html>

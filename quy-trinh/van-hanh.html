@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quản lý Vận hành — Quy trình Villa 226</title>
+<link rel="icon" type="image/png" href="../img/logo-226.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#14547A;--navy-d:#0F3F5C;--copper:#C89A46;--copper-l:#DDB86A;
+--bg:#EEF3F6;--ink:#222;--muted:#5C6B75;--line:#D6E0E6;--white:#fff;
+--core:#0F7A4E;--core-bg:#E4F3EC;--flex:#B07A16;--flex-bg:#FBF1DC;}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Be Vietnam Pro',system-ui,-apple-system,sans-serif;color:var(--ink);
+background:var(--bg);line-height:1.62;-webkit-font-smoothing:antialiased}
+h1,h2,h3,.display{font-family:'Playfair Display',serif;font-weight:600;line-height:1.18}
+a{color:inherit;text-decoration:none}
+img,svg{max-width:100%;display:block}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+.muted{color:var(--muted)}
+.topbar{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid var(--line)}
+.topbar .in{display:flex;align-items:center;justify-content:space-between;height:62px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand img{height:42px;width:auto;mix-blend-mode:multiply}
+.brand b{font-family:'Playfair Display';color:var(--navy);font-size:19px;font-weight:700}
+.back{font-size:14px;font-weight:600;color:var(--navy);border:1.5px solid var(--line);padding:8px 14px;border-radius:10px}
+.back:hover{border-color:var(--navy)}
+.phero{background:linear-gradient(150deg,var(--navy),var(--navy-d));color:#fff;padding:42px 0 38px;position:relative;overflow:hidden}
+.phero::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% 15%,rgba(200,154,70,.22),transparent 45%)}
+.phero .wrap{position:relative}
+.eyebrow{font-weight:600;letter-spacing:.16em;text-transform:uppercase;font-size:12px;color:var(--copper-l)}
+.phero h1{font-size:clamp(25px,4vw,38px);margin:9px 0 8px;color:#fff}
+.phero p{color:#d3e2ec;max-width:64ch;font-weight:300}
+.tagcode{display:inline-flex;gap:8px;align-items:center;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);
+color:#fff;font-weight:600;font-size:13px;padding:5px 13px;border-radius:100px;margin-bottom:8px}
+.section{padding:36px 0}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px 26px;margin-bottom:18px;box-shadow:0 4px 16px rgba(20,84,122,.05)}
+.card>h2{color:var(--navy);font-size:21px;margin-bottom:15px;display:flex;align-items:center;gap:11px}
+.card>h2 .no{width:30px;height:30px;border-radius:8px;background:var(--navy);color:var(--copper-l);
+font-family:'Be Vietnam Pro';font-weight:700;font-size:14px;display:grid;place-items:center;flex:none}
+.card h3.sub{color:var(--navy);font-size:16.5px;font-family:'Be Vietnam Pro';font-weight:700;margin:18px 0 10px}
+.card h3.sub:first-child{margin-top:0}
+.card p{margin:0 0 4px;font-size:15.2px}
+.card p.lead{font-size:16px;color:#33434d}
+.role{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px}
+@media(max-width:640px){.role{grid-template-columns:1fr}}
+.role .box{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+.role .box .lb{font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--copper)}
+.role .box .vl{font-size:14.6px;color:var(--ink);margin-top:3px}
+ul.clean{list-style:none;display:flex;flex-direction:column;gap:9px;margin:2px 0}
+ul.clean li{padding-left:26px;position:relative;font-size:15px}
+ul.clean li::before{content:"✓";position:absolute;left:0;top:0;color:var(--copper);font-weight:700}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.03em;padding:2px 7px;border-radius:6px;margin-right:7px;vertical-align:middle}
+.tag.core{background:var(--core-bg);color:var(--core)}
+.tag.flex{background:var(--flex-bg);color:var(--flex)}
+ol.steps{list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:12px;margin:0}
+ol.steps li{counter-increment:s;position:relative;padding:13px 15px 13px 54px;background:var(--bg);border:1px solid var(--line);border-radius:12px}
+ol.steps li::before{content:counter(s);position:absolute;left:13px;top:13px;width:29px;height:29px;border-radius:8px;background:var(--copper);color:#fff;font-weight:700;display:grid;place-items:center}
+ol.steps li b{color:var(--navy);display:block;margin-bottom:2px}
+ol.steps li span{font-size:14.4px;color:#33434d}
+.tbl{overflow-x:auto;margin:4px 0}
+table{width:100%;border-collapse:collapse;font-size:14.3px;min-width:440px}
+table th,table td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table th{background:var(--navy);color:#fff;font-weight:600;font-size:13px}
+table tr:last-child td{border-bottom:none}
+table td:first-child{font-weight:600;color:var(--navy)}
+table.kpi td:nth-child(2),table.kpi td:nth-child(3){font-weight:400;color:var(--ink)}
+.co{border-radius:0 12px 12px 0;padding:14px 16px 14px 17px;margin:12px 0 2px;border-left:4px solid}
+.co .ct{font-weight:700;margin-bottom:3px;font-size:14.5px}
+.co .cb{font-size:14.4px;color:#33434d}
+.co.day{background:var(--flex-bg);border-color:var(--copper)}.co.day .ct{color:#8a5e12}
+.co.never{background:#FBEBE7;border-color:#C0492E}.co.never .ct{color:#A33A22}
+.co.note{background:#EAF1F6;border-color:var(--navy)}.co.note .ct{color:var(--navy-d)}
+.co.script{background:#EFF6F1;border-color:var(--core)}.co.script .ct{color:var(--core)}
+.co.script .cb{font-style:italic}
+.selfqr{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:#fff;border:1px dashed var(--copper);border-radius:14px;padding:14px 16px;margin:14px 0 2px}
+.selfqr svg{width:88px;height:88px}
+.selfqr .t{font-size:13px;color:var(--muted)}.selfqr .t b{color:var(--navy);display:block;font-size:14.5px}
+footer{background:var(--navy-d);color:#bcd2df;padding:28px 0;font-size:13px;text-align:center;margin-top:16px}
+footer a:hover{color:var(--copper-l)}
+</style>
+</head>
+<body>
+<header class="topbar"><div class="wrap in">
+<a class="brand" href="index.html"><img src="../img/logo-226.png" alt="Villa 226"><b>Villa 226</b></a>
+<a class="back" href="index.html">← Tất cả quy trình</a>
+</div></header>
+<section class="phero"><div class="wrap">
+  <span class="tagcode">🧭 Mã: VH · SOP-226-VH-01</span>
+  <div class="eyebrow">Quy trình vận hành số hoá</div>
+  <h1>Quản lý Vận hành</h1>
+  <p>Giữ mọi villa luôn sẵn sàng đón khách, bảo đảm chất lượng đồng nhất giữa các cơ sở và điều phối toàn bộ đội ngũ quản gia. Quyết định về CHẤT LƯỢNG và NHÂN SỰ.</p>
+</div></section>
+<div class="wrap section">
+<div class="card"><h2><span class="no">i</span> Vị trí &amp; Chức năng</h2><div class="role"><div class="box"><div class="lb">Chức danh</div><div class="vl">Quản lý Vận hành</div></div><div class="box"><div class="lb">Báo cáo trực tiếp</div><div class="vl">Giám đốc</div></div><div class="box"><div class="lb">Phối hợp ngang cấp</div><div class="vl">Quản lý Kinh doanh</div></div><div class="box"><div class="lb">Quản lý trực tiếp</div><div class="vl">Đội ngũ quản gia tại các villa</div></div></div><div class="selfqr"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 37 37" class="segno"><path class="qrline" stroke="#0f3f5c" d="M2 2.5h7m1 0h4m1 0h4m2 0h6m1 0h7m-33 1h1m5 0h1m2 0h1m2 0h3m3 0h1m1 0h2m4 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m3 0h1m1 0h1m3 0h1m1 0h5m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m4 0h4m1 0h1m1 0h2m2 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h1m2 0h1m2 0h1m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m5 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-24 1h6m1 0h1m3 0h2m2 0h1m-24 1h7m2 0h1m1 0h3m2 0h1m1 0h1m3 0h2m2 0h2m3 0h1m-26 1h3m4 0h1m2 0h1m1 0h1m2 0h2m2 0h2m1 0h4m-32 1h4m1 0h1m2 0h3m1 0h1m2 0h2m2 0h1m1 0h1m1 0h3m1 0h1m1 0h2m-32 1h1m1 0h1m1 0h1m4 0h5m1 0h4m1 0h2m3 0h2m1 0h4m-32 1h1m1 0h1m2 0h4m1 0h2m2 0h1m1 0h1m2 0h1m2 0h4m1 0h3m1 0h2m-32 1h3m1 0h1m2 0h3m3 0h1m1 0h6m1 0h1m1 0h3m1 0h4m-32 1h1m2 0h3m1 0h3m1 0h1m1 0h3m1 0h1m1 0h1m4 0h3m2 0h2m-28 1h2m1 0h1m1 0h3m5 0h2m1 0h2m3 0h6m-31 1h2m1 0h5m2 0h1m1 0h3m1 0h4m3 0h3m1 0h3m2 0h1m-32 1h2m1 0h2m3 0h2m1 0h4m1 0h1m1 0h2m1 0h2m1 0h3m1 0h2m1 0h1m-33 1h3m1 0h5m1 0h1m2 0h3m1 0h2m1 0h2m2 0h2m1 0h2m1 0h1m-31 1h3m4 0h1m2 0h4m1 0h1m2 0h4m4 0h6m-32 1h4m1 0h2m1 0h1m1 0h1m3 0h3m1 0h2m3 0h3m1 0h3m2 0h1m-33 1h1m1 0h4m2 0h1m3 0h1m3 0h2m1 0h3m1 0h2m1 0h1m3 0h1m1 0h1m-33 1h1m1 0h1m2 0h2m4 0h1m2 0h1m3 0h1m3 0h1m1 0h2m1 0h2m2 0h1m-32 1h1m2 0h3m1 0h1m1 0h1m2 0h2m3 0h1m2 0h2m1 0h1m2 0h1m1 0h3m-31 1h1m2 0h8m1 0h2m1 0h1m7 0h6m2 0h2m-25 1h2m1 0h1m2 0h1m2 0h1m1 0h2m3 0h1m3 0h1m1 0h3m-33 1h7m1 0h1m2 0h3m1 0h2m1 0h1m1 0h1m1 0h3m1 0h1m1 0h1m1 0h2m-32 1h1m5 0h1m1 0h3m3 0h1m3 0h2m1 0h1m1 0h2m3 0h4m-32 1h1m1 0h3m1 0h1m1 0h4m4 0h1m3 0h1m1 0h1m1 0h6m1 0h1m-32 1h1m1 0h3m1 0h1m1 0h1m3 0h2m2 0h1m2 0h2m2 0h3m2 0h1m3 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h1m1 0h3m5 0h1m3 0h2m1 0h2m-31 1h1m5 0h1m1 0h2m1 0h1m3 0h2m1 0h1m2 0h1m6 0h3m-31 1h7m5 0h3m1 0h1m1 0h2m2 0h4m1 0h1m3 0h1"/></svg>
+<div class="t"><b>Mã QR quy trình này</b>Dán tại vị trí làm việc. Nhân viên quét để mở đúng quy trình bất cứ lúc nào.</div></div><div class="co note"><div class="ct">Giới hạn thẩm quyền</div><div class="cb">Quản lý Vận hành KHÔNG quyết định về giá, phụ thu và mức đền bù — các nội dung này thuộc Quản lý Kinh doanh.</div></div><div class="tbl"><table><thead><tr><th>Nhóm công việc</th><th>Nội dung trách nhiệm</th></tr></thead><tbody><tr><td>Điều phối khách lưu trú</td><td>Nhận thông tin khách từ KD; hẹn giờ &amp; báo quản gia đón; đăng ký lưu trú; xử lý phát sinh</td></tr><tr><td>Kiểm tra villa định kỳ</td><td>Tối thiểu 01 lần/tuần mỗi villa; chấm theo checklist chuẩn</td></tr><tr><td>Bảo trì &amp; sự cố</td><td>Tiếp nhận, phân cấp, điều phối xử lý; quản lý đội thợ &amp; nhà cung cấp</td></tr><tr><td>Vật tư &amp; kho</td><td>Phân phát cho quản gia; duy trì tồn tối thiểu; kiểm kê cuối tháng</td></tr><tr><td>Nhân sự quản gia</td><td>Phân ca, giám sát, đào tạo, đánh giá quản gia</td></tr><tr><td>Trật tự &amp; an toàn</td><td>Nhắc trật tự sau 21:30; bảo đảm điều kiện an toàn tại villa</td></tr></tbody></table></div></div><div class="card"><h2><span class="no">1</span> Nhịp làm việc chuẩn</h2><h3 class="sub">Công việc hằng ngày</h3><div class="tbl"><table><thead><tr><th>Mốc giờ</th><th>Công việc</th></tr></thead><tbody><tr><td>08:00–08:30</td><td>Nhận danh sách khách trong ngày từ QL Kinh doanh; rà soát yêu cầu đặc biệt &amp; cam kết đã hứa</td></tr><tr><td>08:30–09:30</td><td>Liên hệ khách xác nhận giờ đến; phân công &amp; báo quản gia đón; xác nhận villa đủ vật tư</td></tr><tr><td>09:30–12:00</td><td>Giám sát chuẩn bị villa; xử lý yêu cầu bảo trì tồn đọng</td></tr><tr><td>12:00–14:00</td><td>Theo dõi trả/nhận phòng; xử lý hư hỏng, thất thoát cùng QL Kinh doanh</td></tr><tr><td>14:00–17:00</td><td>Kiểm tra villa theo lịch tuần; cấp phát vật tư; làm việc với thợ &amp; NCC</td></tr><tr><td>17:00–18:00</td><td>Kiểm tra ảnh nghiệm thu villa của quản gia; nhắc việc tồn</td></tr><tr><td>21:30</td><td>Kiểm soát trật tự villa đang có khách; hỗ trợ quản gia khi khách không hợp tác</td></tr></tbody></table></div><h3 class="sub">Hằng tuần / hằng tháng</h3><ul class="clean"><li>Tuần: kiểm tra thực địa ≥1 lần/villa (ưu tiên đột xuất); rà sự cố bảo trì; rà tồn kho; họp ngắn đội quản gia.</li><li>Tháng: kiểm kê tồn kho cùng KD; kiểm kê đồ dùng trong căn cùng quản gia; chấm KPI quản gia; brand audit từng villa gửi Giám đốc.</li></ul></div><div class="card"><h2><span class="no">2</span> Kiểm tra villa định kỳ</h2><ul class="clean"><li>Tần suất tối thiểu 01 lần/tuần mỗi villa; villa có khách liên tục hoặc mới bị phản hồi tiêu cực thì tăng tần suất.</li><li>Ưu tiên kiểm tra đột xuất, không báo trước, để thấy đúng thực trạng.</li><li>Chấm theo checklist, chụp ảnh minh chứng, gửi nhóm vận hành trong ngày.</li><li>Mỗi hạng mục chưa đạt phải có: người chịu trách nhiệm, cách khắc phục, thời hạn cụ thể.</li></ul><h3 class="sub">Checklist kiểm tra sáu khu vực [CORE]</h3><div class="tbl"><table><thead><tr><th>Khu vực</th><th>Tiêu chí Đạt (tóm tắt)</th></tr></thead><tbody><tr><td>1. Ngoài sân</td><td>Sân sạch; cây được tưới; nước hồ trong, không rong rêu/rác; biển hiệu 226 sạch &amp; đủ sáng; đèn hoạt động</td></tr><tr><td>2. Phòng khách</td><td>Bàn bida không bụi, đủ cơ &amp; bi; quạt/điều hoà không bám bụi; nội thất không hư; TV/loa/remote hoạt động</td></tr><tr><td>3. Phòng bếp</td><td>Gia vị còn hạn; dụng cụ đủ, sạch, gọn; tủ lạnh sạch không mùi; bồn rửa khô sạch; thùng rác có bọc</td></tr><tr><td>4. Phòng ngủ</td><td>Tủ không bụi; đồ vải trắng sạch, không ố/mùi, gấp đúng chuẩn; sàn không tóc; đèn/ổ điện hoạt động; điều hoà mát trong 5&#x27;</td></tr><tr><td>5. Nhà vệ sinh</td><td>Không đọng nước, không mùi; bồn cầu/lavabo/gương sạch; đủ khăn &amp; đồ dùng; máy sấy hoạt động</td></tr><tr><td>6. Kho giặt</td><td>Đồ sạch &amp; bẩn tách riêng; xếp gọn theo loại; kho khô ráo; có sổ xuất nhập đồ vải</td></tr></tbody></table></div><h3 class="sub">Thang đánh giá villa</h3><div class="tbl"><table><thead><tr><th>Mức</th><th>Điều kiện</th><th>Hành động</th></tr></thead><tbody><tr><td>Xuất sắc</td><td>Toàn bộ Đạt, không ghi chú khắc phục</td><td>Ghi nhận, làm hình mẫu cho villa khác</td></tr><tr><td>Tốt</td><td>Toàn bộ [CORE] Đạt, ≤2 ghi chú nhỏ</td><td>Khắc phục trong 48 giờ</td></tr><tr><td>Đạt</td><td>Toàn bộ [CORE] Đạt, nhiều ghi chú nhỏ</td><td>Khắc phục trong 48 giờ &amp; kiểm tra lại trong tuần</td></tr><tr><td>Chưa đạt</td><td>≥1 hạng mục [CORE] không đạt</td><td>Khắc phục trước lượt khách kế; báo Giám đốc; không nhận khách nếu liên quan an toàn/vệ sinh nghiêm trọng</td></tr></tbody></table></div></div><div class="card"><h2><span class="no">3</span> Quản lý bảo trì &amp; sự cố</h2><h3 class="sub">Phân cấp sự cố &amp; thời hạn xử lý [CORE]</h3><div class="tbl"><table><thead><tr><th>Cấp</th><th>Loại sự cố</th><th>Thời hạn</th></tr></thead><tbody><tr><td>Cấp 1 — Khẩn cấp</td><td>Mất điện/nước, cháy nổ, rò rỉ điện, sự cố an toàn hồ bơi, hỏng khoá khi có khách</td><td>Xử lý ngay ≤2 giờ; gọi báo Giám đốc</td></tr><tr><td>Cấp 2 — Ảnh hưởng trải nghiệm</td><td>Hỏng điều hoà, nóng lạnh, nghẹt cống, bơm hồ bơi hỏng, mất WiFi</td><td>Trong ngày; nếu chưa xong phải có phương án thay thế cho khách</td></tr><tr><td>Cấp 3 — Không ảnh hưởng khách</td><td>Trầy nội thất, bóng đèn phụ, sơn bong, thiết bị dự phòng hỏng</td><td>Trong 07 ngày, gộp vào lịch bảo trì định kỳ</td></tr></tbody></table></div><ol class="steps"><li><span>Tiếp nhận từ quản gia / đợt kiểm tra, kèm ảnh hiện trạng.</span></li><li><span>Phân cấp theo bảng và ghi vào sổ theo dõi bảo trì.</span></li><li><span>Liên hệ thợ/NCC; nếu vượt hạn mức, lập phiếu đề nghị chi gửi KD hoặc Giám đốc.</span></li><li><span>Trong lúc chờ, chủ động thông báo &amp; trấn an khách với thời gian dự kiến cụ thể.</span></li><li><span>Nghiệm thu, chụp ảnh kết quả, xác nhận làm cơ sở thanh toán.</span></li><li><span>Đóng sự cố, ghi rõ nguyên nhân để phân tích hỏng hóc lặp lại.</span></li></ol><div class="co note"><div class="ct">Sự cố lặp lại nhiều villa = vấn đề hệ thống</div><div class="cb">Nếu cùng một loại sự cố lặp lại ở nhiều villa, đó là vấn đề hệ thống chứ không phải lỗi một cơ sở — cần giải pháp cấp hệ thống (đổi NCC thiết bị, thay đổi định kỳ bảo dưỡng).</div></div></div><div class="card"><h2><span class="no">4</span> Quản lý &amp; đào tạo đội ngũ quản gia</h2><ul class="clean"><li>Lập lịch trực quản gia theo tuần dựa trên lịch khách; công bố chậm nhất Chủ nhật tuần liền trước.</li><li>Mỗi lượt nhận/trả phòng đều có quản gia phụ trách xác định, không để trống nhân sự.</li><li>Kiểm tra ảnh nghiệm thu villa của quản gia mỗi ngày; nhắc ngay khi thiếu hoặc chưa đạt.</li></ul><h3 class="sub">Lộ trình đào tạo</h3><div class="tbl"><table><thead><tr><th>Giai đoạn</th><th>Nội dung</th><th>Thời lượng</th></tr></thead><tbody><tr><td>Nhập việc</td><td>Hệ thống 226 &amp; lời hứa dịch vụ; quy trình đón/trả phòng; checklist nghiệm thu; các điều cấm</td><td>02 ngày kèm cặp trực tiếp</td></tr><tr><td>Thực hành có giám sát</td><td>≥3 lượt khách dưới giám sát của quản gia kinh nghiệm/QL Vận hành</td><td>01 tuần đầu</td></tr><tr><td>Đánh giá thử việc</td><td>Chấm theo checklist &amp; phản hồi khách; chỉ giao độc lập khi đạt toàn bộ [CORE]</td><td>Cuối tuần thứ hai</td></tr><tr><td>Đào tạo định kỳ</td><td>Họp tuần điểm lại phản hồi khách &amp; nhắc một chuẩn dịch vụ; đào tạo lại khi có chuẩn mới</td><td>Hằng tuần</td></tr></tbody></table></div></div><div class="card"><h2><span class="no">5</span> Chỉ tiêu đánh giá (KPI)</h2><div class="tbl"><table class="kpi"><thead><tr><th>Trục</th><th>Chỉ tiêu</th><th>Cách đo</th><th>Ngưỡng Đạt</th></tr></thead><tbody><tr><td>1. Chất lượng &amp; trải nghiệm</td><td>Điểm đánh giá TB các villa phụ trách</td><td>Kênh đặt phòng</td><td>≥4,5/5</td></tr><tr><td></td><td>Số phàn nàn vệ sinh, thiết bị, tiếng ồn</td><td>Nhóm vận hành</td><td>≤2 lượt/tháng toàn hệ thống</td></tr><tr><td>2. Quy trình vận hành</td><td>Tỷ lệ villa được kiểm tra đủ tần suất tuần</td><td>Biên bản kiểm tra</td><td>100%</td></tr><tr><td></td><td>Tỷ lệ sự cố xử lý đúng thời hạn theo phân cấp</td><td>Sổ theo dõi bảo trì</td><td>≥90%</td></tr><tr><td>3. Tài sản &amp; vật tư</td><td>Số lần villa thiếu vật tư bắt buộc khi khách nhận phòng</td><td>Ghi nhận từ quản gia &amp; khách</td><td>0 lần</td></tr><tr><td></td><td>Chênh lệch kiểm kê cuối tháng</td><td>Biên bản kiểm kê</td><td>≤2% giá trị</td></tr><tr><td>4. Tuân thủ chuẩn thương hiệu</td><td>Kết quả brand audit định kỳ</td><td>Phiếu brand audit</td><td>100% hạng mục [CORE] Đạt</td></tr><tr><td></td><td>Tỷ lệ quản gia hoàn thành đào tạo nhập việc đúng lộ trình</td><td>Hồ sơ đào tạo</td><td>100%</td></tr></tbody></table></div></div><div class="card"><h2><span class="no">6</span> Các điều cấm</h2><div class="tbl"><table><thead><tr><th>Hành vi vi phạm</th><th>Mức xử lý</th></tr></thead><tbody><tr><td>Không kiểm tra villa đủ tần suất, hoặc chấm checklist khống</td><td>Nhắc nhở văn bản · Tái phạm: kỷ luật</td></tr><tr><td>Để villa nhận khách khi chưa đạt [CORE] về vệ sinh/an toàn</td><td>Nhắc nhở văn bản &amp; chịu trách nhiệm hậu quả</td></tr><tr><td>Tự quyết về giá, phụ thu, mức đền bù với khách</td><td>Nhắc nhở bằng văn bản</td></tr><tr><td>Cấp phát vật tư không ghi chép, gây thất thoát</td><td>Bồi hoàn &amp; xử lý kỷ luật</td></tr><tr><td>Không phản hồi quản gia khi có sự cố ảnh hưởng khách đang ở</td><td>Trừ KPI · Tái phạm: nhắc nhở văn bản</td></tr><tr><td>Tiết lộ thông tin giấy tờ, hình ảnh của khách</td><td>Chấm dứt hợp đồng &amp; chịu trách nhiệm pháp luật</td></tr></tbody></table></div><h3 class="sub">Biểu mẫu kèm theo</h3><ul class="clean"><li>BM-VH-01: Checklist kiểm tra villa định kỳ (6 khu vực, thang 4 mức).</li><li>BM-VH-02: Sổ theo dõi sự cố và bảo trì.</li><li>BM-VH-03: Phiếu cấp phát vật tư cho quản gia.</li><li>BM-VH-04: Biên bản kiểm kê đồ dùng trong căn.</li><li>BM-VH-05: Lịch trực quản gia theo tuần.</li><li>BM-VH-06: Phiếu đánh giá KPI quản gia hằng tháng.</li></ul></div>
+</div>
+<footer><div class="wrap">226 VILLA — COASTAL RETREAT · Công ty Cổ phần Du lịch 226 · MST 3502546503<br>226 Huyền Trân Công Chúa, Phường Tam Thắng, TP. Hồ Chí Minh · 226villa.travel@gmail.com · Hotline/Zalo 0387 979 797<br>Hệ thống quy trình số hoá nội bộ · Phiên bản 1.0 · 2026</div></footer>
+</body></html>
