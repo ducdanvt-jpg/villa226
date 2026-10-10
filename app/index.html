@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>226 Villa</title>
+<meta name="apple-mobile-web-app-title" content="226 Villa">
+<meta name="application-name" content="226 Villa">
+<meta name="theme-color" content="#14547A">
+<meta name="robots" content="noindex,nofollow">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  :root{--navy:#14547A;--gold:#C89A46;--bg:#EEF3F6;--fg:#222222;--muted:#56687a;--card:#ffffff}
+  @media (prefers-color-scheme: dark){:root{--bg:#0d1820;--fg:#e6edf2;--muted:#9aacb9;--card:#152530}}
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;align-items:center;justify-content:center;padding:max(24px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+  main{width:100%;max-width:420px;text-align:center}
+  .logo{width:220px;max-width:70%;height:auto;background:#fff;border-radius:22px;padding:14px;box-shadow:0 6px 24px rgba(20,84,122,.12)}
+  h1{font-size:20px;margin:18px 0 4px;color:var(--navy)}
+  @media (prefers-color-scheme: dark){h1{color:#9fcbe6}}
+  .rule{width:56px;height:2px;background:var(--gold);margin:10px auto 14px;border-radius:2px}
+  p{margin:0 0 10px;color:var(--muted);font-size:14.5px}
+  .btn{display:inline-block;margin-top:8px;background:var(--navy);color:#fff;text-decoration:none;font-weight:600;padding:13px 26px;border-radius:12px}
+  .guide{margin-top:22px;text-align:left;background:var(--card);border-radius:14px;padding:14px 16px;font-size:14px}
+  .guide b{color:var(--fg)}
+  .guide ol{margin:6px 0 0;padding-left:20px}
+  .guide li{margin:4px 0;color:var(--muted)}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <img class="logo" src="logo.png" alt="226 Villa, Coastal Retreat">
+  <h1>Vận hành 226 Villa</h1>
+  <div class="rule"></div>
+  <p id="msg">Bấm nút để mở app.</p>
+  <a class="btn" id="go" href="https://claude.ai/artifact/T6DWTab6WkazofuzXzccwP">Mở app</a>
+  <div class="guide" id="guide">
+    <b>Đưa logo 226 Villa ra màn hình chính</b>
+    <ol>
+      <li>iPhone: mở trang này bằng Safari, bấm nút Chia sẻ, chọn <b>Thêm vào Màn hình chính</b>. <b>Tắt</b> mục "Mở dưới dạng ứng dụng web" để dùng luôn đăng nhập Claude có sẵn trong Safari, rồi bấm Thêm.</li>
+      <li>Android: mở trang này bằng Chrome, bấm dấu ba chấm, chọn <b>Thêm vào màn hình chính</b>.</li>
+      <li>Từ đó bấm biểu tượng 226 Villa là vào thẳng app. Cần đăng nhập claude.ai bằng tài khoản đã được mời.</li>
+    </ol>
+  </div>
+</main>
+<script>
+  // Mở từ màn hình chính (địa chỉ có ?mo=1, hoặc chạy dạng ứng dụng web) thì chuyển thẳng vào app.
+  // Mở lần đầu trong trình duyệt thì ở lại để thêm vào màn hình chính; địa chỉ đổi sẵn thành ?mo=1 để lối tắt lưu đúng.
+  var APP = "https://claude.ai/artifact/T6DWTab6WkazofuzXzccwP";
+  var q = new URLSearchParams(location.search);
+  var standalone = navigator.standalone === true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+  if (q.get("mo") === "1" || standalone) {
+    document.getElementById("msg").textContent = "Đang mở app…";
+    document.getElementById("guide").hidden = true;
+    location.replace(APP);
+  } else {
+    try { history.replaceState(null, "", location.pathname + "?mo=1"); } catch (e) {}
+  }
+</script>
+</body>
+</html>
