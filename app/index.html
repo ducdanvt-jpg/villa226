@@ -1193,12 +1193,14 @@ function renderMatBangSheet(id){
   wantProfiles((m.lichSu||[]).map(x=>x.ai));
   let h=sheetHead(esc(m.ten),'<span class="chip '+esc(m.giaiDoan||"moi")+'">'+esc(MB_GD[m.giaiDoan||"moi"])+'</span> '+esc(MB_LOAI[m.loai]||""));
   h+='<dl class="kv">'+(m.diaChi?'<dt>Địa chỉ</dt><dd>'+esc(m.diaChi)+'</dd>':"")+(m.dienTich?'<dt>Diện tích</dt><dd class="num">'+esc(m.dienTich)+' m2</dd>':"")+(m.giaThue?'<dt>Giá thuê</dt><dd class="num">'+esc(money(m.giaThue))+' đ/tháng'+(m.hopDongNam?" · "+esc(m.hopDongNam)+" năm":"")+'</dd>':"")+(m.chuSoHuu?'<dt>Chủ, liên hệ</dt><dd>'+esc(m.chuSoHuu)+(m.lienHe?" · "+esc(m.lienHe):"")+'</dd>':"")+(m.phuTrach?'<dt>Phụ trách</dt><dd>'+esc(staffName(m.phuTrach))+'</dd>':"")+(m.ghiChu?'<dt>Ghi chú</dt><dd>'+esc(m.ghiChu)+'</dd>':"")+'</dl>';
+  h+=fbMbAnhSection(m,can);
   if(can){h+='<div class="small muted">Chuyển giai đoạn</div><div class="stbtns">'+Object.keys(MB_GD).map(k=>'<button data-gd="'+k+'" class="'+((m.giaiDoan||"moi")===k?"on":"")+'">'+esc(MB_GD[k])+'</button>').join("")+'</div>';
     h+='<div class="acts"><button class="btn p" id="mbGiao">Giao việc cho mặt bằng này</button><button class="btn" id="mbEdit">Sửa hồ sơ</button></div>'}
   h+='<div class="sec-h"><h3>Việc liên quan</h3><small>'+ts.length+'</small></div>'+(ts.length?ts.map(taskCard).join(""):'<div class="small muted">Chưa có. Gợi ý: khảo sát, lập phương án, đàm phán, pháp lý.</div>');
   const hs=(m.lichSu||[]).slice().reverse();
   if(hs.length)h+='<div class="sec-h"><h3>Lịch sử</h3></div><ul class="hist">'+hs.map(x=>'<li><time>'+esc(fmtDT(x.luc))+'</time><span>'+esc(staffName(x.ai)||"")+(x.ai?": ":"")+esc(x.hd)+'</span></li>').join("")+'</ul>';
   sh.innerHTML=h;bindClose();
+  fbMbAnhGan(sh,id);
   sh.querySelectorAll("[data-gd]").forEach(b=>b.onclick=()=>{if(b.dataset.gd===(m.giaiDoan||"moi"))return;updDoc("matbang/"+id,{giaiDoan:b.dataset.gd,capNhat:now(),lichSu:hist(m,"Chuyển sang "+MB_GD[b.dataset.gd])});toast(MB_GD[b.dataset.gd])});
   sh.querySelectorAll(".task").forEach(c=>c.onclick=()=>openTask(c.dataset.id));
   const g=sh.querySelector("#mbGiao");if(g)g.onclick=()=>openGiaoViec({bp:"phat-trien",matBang:id,villa:"",loai:(m.giaiDoan||"moi")==="moi"?"khao-sat":(m.giaiDoan==="khao-sat"?"phuong-an":m.giaiDoan==="phuong-an"?"dam-phan":m.giaiDoan==="dam-phan"?"phap-ly":m.giaiDoan==="phap-ly"?"ban-giao-mat-bang":"khac")});
@@ -1213,11 +1215,12 @@ function openMatBangForm(id){
   h+='<div class="row"><label class="f grow"><span>Chủ sở hữu</span><input id="mChu" value="'+esc(m?m.chuSoHuu||"":"")+'"></label><label class="f grow"><span>Liên hệ</span><input id="mLh" value="'+esc(m?m.lienHe||"":"")+'"></label></div>';
   h+='<div class="row"><label class="f grow"><span>Giai đoạn</span><select id="mGd">'+Object.keys(MB_GD).map(k=>opt(k,MB_GD[k],m?m.giaiDoan||"moi":"moi")).join("")+'</select></label><label class="f grow"><span>Phụ trách</span><select id="mPt">'+opt("","Chưa phân",m?m.phuTrach:"")+STAFF.filter(s=>s.hoatDong!==false).map(s=>opt(s.id,s.ten+" · "+bpName(s.boPhan),m?m.phuTrach:"")).join("")+'</select></label></div>';
   h+='<label class="f"><span>Ghi chú</span><textarea id="mGhi" placeholder="Vd: hiện trạng quán cà phê kết cấu gỗ, cần cải tạo hồ bơi">'+esc(m?m.ghiChu||"":"")+'</textarea></label>';
+  h+=fbMbAnhForm(id);
   h+='<div class="acts"><button type="submit" class="btn p">'+(m?"Lưu":"Thêm")+'</button>'+(m?'<button type="button" class="btn bad" id="mDel">Xóa hồ sơ</button>':"")+'<button type="button" class="btn" id="mCancel">Đóng</button></div></form>';
-  formSheet(h);$("#mCancel").onclick=closeSheet;
-  if(m)$("#mDel").onclick=e=>twoStep(e.target,()=>{delDoc("matbang/"+id);closeSheet()});
+  formSheet(h);$("#mCancel").onclick=closeSheet;fbMbAnhVe();
+  if(m)$("#mDel").onclick=e=>twoStep(e.target,()=>{fbMbAnhXoaHet(id);delDoc("matbang/"+id);closeSheet()});
   $("#fMb").onsubmit=e=>{e.preventDefault();const data={ten:$("#mTen").value.trim(),loai:$("#mLoai").value,diaChi:$("#mDia").value.trim(),dienTich:+$("#mDt").value||0,giaThue:+$("#mGia").value||0,hopDongNam:+$("#mNam").value||0,chuSoHuu:$("#mChu").value.trim(),lienHe:$("#mLh").value.trim(),giaiDoan:$("#mGd").value,phuTrach:$("#mPt").value,ghiChu:$("#mGhi").value.trim(),capNhat:now()};
-    if(m){data.lichSu=hist(m,"Sửa hồ sơ"+(data.giaiDoan!==(m.giaiDoan||"moi")?", chuyển sang "+MB_GD[data.giaiDoan]:""));updDoc("matbang/"+id,data)}else{const mid=nid("m");setDoc("matbang/"+mid,{...data,id:mid,tao:now(),lichSu:[{luc:now(),ai:meId(),hd:"Tạo hồ sơ"}]})}
+    if(m){data.lichSu=hist(m,"Sửa hồ sơ"+(data.giaiDoan!==(m.giaiDoan||"moi")?", chuyển sang "+MB_GD[data.giaiDoan]:""));updDoc("matbang/"+id,data);fbMbAnhLuu(id)}else{const mid=fbMbMid();setDoc("matbang/"+mid,{...data,id:mid,tao:now(),lichSu:[{luc:now(),ai:meId(),hd:"Tạo hồ sơ"}]});fbMbAnhLuu(mid)}
     closeSheet()};
 }
 
@@ -1523,6 +1526,83 @@ function fbGanNutThongBao() {
   const b = document.getElementById("fbBatTb"), t = document.getElementById("fbTatTb");
   if (b) b.onclick = async () => { b.disabled = true; try { await fbBatThongBao(); toast("Đã bật thông báo"); fbMoTaiKhoan(); } catch (e) { b.disabled = false; toast(e.message || "Chưa bật được thông báo"); console.error(e); } };
   if (t) t.onclick = async () => { await fbTatThongBao(); toast("Đã tắt thông báo"); fbMoTaiKhoan(); };
+}
+
+/* ---------- Hình ảnh hiện trạng của mặt bằng (kho anh, trường matBang) ---------- */
+const MAX_ANH_MB = 8;
+const MB_PH = {}, MB_XONG = {};
+let MB_FORM = null;   // khi mở form thêm, sửa mặt bằng: {mid, moi:[ảnh chờ lưu], xoa:Set mã ảnh cũ bị gỡ}
+const ICON_THUVIEN = '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 9"/></svg>';
+const nutThemAnh = (idCam, idLib) => '<label class="add">' + CAM + 'Chụp ảnh<input type="file" accept="image/*" capture="environment" id="' + idCam + '"></label><label class="add">' + ICON_THUVIEN + 'Chọn từ thư viện<input type="file" accept="image/*" multiple id="' + idLib + '"></label>';
+function fbMbTai(id) {
+  if (!db || MB_PH[id]) return;
+  MB_PH[id] = []; MB_XONG[id] = false;
+  db.collection("anh").where("matBang", "==", id).get().then((s) => {
+    MB_PH[id] = s.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => String(a.luc).localeCompare(String(b.luc)));
+    MB_XONG[id] = true;
+    if (sheetState && sheetState.type === "mb" && sheetState.id === id) refreshSheet();
+    if (MB_FORM && MB_FORM.mid === id) fbMbAnhVe();
+  }).catch((e) => { delete MB_PH[id]; delete MB_XONG[id]; console.error(e); });
+}
+const TIN_TRAN_MB = "Mỗi mặt bằng tối đa " + MAX_ANH_MB + " ảnh, đã bỏ phần còn lại.";
+/* trả về true nếu có ảnh bị bỏ vì đủ trần */
+async function fbMbNen(files, them) {
+  let bo = false;
+  for (const f of files) {
+    if (!them.dem()) { bo = true; break; }
+    try { await them.them(await compressImage(f)); } catch (e) { toast("Không đọc được một ảnh, bỏ qua."); }
+  }
+  return bo;
+}
+/* trong form: ảnh chờ lưu cùng lúc với hồ sơ, bấm Đóng thì bỏ */
+function fbMbAnhForm(id) {
+  MB_FORM = { mid: id || nid("m"), moi: [], xoa: new Set() };
+  if (id) fbMbTai(id);
+  return '<div class="sec-h"><h3>Hình ảnh hiện trạng</h3><small class="num" id="mbAnhDem"></small></div><div class="photos" id="mbAnh"></div>';
+}
+function fbMbFormTong() { return (MB_PH[MB_FORM.mid] || []).filter((p) => !MB_FORM.xoa.has(p.id)).concat(MB_FORM.moi); }
+function fbMbAnhVe() {
+  const el = document.getElementById("mbAnh"); if (!el || !MB_FORM) return;
+  const tat = fbMbFormTong();
+  el.innerHTML = tat.map((p) => '<div class="ph" data-mbph="' + esc(p.id) + '"><img src="' + p.data + '" alt=""><button type="button" class="del" data-mbdel="' + esc(p.id) + '" aria-label="Xóa ảnh">✕</button></div>').join("")
+    + (tat.length < MAX_ANH_MB ? nutThemAnh("mbCam", "mbLib") : "");
+  document.getElementById("mbAnhDem").textContent = tat.length + "/" + MAX_ANH_MB;
+  const them = { dem: () => fbMbFormTong().length < MAX_ANH_MB, them: async (data) => { MB_FORM.moi.push({ id: nid("a"), data, luc: now(), ai: meId() }); } };
+  const cam = document.getElementById("mbCam"), lib = document.getElementById("mbLib");
+  if (cam) cam.onchange = async () => { const f = [...(cam.files || [])]; cam.value = ""; const bo = await fbMbNen(f, them); fbMbAnhVe(); if (bo) toast(TIN_TRAN_MB); };
+  if (lib) lib.onchange = async () => { const f = [...(lib.files || [])]; lib.value = ""; toast("Đang nén ảnh…"); const bo = await fbMbNen(f, them); fbMbAnhVe(); if (bo) toast(TIN_TRAN_MB); };
+  el.querySelectorAll("[data-mbph]").forEach((x) => x.onclick = () => { const p = tat.find((y) => y.id === x.dataset.mbph); if (p) openLb(p.data, "Hiện trạng"); });
+  el.querySelectorAll("[data-mbdel]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const i = b.dataset.mbdel; const k = MB_FORM.moi.findIndex((y) => y.id === i); if (k >= 0) MB_FORM.moi.splice(k, 1); else MB_FORM.xoa.add(i); fbMbAnhVe(); });
+}
+const fbMbMid = () => (MB_FORM && MB_FORM.mid) || nid("m");
+/* bấm Thêm hoặc Lưu hồ sơ: ghi ảnh mới, gỡ ảnh đã xóa */
+function fbMbAnhLuu(mid) {
+  if (!MB_FORM || MB_FORM.mid !== mid) return;
+  const F = MB_FORM; MB_FORM = null;
+  const ds = (MB_PH[mid] || []).filter((p) => !F.xoa.has(p.id));
+  for (const p of F.moi) { setDoc("anh/" + p.id, { id: p.id, matBang: mid, task: "", villa: "", data: p.data, luc: p.luc, ai: p.ai }); ds.push(p); }
+  for (const i of F.xoa) delDoc("anh/" + i);
+  MB_PH[mid] = ds; MB_XONG[mid] = true;
+}
+function fbMbAnhXoaHet(mid) { for (const p of MB_PH[mid] || []) delDoc("anh/" + p.id); delete MB_PH[mid]; delete MB_XONG[mid]; MB_FORM = null; }
+/* trong phiếu mặt bằng: xem ảnh, người có quyền thêm và xóa trực tiếp */
+function fbMbAnhSection(m, can) {
+  fbMbTai(m.id);
+  const ps = MB_PH[m.id] || [];
+  let h = '<div class="sec-h"><h3>Hình ảnh hiện trạng</h3><small class="num">' + ps.length + "/" + MAX_ANH_MB + '</small></div><div class="photos">';
+  h += ps.map((p) => '<div class="ph" data-mbph="' + esc(p.id) + '"><img src="' + p.data + '" alt="">' + (can ? '<button class="del" data-mbdel2="' + esc(p.id) + '" aria-label="Xóa ảnh">✕</button>' : "") + "</div>").join("");
+  if (!MB_XONG[m.id]) h += '<div class="small muted">Đang tải ảnh…</div>';
+  else if (can && ps.length < MAX_ANH_MB) h += nutThemAnh("mbCam2", "mbLib2");
+  if (MB_XONG[m.id] && !ps.length && !can) h += '<span class="small muted">Chưa có ảnh.</span>';
+  return h + "</div>";
+}
+function fbMbAnhGan(sh, id) {
+  const them = { dem: () => (MB_PH[id] || []).length < MAX_ANH_MB, them: async (data) => { const p = { id: nid("a"), data, luc: now(), ai: meId() }; (MB_PH[id] = MB_PH[id] || []).push(p); refreshSheet(); await setDoc("anh/" + p.id, { id: p.id, matBang: id, task: "", villa: "", data, luc: p.luc, ai: p.ai }); } };
+  const cam = sh.querySelector("#mbCam2"), lib = sh.querySelector("#mbLib2");
+  if (cam) cam.onchange = async () => { const f = [...(cam.files || [])]; cam.value = ""; toast("Đang nén ảnh…"); const bo = await fbMbNen(f, them); toast(bo ? TIN_TRAN_MB : "Đã lưu ảnh"); };
+  if (lib) lib.onchange = async () => { const f = [...(lib.files || [])]; lib.value = ""; toast("Đang nén ảnh…"); const bo = await fbMbNen(f, them); toast(bo ? TIN_TRAN_MB : "Đã lưu ảnh"); };
+  sh.querySelectorAll("[data-mbph]").forEach((x) => x.onclick = () => { const p = (MB_PH[id] || []).find((y) => y.id === x.dataset.mbph); if (p) openLb(p.data, fmtDT(p.luc) + " · hiện trạng"); });
+  sh.querySelectorAll("[data-mbdel2]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); twoStep(b, () => { const i = b.dataset.mbdel2; MB_PH[id] = (MB_PH[id] || []).filter((y) => y.id !== i); delDoc("anh/" + i); refreshSheet(); }); });
 }
 </script>
 </body>
