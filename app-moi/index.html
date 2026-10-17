@@ -14,6 +14,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
 <title>Vận hành 226 Villa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Marcellus&display=swap">
@@ -1312,6 +1313,7 @@ document.querySelectorAll(".tabbar button").forEach(b=>b.classList.toggle("on",b
   gateOpen();
   try{USER=await window.claude.use("user");if(USER){uid=await USER.id();isAdmin=await USER.canEdit();const w=await USER.can("data.write");canWriteKnown=w!==null;if(w===false)canWrite=false}}catch(e){}
   render();
+  fbKhoiDongThongBao();
   if(laCdt()){fbChuDauTuBoot();return}
   const first={};
   const sub=(col,set,sortFn,q)=>(q||db.collection(col)).onSnapshot(s=>{set(s.docs.map(d=>({id:d.id,...d.data()})).sort(sortFn));if(!first[col]){first[col]=1;loadedCols++}render();if(loadedCols>=8)taoViecDinhKy()},e=>{console.error(col,e);if(!first[col]){first[col]=1;loadedCols++}if(e&&e.code==="revoked")toast("Mất kết nối kho, tải lại trang.")});
@@ -1369,8 +1371,9 @@ function fbMoTaiKhoan(){
   if(!window.FB)return;
   let h=sheetHead("Tài khoản",esc(FB.email));
   h+='<div class="small muted">'+(laCdt()?"Chủ đầu tư: chỉ xem villa của mình.":isMgr()?"Giám đốc, quản lý: sao lưu và nhập dữ liệu ở tab Dữ liệu.":"Nhân viên.")+'</div>';
+  h+=fbPhanThongBao();
   h+='<div class="acts"><button class="btn" id="fbDx">Đăng xuất</button><button class="btn" id="fbDong">Đóng</button></div>';
-  formSheet(h);$("#fbDong").onclick=closeSheet;$("#fbDx").onclick=e=>twoStep(e.target,()=>FB.signOut());
+  formSheet(h);$("#fbDong").onclick=closeSheet;$("#fbDx").onclick=e=>twoStep(e.target,()=>FB.signOut());fbGanNutThongBao();
 }
 (()=>{const w=document.getElementById("who");if(w){w.style.cursor="pointer";w.onclick=fbMoTaiKhoan}})();
 async function fbXuat(){
@@ -1475,6 +1478,51 @@ function openCdtForm(email) {
     setDoc("members/" + mail, { email: mail, ten, chuDauTu: true, quanLy: false, villas, capNhat: now() });
     toast(c ? "Đã lưu" : "Đã thêm. Gửi họ link villa226.com/app để đăng nhập bằng " + mail); closeSheet();
   };
+}
+
+/* ---------- Thông báo đẩy (Web Push): bật trên từng máy, token lưu ở pushTokens/<mã tài khoản> ---------- */
+const fbDayOk = () => !!(self.FB_VAPID && window.FB && "serviceWorker" in navigator && "Notification" in window && "PushManager" in window && firebase.messaging && firebase.messaging.isSupported && firebase.messaging.isSupported());
+const fbLaIos = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const fbDaCaiDat = () => (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+const fbTokenMay = () => { try { return localStorage.getItem("bp226-push") || ""; } catch (e) { return ""; } };
+let fbDayNgheTrongApp = false;
+function fbKhoiDongThongBao() {
+  /* app đang mở: thông báo đến thì hiện toast, khỏi nhảy thông báo hệ thống */
+  if (fbDayNgheTrongApp || laCdt() || !fbDayOk() || Notification.permission !== "granted" || !fbTokenMay()) return;
+  try { firebase.messaging().onMessage((p) => { toast((p.notification && p.notification.title) || "Có cập nhật việc"); }); fbDayNgheTrongApp = true; } catch (e) { console.error("thông báo", e); }
+}
+async function fbBatThongBao() {
+  if (!fbDayOk()) throw new Error("Trình duyệt này chưa hỗ trợ thông báo.");
+  if (fbLaIos() && !fbDaCaiDat()) throw new Error("Trên iPhone: bấm nút Chia sẻ của Safari, chọn Thêm vào Màn hình chính, mở app từ biểu tượng đó rồi bật lại.");
+  const quyen = await Notification.requestPermission();
+  if (quyen !== "granted") throw new Error("Anh/chị chưa cho phép thông báo. Vào cài đặt trình duyệt hoặc điện thoại, bật cho villa226.com rồi thử lại.");
+  const reg = await navigator.serviceWorker.register("firebase-messaging-sw.js");
+  await navigator.serviceWorker.ready;
+  const token = await firebase.messaging().getToken({ vapidKey: self.FB_VAPID, serviceWorkerRegistration: reg });
+  if (!token) throw new Error("Chưa lấy được mã thông báo, thử lại sau.");
+  await db.doc("pushTokens/" + uid).set({ tokens: firebase.firestore.FieldValue.arrayUnion(token), email: FB.email, capNhat: now() }, { merge: true });
+  try { localStorage.setItem("bp226-push", token); } catch (e) { /* bỏ qua */ }
+  fbKhoiDongThongBao();
+}
+async function fbTatThongBao() {
+  const token = fbTokenMay();
+  try { await firebase.messaging().deleteToken(); } catch (e) { /* bỏ qua */ }
+  if (token) { try { await db.doc("pushTokens/" + uid).update({ tokens: firebase.firestore.FieldValue.arrayRemove(token) }); } catch (e) { /* bỏ qua */ } }
+  try { localStorage.removeItem("bp226-push"); } catch (e) { /* bỏ qua */ }
+}
+function fbPhanThongBao() {
+  if (laCdt() || !self.FB_VAPID) return "";
+  const bat = fbDayOk() && Notification.permission === "granted" && !!fbTokenMay();
+  let h = '<div class="sec-h"><h3>Thông báo việc</h3></div>';
+  if (!fbDayOk()) h += '<div class="small muted">' + (fbLaIos() && !fbDaCaiDat() ? "Trên iPhone: bấm nút Chia sẻ của Safari, chọn Thêm vào Màn hình chính, mở app từ biểu tượng đó rồi vào đây bật thông báo." : "Trình duyệt này chưa hỗ trợ thông báo.") + "</div>";
+  else if (bat) h += '<div class="small" style="margin-bottom:8px">Đã bật trên máy này: có việc giao, đổi hạn, trả lại hoặc sắp tới hạn là máy báo ngay, kể cả khi đóng app.</div><div class="acts"><button class="btn" id="fbTatTb">Tắt thông báo trên máy này</button></div>';
+  else h += '<div class="small muted" style="margin-bottom:8px">Bật để máy báo ngay khi có việc giao cho mình, đổi hạn, trả lại hoặc sắp tới hạn, kể cả khi đóng app.</div><div class="acts"><button class="btn p" id="fbBatTb">Bật thông báo trên máy này</button></div>';
+  return h;
+}
+function fbGanNutThongBao() {
+  const b = document.getElementById("fbBatTb"), t = document.getElementById("fbTatTb");
+  if (b) b.onclick = async () => { b.disabled = true; try { await fbBatThongBao(); toast("Đã bật thông báo"); fbMoTaiKhoan(); } catch (e) { b.disabled = false; toast(e.message || "Chưa bật được thông báo"); console.error(e); } };
+  if (t) t.onclick = async () => { await fbTatThongBao(); toast("Đã tắt thông báo"); fbMoTaiKhoan(); };
 }
 </script>
 </body>
