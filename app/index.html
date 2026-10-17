@@ -679,7 +679,7 @@ const CAM='<svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10
 function photoSection(t,canAdd,canDel){const ps=PH[t.id];const list=ps||[];let h='<div class="sec-h"><h3>Ảnh chứng minh</h3><small class="num">'+(ps?list.length:(t.soAnh||0))+'/'+MAX_ANH+'</small></div><div class="photos">';
   h+=list.map(p=>'<div class="ph" data-ph="'+esc(p.id)+'"><img src="'+p.data+'" alt="">'+(canDel||(p.ai&&p.ai===meId())?'<button class="del" data-del="'+esc(p.id)+'" aria-label="Xóa ảnh">✕</button>':"")+'</div>').join("");
   if(!ps&&t.soAnh)h+='<div class="small muted">Đang tải ảnh…</div>';
-  if(canAdd&&list.length<MAX_ANH)h+='<label class="add">'+CAM+'Chụp, chọn ảnh<input type="file" accept="image/*" capture="environment" id="phIn"></label>';
+  if(canAdd&&list.length<MAX_ANH)h+='<label class="add">'+CAM+'Chụp ảnh<input type="file" accept="image/*" capture="environment" id="phIn"></label><label class="add"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 9"/></svg>Chọn từ thư viện<input type="file" accept="image/*" multiple id="phLib"></label>';
   if(!list.length&&!canAdd&&!t.soAnh)h+='<span class="small muted">Chưa có ảnh.</span>';
   return h+'</div>'}
 
@@ -972,7 +972,7 @@ function renderTaskSheet(id){
   if(!ro)sh.querySelectorAll(".ck li").forEach(li=>li.onclick=()=>toggleCk(t.id,+li.dataset.i));
   sh.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>taskAction(t.id,b.dataset.a,b));
   const lm=sh.querySelector("#lnkMb");if(lm)lm.onclick=e=>{e.preventDefault();openMatBang(t.matBang)};
-  const pi=sh.querySelector("#phIn");if(pi)pi.onchange=()=>{const f=pi.files&&pi.files[0];if(f)addPhoto(t.id,f)};
+  const pi=sh.querySelector("#phIn");if(pi)pi.onchange=()=>{const f=pi.files&&pi.files[0];if(f)addPhoto(t.id,f)};const pl=sh.querySelector("#phLib");if(pl)pl.onchange=async()=>{const fs=[...(pl.files||[])];pl.value="";for(const f of fs){if((PH[t.id]||[]).length>=MAX_ANH){toast("Mỗi việc tối đa "+MAX_ANH+" ảnh, đã bỏ phần còn lại.");break}await addPhoto(t.id,f)}};
   sh.querySelectorAll(".ph img").forEach(im=>im.onclick=()=>{const p=(PH[t.id]||[]).find(x=>x.id===im.parentElement.dataset.ph);if(p)openLb(p.data,fmtDT(p.luc)+" · "+staffName(p.ai))});
   sh.querySelectorAll("[data-del]").forEach(b=>b.onclick=e=>{e.stopPropagation();twoStep(b,()=>delPhoto(t.id,b.dataset.del))});
 }
