@@ -12,4 +12,4 @@ self.FB_CONFIG = {
 self.FB_OWNERS = ["ducdanvt@gmail.com"];
 /* Khóa Web Push (VAPID) để bật thông báo trên điện thoại: Firebase console, Project settings, tab Cloud Messaging,
    mục Web Push certificates, Generate key pair, chép khóa công khai (chuỗi dài bắt đầu bằng chữ B). Để trống thì ẩn nút bật thông báo. */
-self.FB_VAPID = "";
+self.FB_VAPID = "BEQblF7Hre7fIV0GaZ-DJfLRUQQTkWexYuIg22QtUy4P3Gah_9hYTABp3U9o2GbLTsrcoTCoODPm9twznuRhzFE";
