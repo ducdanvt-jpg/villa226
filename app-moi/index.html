@@ -631,7 +631,7 @@ const updDoc=(path,data)=>write(path,d=>d.update(data));
 const delDoc=path=>write(path,d=>d.delete());
 function hist(t,hd){const h=Array.isArray(t.lichSu)?t.lichSu.slice():[];h.push({luc:now(),ai:meId(),hd});return h}
 function roomStatus(roomId,st,boi){const r=roomOf(roomId);if(!r||r.trangThai===st)return;updDoc("rooms/"+roomId,{trangThai:st,capNhat:now(),boi:boi||meId()})}
-function newTask(o){const id=o.id||nid("t");const L=LOAI[o.loai]||LOAI.khac;const t={id,boPhan:o.boPhan||L.bp||"",villa:o.villa||"",loai:o.loai||"khac",phong:o.phong||"",phongTen:o.phong?roomName(o.phong):"",matBang:o.matBang||"",datPhong:o.datPhong||"",tieuDe:o.tieuDe||L.ten,giaoCho:o.giaoCho||"",hanXong:o.hanXong||"",uuTien:o.uuTien||"thuong",moTa:o.moTa||"",trangThai:"moi",tao:now(),nguoiGiao:meId(),soLanTraLai:0,lichId:o.lichId||"",checklist:(o.ck||L.ck||[]).map(x=>({t:x,ok:false})),lichSu:[{luc:now(),ai:meId(),hd:o.hd||("Giao việc"+(o.giaoCho?" cho "+staffName(o.giaoCho):""))}]};if(o.mucSuCo)t.mucSuCo=o.mucSuCo;setDoc("tasks/"+id,t);return t}
+function newTask(o){const id=o.id||nid("t");const L=LOAI[o.loai]||LOAI.khac;const t={id,boPhan:o.boPhan||L.bp||"",villa:o.villa||"",loai:o.loai||"khac",phong:o.phong||"",phongTen:o.phong?roomName(o.phong):"",matBang:o.matBang||"",datPhong:o.datPhong||"",tieuDe:o.tieuDe||L.ten,giaoCho:o.giaoCho||"",hanXong:o.hanXong||"",uuTien:o.uuTien||"thuong",moTa:o.moTa||"",trangThai:"moi",tao:now(),nguoiGiao:meId(),soLanTraLai:0,lichId:o.lichId||"",checklist:(o.ck||L.ck||[]).map(x=>({t:x,ok:false})),lichSu:[{luc:now(),ai:meId(),hd:o.hd||("Giao việc"+(o.giaoCho?" cho "+staffName(o.giaoCho):""))}]};if(o.mucSuCo)t.mucSuCo=o.mucSuCo;if(o.soAnhGiao)t.soAnhGiao=o.soAnhGiao;setDoc("tasks/"+id,t);return t}
 function addNhatKy(villa,loai,nd,ca){const key=(villa||"chuoi")+"_"+ymd(new Date());write("nhatky/"+key,async d=>{const s=await d.get();const cur=s.exists?s.data():{villa:villa||"",ngay:ymd(new Date()),muc:[]};const muc=(cur.muc||[]).slice();muc.push({luc:now(),ai:meId(),loai,ca:ca||"",nd});return d.set({...cur,villa:villa||"",ngay:cur.ngay||ymd(new Date()),muc})})}
 
 /* ---------- việc định kỳ: tạo việc hôm nay từ lịch, id cố định nên nhiều máy cùng tạo cũng chỉ một việc ---------- */
@@ -955,6 +955,7 @@ function renderTaskSheet(id){
   h+='<dl class="kv"><dt>Nơi</dt><dd>'+esc(villaName(t.villa))+(t.phong?" · "+esc(roomName(t.phong)||t.phongTen||""):"")+(t.matBang?' · <a href="#" id="lnkMb">'+esc((mbOf(t.matBang)||{}).ten||"mặt bằng")+'</a>':"")+'</dd><dt>Giao cho</dt><dd>'+(t.giaoCho?esc(staffName(t.giaoCho)):'<i>Chưa ai nhận</i>')+'</dd><dt>Hạn xong</dt><dd class="num">'+(t.hanXong?esc(fmtDT(t.hanXong)):'<span class="late">Chưa đặt hạn</span>')+(t.mucSuCo?" · "+esc(MUC_SU_CO[t.mucSuCo][0]):"")+'</dd><dt>Người giao</dt><dd>'+esc(staffName(t.nguoiGiao)||"")+' · '+esc(fmtDT(t.tao))+(t.lichId?" · theo lịch định kỳ":"")+'</dd>'+(t.moTa?'<dt>Mô tả</dt><dd>'+esc(t.moTa)+'</dd>':"")+(t.ghiChuXong?'<dt>Ghi chú khi báo xong</dt><dd>'+esc(t.ghiChuXong)+'</dd>':"")+(t.ghiChuDuyet?'<dt>Ghi chú duyệt</dt><dd>'+esc(t.ghiChuDuyet)+'</dd>':"")+'</dl>';
   if(n){h+='<div class="sec-h"><h3>Checklist</h3><small class="num">'+d+'/'+n+(d===n?" · đủ":"")+'</small></div><ul class="ck'+(ro?" ro":"")+'">'+ck.map((c,i)=>'<li class="'+(c.ok?"done":"")+'" data-i="'+i+'"><span class="box">'+CHECK+'</span><span>'+esc(c.t)+'</span></li>').join("")+'</ul>';
     if(t.loai==="don-tra")h+='<div class="small muted" style="margin-top:6px">Quy tắc vàng: một dòng chưa đạt là phòng chưa được bàn giao.</div>'}
+  h+=fbGiaoSection(t);
   h+=photoSection(t,canAct&&(t.trangThai==="moi"||t.trangThai==="dang-lam"||(t.trangThai==="cho-duyet"&&mine)),mgr);
   let acts="";
   if(canAct){
@@ -970,7 +971,7 @@ function renderTaskSheet(id){
   if(hs.length)h+='<div class="sec-h"><h3>Lịch sử</h3></div><ul class="hist">'+hs.map(x=>'<li><time>'+esc(fmtDT(x.luc))+'</time><span>'+esc(staffName(x.ai)||"")+(x.ai?": ":"")+esc(x.hd)+'</span></li>').join("")+'</ul>';
   sh.innerHTML=h;bindClose();
   if(!ro)sh.querySelectorAll(".ck li").forEach(li=>li.onclick=()=>toggleCk(t.id,+li.dataset.i));
-  sh.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>taskAction(t.id,b.dataset.a,b));
+  sh.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>taskAction(t.id,b.dataset.a,b));fbGiaoGan(sh,t.id);
   const lm=sh.querySelector("#lnkMb");if(lm)lm.onclick=e=>{e.preventDefault();openMatBang(t.matBang)};
   const pi=sh.querySelector("#phIn");if(pi)pi.onchange=()=>{const f=pi.files&&pi.files[0];if(f)addPhoto(t.id,f)};const pl=sh.querySelector("#phLib");if(pl)pl.onchange=async()=>{const fs=[...(pl.files||[])];pl.value="";for(const f of fs){if((PH[t.id]||[]).length>=MAX_ANH){toast("Mỗi việc tối đa "+MAX_ANH+" ảnh, đã bỏ phần còn lại.");break}await addPhoto(t.id,f)}};
   sh.querySelectorAll(".ph img").forEach(im=>im.onclick=()=>{const p=(PH[t.id]||[]).find(x=>x.id===im.parentElement.dataset.ph);if(p)openLb(p.data,fmtDT(p.luc)+" · "+staffName(p.ai))});
@@ -991,7 +992,7 @@ function taskAction(id,a,btn){
     const ck=(t.checklist||[]).map(c=>({t:c.t,ok:false}));updDoc("tasks/"+id,{trangThai:"dang-lam",soLanTraLai:(t.soLanTraLai||0)+1,ghiChuDuyet:g,checklist:ck,lichSu:hist(t,"Trả lại: "+g)});if(L.roomStart&&t.phong)roomStatus(t.phong,L.roomStart);toast("Đã trả lại")}
   else if(a==="molai"){updDoc("tasks/"+id,{trangThai:"dang-lam",lichSu:hist(t,"Mở lại việc")})}
   else if(a==="huy"){twoStep(btn,()=>{updDoc("tasks/"+id,{trangThai:"huy",lichSu:hist(t,"Hủy việc")});if(t.phong&&roomOf(t.phong)&&roomOf(t.phong).trangThai==="dang-don")roomStatus(t.phong,"ban")})}
-  else if(a==="xoa"){twoStep(btn,()=>{delAllPhotos(id);delDoc("tasks/"+id);closeSheet()})}
+  else if(a==="xoa"){twoStep(btn,()=>{delAllPhotos(id);fbGiaoXoaHet(id);delDoc("tasks/"+id);closeSheet()})}
   else if(a==="sua"){openGiaoViec({edit:t})}
 }
 
@@ -1011,8 +1012,8 @@ function openGiaoViec(o){
   h+='<div class="row"><label class="f grow"><span>Ưu tiên</span><select id="gUu">'+opt("thuong","Thường",t?t.uuTien:"thuong")+opt("cao","Gấp",t?t.uuTien:"thuong")+'</select></label></div>';
   h+='<label class="f"><span>Mô tả, dặn dò</span><textarea id="gMoTa" placeholder="Vd: khách 12 người, thêm 2 nệm phòng P3">'+esc(t?t.moTa||"":"")+'</textarea></label>';
   h+='<label class="f"><span>Checklist (mỗi dòng một mục, sửa tùy ý)</span><textarea id="gCk" style="min-height:120px">'+esc(t?(t.checklist||[]).map(c=>c.t).join("\n"):"")+'</textarea></label>';
-  h+='<div class="acts"><button type="submit" class="btn p">'+(t?"Lưu thay đổi":"Giao việc")+'</button><button type="button" class="btn" id="gCancel">Đóng</button></div></form>';
-  formSheet(h);$("#gCancel").onclick=closeSheet;
+  h+=fbGiaoForm(t);h+='<div class="acts"><button type="submit" class="btn p">'+(t?"Lưu thay đổi":"Giao việc")+'</button><button type="button" class="btn" id="gCancel">Đóng</button></div></form>';
+  formSheet(h);$("#gCancel").onclick=closeSheet;fbGiaoVe();
   const gB=$("#gBp"),gV=$("#gVilla"),gL=$("#gLoai"),gP=$("#gPhong"),gT=$("#gTieuDe"),gH=$("#gHan"),gC=$("#gCk"),gM=$("#gMuc"),gA=$("#gAi"),gMb=$("#gMb");
   let touchedTitle=!!t,touchedCk=!!t,touchedHan=!!t;
   function fillLoai(){const cur=t?t.loai:(gL.value||loai);const ks=loaiCua(gB.value).concat(["khac"]);gL.innerHTML=ks.map(k=>opt(k,LOAI[k].ten,cur)).join("");if(!ks.includes(gL.value))gL.value=ks[0]}
@@ -1031,9 +1032,9 @@ function openGiaoViec(o){
     if(!gH.value)return toast("Giao việc phải có hạn xong (deadline).");const tieuDe=gT.value.trim()||((LOAI[gL.value]||{}).ten||"Việc");
     const ck=gC.value.split("\n").map(s=>s.trim()).filter(Boolean);const phong=$("#wrapPhong").hidden?"":gP.value;
     const data={boPhan:gB.value,villa:gV.value,loai:gL.value,phong,phongTen:phong?roomName(phong):"",matBang:gB.value==="phat-trien"?gMb.value:"",tieuDe,giaoCho:gA.value,hanXong:gH.value?new Date(gH.value).toISOString():"",uuTien:$("#gUu").value,moTa:$("#gMoTa").value.trim()};
-    if(gL.value==="bao-tri")data.mucSuCo=gM.value;
+    if(gL.value==="bao-tri")data.mucSuCo=gM.value;const gTid=t?t.id:GV_FORM.tid;data.soAnhGiao=fbGiaoLuu(gTid,data.villa,t?t.soAnhGiao:0);
     if(t){const old=(t.checklist||[]);data.checklist=ck.map(x=>{const o2=old.find(c=>c.t===x);return o2?{...o2}:{t:x,ok:false}});data.lichSu=hist(t,"Sửa việc"+(data.giaoCho!==t.giaoCho?", giao cho "+(staffName(data.giaoCho)||"chưa ai"):""));updDoc("tasks/"+t.id,data);toast("Đã lưu")}
-    else{newTask({...data,ck,mucSuCo:data.mucSuCo});
+    else{newTask({...data,id:gTid,ck,mucSuCo:data.mucSuCo});
       if(gL.value==="bao-tri"&&phong)roomStatus(phong,"bao-tri");
       if((gL.value==="don-tra"||gL.value==="don-chung")&&phong){const r=roomOf(phong);if(r&&r.trangThai==="sach")roomStatus(phong,"ban")}
       toast("Đã giao việc")}
@@ -1603,6 +1604,72 @@ function fbMbAnhGan(sh, id) {
   if (lib) lib.onchange = async () => { const f = [...(lib.files || [])]; lib.value = ""; toast("Đang nén ảnh…"); const bo = await fbMbNen(f, them); toast(bo ? TIN_TRAN_MB : "Đã lưu ảnh"); };
   sh.querySelectorAll("[data-mbph]").forEach((x) => x.onclick = () => { const p = (MB_PH[id] || []).find((y) => y.id === x.dataset.mbph); if (p) openLb(p.data, fmtDT(p.luc) + " · hiện trạng"); });
   sh.querySelectorAll("[data-mbdel2]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); twoStep(b, () => { const i = b.dataset.mbdel2; MB_PH[id] = (MB_PH[id] || []).filter((y) => y.id !== i); delDoc("anh/" + i); refreshSheet(); }); });
+}
+
+/* ---------- Hình ảnh kèm khi giao việc (kho anh, trường giaoTask; không lẫn với ảnh chứng minh hoàn thành) ---------- */
+const MAX_ANH_GIAO = 6;
+const GV_PH = {}, GV_XONG = {};
+let GV_FORM = null;   // form Giao việc đang mở: {tid, moi:[ảnh chờ lưu], xoa:Set mã ảnh cũ bị gỡ}
+const TIN_TRAN_GV = "Mỗi việc tối đa " + MAX_ANH_GIAO + " ảnh kèm theo, đã bỏ phần còn lại.";
+function fbGiaoTai(id) {
+  if (!db || GV_PH[id]) return;
+  GV_PH[id] = []; GV_XONG[id] = false;
+  let q = db.collection("anh").where("giaoTask", "==", id);
+  if (laCdt()) { const t = TASKS.find((x) => x.id === id); q = q.where("villa", "==", (t && t.villa) || ""); }
+  q.get().then((s) => {
+    GV_PH[id] = s.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => String(a.luc).localeCompare(String(b.luc)));
+    GV_XONG[id] = true;
+    if (sheetState && sheetState.type === "task" && sheetState.id === id) refreshSheet();
+    if (GV_FORM && GV_FORM.tid === id) fbGiaoVe();
+  }).catch((e) => { delete GV_PH[id]; delete GV_XONG[id]; console.error(e); });
+}
+function fbGiaoForm(t) {
+  GV_FORM = { tid: t ? t.id : nid("t"), moi: [], xoa: new Set() };
+  if (t && t.soAnhGiao) fbGiaoTai(t.id);
+  return '<div class="sec-h"><h3>Hình ảnh kèm theo</h3><small class="num" id="gvAnhDem"></small></div><div class="photos" id="gvAnh"></div>';
+}
+function fbGiaoTong() { return (GV_PH[GV_FORM.tid] || []).filter((p) => !GV_FORM.xoa.has(p.id)).concat(GV_FORM.moi); }
+function fbGiaoVe() {
+  const el = document.getElementById("gvAnh"); if (!el || !GV_FORM) return;
+  const tat = fbGiaoTong();
+  el.innerHTML = tat.map((p) => '<div class="ph" data-gvph="' + esc(p.id) + '"><img src="' + p.data + '" alt=""><button type="button" class="del" data-gvdel="' + esc(p.id) + '" aria-label="Xóa ảnh">✕</button></div>').join("")
+    + (tat.length < MAX_ANH_GIAO ? nutThemAnh("gvCam", "gvLib") : "");
+  document.getElementById("gvAnhDem").textContent = tat.length + "/" + MAX_ANH_GIAO;
+  const them = { dem: () => fbGiaoTong().length < MAX_ANH_GIAO, them: async (data) => { GV_FORM.moi.push({ id: nid("a"), data, luc: now(), ai: meId() }); } };
+  const cam = document.getElementById("gvCam"), lib = document.getElementById("gvLib");
+  const nap = (inp) => async () => { const f = [...(inp.files || [])]; inp.value = ""; toast("Đang nén ảnh…"); const bo = await fbMbNen(f, them); fbGiaoVe(); if (bo) toast(TIN_TRAN_GV); };
+  if (cam) cam.onchange = nap(cam);
+  if (lib) lib.onchange = nap(lib);
+  el.querySelectorAll("[data-gvph]").forEach((x) => x.onclick = () => { const p = tat.find((y) => y.id === x.dataset.gvph); if (p) openLb(p.data, "Ảnh kèm khi giao việc"); });
+  el.querySelectorAll("[data-gvdel]").forEach((b) => b.onclick = (e) => { e.stopPropagation(); const i = b.dataset.gvdel; const k = GV_FORM.moi.findIndex((y) => y.id === i); if (k >= 0) GV_FORM.moi.splice(k, 1); else GV_FORM.xoa.add(i); fbGiaoVe(); });
+}
+/* bấm Giao việc hoặc Lưu: ghi ảnh mới, gỡ ảnh đã xóa. Trả về số ảnh còn lại để ghi vào việc (trường soAnhGiao). */
+function fbGiaoLuu(tid, villa, base) {
+  if (!GV_FORM || GV_FORM.tid !== tid) return base || 0;
+  const F = GV_FORM; GV_FORM = null;
+  const ds = (GV_PH[tid] || []).filter((p) => !F.xoa.has(p.id));
+  for (const p of F.moi) { setDoc("anh/" + p.id, { id: p.id, giaoTask: tid, task: "", villa: villa || "", data: p.data, luc: p.luc, ai: p.ai }); ds.push(p); }
+  for (const i of F.xoa) delDoc("anh/" + i);
+  GV_PH[tid] = ds; GV_XONG[tid] = true;
+  return Math.max(0, (base || 0) - F.xoa.size) + F.moi.length;
+}
+function fbGiaoXoaHet(tid) {
+  if (!db) return;
+  db.collection("anh").where("giaoTask", "==", tid).get().then((s) => s.docs.forEach((d) => delDoc("anh/" + d.id))).catch(() => {});
+  delete GV_PH[tid]; delete GV_XONG[tid];
+}
+/* trong phiếu việc: xem ảnh người giao đính kèm (chỉ xem, sửa ở nút Sửa, giao lại) */
+function fbGiaoSection(t) {
+  if (!t.soAnhGiao) return "";
+  fbGiaoTai(t.id);
+  const ps = GV_PH[t.id] || [];
+  let h = '<div class="sec-h"><h3>Hình ảnh kèm theo</h3><small class="num">' + (GV_XONG[t.id] ? ps.length : t.soAnhGiao) + '</small></div><div class="photos">';
+  h += ps.map((p) => '<div class="ph" data-gvph="' + esc(p.id) + '"><img src="' + p.data + '" alt=""></div>').join("");
+  if (!GV_XONG[t.id]) h += '<div class="small muted">Đang tải ảnh…</div>';
+  return h + "</div>";
+}
+function fbGiaoGan(sh, id) {
+  sh.querySelectorAll("[data-gvph]").forEach((x) => x.onclick = () => { const p = (GV_PH[id] || []).find((y) => y.id === x.dataset.gvph); if (p) openLb(p.data, fmtDT(p.luc) + " · ảnh kèm khi giao việc"); });
 }
 </script>
 </body>
