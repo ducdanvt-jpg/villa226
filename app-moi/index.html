@@ -377,6 +377,10 @@ body.cdt #fab{display:none!important}
 const CFG=window.FB_CONFIG||{};
 const OWNERS=(window.FB_OWNERS||[]).map(e=>String(e).trim().toLowerCase()).filter(Boolean);
 const lc=e=>String(e||"").trim().toLowerCase();
+/* tài khoản không cần email thật: tên đăng nhập + "@nv.villa226.com" (tên miền không nhận thư), do giám đốc, quản lý tạo sẵn */
+const DN_MIEN="nv.villa226.com";
+const laTenDn=e=>lc(e).endsWith("@"+DN_MIEN);
+const dnEmail=v=>{v=lc(v);if(!v)return"";if(v.includes("@"))return v;const t=v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/[^a-z0-9._-]/g,"");return t?t+"@"+DN_MIEN:""};
 const $g=()=>document.getElementById("gateMsg");
 const show=h=>{const g=$g();if(g)g.innerHTML=h};
 const escH=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -395,7 +399,7 @@ if(emu){auth.useEmulator("http://127.0.0.1:9099",{disableWarnings:true});fs.useE
 fs.settings({ignoreUndefinedProperties:true,merge:true});
 if(!emu)fs.enablePersistence({synchronizeTabs:true}).catch(()=>{});
 
-const LOI={"auth/invalid-credential":"Sai email hoặc mật khẩu.","auth/wrong-password":"Sai email hoặc mật khẩu.","auth/user-not-found":"Email này chưa có mật khẩu. Bấm \"Tạo mật khẩu lần đầu\".","auth/invalid-email":"Email chưa đúng.","auth/missing-password":"Chưa nhập mật khẩu.","auth/weak-password":"Mật khẩu cần ít nhất 6 ký tự.","auth/email-already-in-use":"Email này đã có mật khẩu. Bấm Đăng nhập, quên thì bấm Quên mật khẩu.","auth/too-many-requests":"Thử sai nhiều lần, đợi vài phút rồi thử lại.","auth/network-request-failed":"Mất mạng, kiểm tra kết nối rồi thử lại.","auth/operation-not-allowed":"Cách đăng nhập này chưa được bật trong Firebase.","auth/unauthorized-domain":"Tên miền này chưa được thêm vào Firebase (Authentication, Settings, Authorized domains).","auth/popup-blocked":"Trình duyệt chặn cửa sổ đăng nhập.","auth/user-disabled":"Tài khoản này đã bị khóa."};
+const LOI={"auth/invalid-credential":"Sai email, tên đăng nhập hoặc mật khẩu.","auth/wrong-password":"Sai email, tên đăng nhập hoặc mật khẩu.","auth/user-not-found":"Chưa có tài khoản này. Email thì bấm \"Tạo mật khẩu lần đầu\", tên đăng nhập thì nhờ giám đốc tạo.","auth/invalid-email":"Email chưa đúng.","auth/missing-password":"Chưa nhập mật khẩu.","auth/weak-password":"Mật khẩu cần ít nhất 6 ký tự.","auth/email-already-in-use":"Email này đã có mật khẩu. Bấm Đăng nhập, quên thì bấm Quên mật khẩu.","auth/too-many-requests":"Thử sai nhiều lần, đợi vài phút rồi thử lại.","auth/network-request-failed":"Mất mạng, kiểm tra kết nối rồi thử lại.","auth/operation-not-allowed":"Cách đăng nhập này chưa được bật trong Firebase.","auth/unauthorized-domain":"Tên miền này chưa được thêm vào Firebase (Authentication, Settings, Authorized domains).","auth/popup-blocked":"Trình duyệt chặn cửa sổ đăng nhập.","auth/user-disabled":"Tài khoản này đã bị khóa."};
 const loiMsg=e=>LOI[e&&e.code]||("Chưa đăng nhập được"+(e&&e.code?" ("+e.code+")":"")+".");
 
 let resolved=false,resolveReady;
@@ -405,20 +409,20 @@ let USER=null;
 function loginForm(note){
   show('<p>Đăng nhập để vào app.</p>'+
   '<button class="btn p" id="fbGoogle" style="width:100%;justify-content:center;margin:8px 0 14px">Đăng nhập bằng Google</button>'+
-  '<div class="small muted" style="margin-bottom:8px">hoặc dùng email và mật khẩu</div>'+
-  '<form id="fbForm" style="text-align:left"><label class="f"><span>Email</span><input id="fbEmail" type="email" autocomplete="username" required></label>'+
+  '<div class="small muted" style="margin-bottom:8px">hoặc dùng email (hay tên đăng nhập do giám đốc cấp) và mật khẩu</div>'+
+  '<form id="fbForm" style="text-align:left"><label class="f"><span>Email hoặc tên đăng nhập</span><input id="fbEmail" type="text" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="username" required></label>'+
   '<label class="f"><span>Mật khẩu</span><input id="fbPass" type="password" autocomplete="current-password" minlength="6"></label>'+
   '<div class="row" style="justify-content:center"><button class="btn p" type="submit">Đăng nhập</button><button class="btn" type="button" id="fbNew">Tạo mật khẩu lần đầu</button></div>'+
   '<div style="text-align:center;margin-top:8px"><button class="btn sm" type="button" id="fbQuen" style="border:0;background:none;color:var(--brand)">Quên mật khẩu</button></div></form>'+
   '<p id="fbNote" class="small" style="margin-top:8px;color:var(--bad)">'+escH(note||"")+'</p>');
   const note$=t=>{const n=document.getElementById("fbNote");n.style.color=t&&t.ok?"var(--ok)":"var(--bad)";n.textContent=t?t.m:""};
-  const em=()=>lc(document.getElementById("fbEmail").value),pw=()=>document.getElementById("fbPass").value;
+  const raw=()=>lc(document.getElementById("fbEmail").value),em=()=>dnEmail(raw()),pw=()=>document.getElementById("fbPass").value;
   document.getElementById("fbGoogle").onclick=async()=>{note$(null);const p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:"select_account"});
     try{await auth.signInWithPopup(p)}catch(e){if(e.code==="auth/popup-blocked"||e.code==="auth/operation-not-supported-in-this-environment"){try{await auth.signInWithRedirect(p)}catch(e2){note$({m:loiMsg(e2)})}}else if(e.code!=="auth/popup-closed-by-user"&&e.code!=="auth/cancelled-popup-request")note$({m:loiMsg(e)})}};
   document.getElementById("fbForm").onsubmit=async ev=>{ev.preventDefault();note$(null);try{await auth.signInWithEmailAndPassword(em(),pw())}catch(e){note$({m:loiMsg(e)})}};
-  document.getElementById("fbNew").onclick=async()=>{note$(null);if(!em())return note$({m:"Nhập email trước."});if(pw().length<6)return note$({m:"Đặt mật khẩu ít nhất 6 ký tự rồi bấm lại."});
+  document.getElementById("fbNew").onclick=async()=>{note$(null);if(!em())return note$({m:"Nhập email trước."});if(!raw().includes("@"))return note$({m:"Tên đăng nhập do giám đốc cấp sẵn, bạn chỉ cần đăng nhập. Chưa có thì nhờ giám đốc tạo."});if(pw().length<6)return note$({m:"Đặt mật khẩu ít nhất 6 ký tự rồi bấm lại."});
     try{const c=await auth.createUserWithEmailAndPassword(em(),pw());await c.user.sendEmailVerification()}catch(e){note$({m:loiMsg(e)})}};
-  document.getElementById("fbQuen").onclick=async()=>{if(!em())return note$({m:"Nhập email rồi bấm Quên mật khẩu."});
+  document.getElementById("fbQuen").onclick=async()=>{if(!em())return note$({m:"Nhập email rồi bấm Quên mật khẩu."});if(!raw().includes("@"))return note$({m:"Tên đăng nhập không có thư đặt lại. Nhờ giám đốc đặt lại mật khẩu cho bạn."});
     try{await auth.sendPasswordResetEmail(em());note$({ok:1,m:"Đã gửi thư đặt lại mật khẩu tới "+em()+". Mở thư, đặt mật khẩu mới rồi quay lại đây."})}catch(e){note$({m:loiMsg(e)})}};
 }
 function verifyForm(u){
@@ -455,7 +459,10 @@ async function afterLogin(u){
     isOwner:async()=>!!m.owner,
     profiles:async ids=>{const o={};await Promise.all(ids.map(async i=>{try{const d=await fs.doc("users/"+i).get();if(d.exists)o[i]={name:d.data().ten||""}}catch(e){}}));return o}
   };
-  window.FB={fs,auth,firebase,member:m,email:lc(u.email),ten,owners:OWNERS,signOut:()=>auth.signOut()};
+  window.FB={fs,auth,firebase,member:m,email:lc(u.email),ten,owners:OWNERS,signOut:()=>auth.signOut(),laTenDn,dnEmail,DN_MIEN,
+    /* giám đốc, quản lý tạo tài khoản tên đăng nhập: dùng app phụ để không bị đăng xuất */
+    taoTaiKhoan:async(email,pw)=>{const app=firebase.initializeApp(CFG,"phu"+Date.now());try{const a=app.auth();if(emu)a.useEmulator("http://127.0.0.1:9099",{disableWarnings:true});await a.createUserWithEmailAndPassword(email,pw);await a.signOut()}finally{try{await app.delete()}catch(e){}}},
+    doiMatKhau:async(cu,moi)=>{const u=auth.currentUser;await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,cu));await u.updatePassword(moi)}};
   resolved=true;resolveReady();
 }
 auth.getRedirectResult().catch(e=>loginForm(loiMsg(e)));
@@ -464,7 +471,7 @@ auth.onAuthStateChanged(u=>{
   if(!u){loginForm();return}
   window.FB_UID_LAST="u_"+u.uid;
   const google=(u.providerData||[]).some(p=>p.providerId==="google.com");
-  if(!u.emailVerified&&!google){verifyForm(u);return}
+  if(!u.emailVerified&&!google&&!laTenDn(u.email)){verifyForm(u);return}
   afterLogin(u);
 });
 window.claude={use:async name=>{await ready;if(name==="db")return fs;if(name==="user")return USER;return null}};
@@ -648,7 +655,7 @@ function taoViecDinhKy(){
   if(n)toast("Đã tạo "+n+" việc định kỳ hôm nay");taoViecDatPhong()}
 /* việc theo lịch khách: sáng ngày trả tạo loạt dọn + tiễn khách; ngày nhận tạo việc đón khách (set-up nếu chưa có) */
 function taoViecDatPhong(){
-  if(!db||canWrite===false||loadedCols<8)return;const key=ymd(new Date());let n=0;const madeSetup=new Set();
+  if(!db||canWrite===false||loadedCols<8)return;fbViecTruocKhach();const key=ymd(new Date());let n=0;const madeSetup=new Set();
   for(const b of BOOKINGS){if(!bkActive(b)||GEN.has("bk@"+b.id+"@"+key))continue;const v=VILLAS.find(x=>x.id===b.villa);if(!v)continue;
     if(b.tra===key&&!b.daTaoViecTra){GEN.add("bk@"+b.id+"@"+key);
       const next=BOOKINGS.find(o=>o.id!==b.id&&o.villa===b.villa&&bkActive(o)&&o.nhan===key);
@@ -1298,8 +1305,9 @@ function openStaffForm(id){
   h+='<form id="fStaff"><label class="f"><span>Họ tên</span><input id="sTen" required value="'+esc(s?s.ten:"")+'"></label><div class="row"><label class="f grow"><span>Bộ phận</span><select id="sBp">'+opt("","Chưa xếp",s?s.boPhan:"buong-phong")+Object.keys(BO_PHAN).map(k=>opt(k,BO_PHAN[k].ten,s?s.boPhan:"buong-phong")).join("")+'</select></label><label class="f grow"><span>Vai trò</span><select id="sVai">'+Object.keys(VAI_TRO).map(k=>opt(k,VAI_TRO[k],s?s.vaiTro:"nhan-vien")).join("")+'</select></label></div>';
   h+='<div class="row"><label class="f grow"><span>Villa phụ trách</span><select id="sVilla">'+opt("","Cả chuỗi",s?s.villa||"":"")+VILLAS.map(v=>opt(v.id,v.ten,s?s.villa:"")).join("")+'</select></label><label class="f grow"><span>Số điện thoại</span><input id="sSdt" value="'+esc(s?s.sdt||"":"")+'"></label><label class="f grow"><span>Email đăng nhập</span><input id="sEmail" type="email" autocomplete="off" placeholder="ten@gmail.com" value="'+esc(s?s.email||"":"")+'"></label><label class="f grow"><span>Tình trạng</span><select id="sHoat">'+opt("1","Đang làm",s&&s.hoatDong===false?"0":"1")+opt("0","Đã nghỉ",s&&s.hoatDong===false?"0":"1")+'</select></label></div>';
   h+='<div class="small muted">Giám đốc: giao việc và duyệt mọi bộ phận. Trưởng bộ phận: giao việc và duyệt trong bộ phận mình. Nhân viên: nhận việc, báo xong. Email đăng nhập: người này vào app bằng email này (Google hoặc mật khẩu). Bỏ trống hoặc chọn "Đã nghỉ" thì không vào được.</div>';
+  h+=fbStaffDn(s);
   h+='<div class="acts"><button type="submit" class="btn p">'+(s?"Lưu":"Thêm")+'</button>'+(s?'<button type="button" class="btn bad" id="sDel">Xóa</button>':"")+'<button type="button" class="btn" id="sCancel">Đóng</button></div></form>';
-  formSheet(h);$("#sCancel").onclick=closeSheet;
+  formSheet(h);$("#sCancel").onclick=closeSheet;fbStaffDnGan(s);
   if(s)$("#sDel").onclick=e=>twoStep(e.target,()=>{delDoc("staff/"+id);if(s.email)delDoc("members/"+lcEmail(s.email));closeSheet()});
   $("#fStaff").onsubmit=e=>{e.preventDefault();const data={ten:(s&&s._autoTen&&$("#sTen").value.trim()===s.ten)?"":$("#sTen").value.trim(),boPhan:$("#sBp").value,vaiTro:$("#sVai").value,villa:$("#sVilla").value,sdt:$("#sSdt").value.trim(),email:lcEmail($("#sEmail").value),hoatDong:$("#sHoat").value==="1"};
     if(s){updDoc("staff/"+id,data);syncMember(id,{...s,...data},s.email)}else{const sid=nid("s");setDoc("staff/"+sid,{...data,id:sid,userId:"",tao:now()});syncMember(sid,data,"")}closeSheet()};
@@ -1373,11 +1381,12 @@ function fbBindTaiKhoan(el){
 /* bấm vào tên ở góc trên: tài khoản và đăng xuất, cho mọi người (nhân viên, chủ đầu tư cũng cần đăng xuất) */
 function fbMoTaiKhoan(){
   if(!window.FB)return;
-  let h=sheetHead("Tài khoản",esc(FB.email));
+  let h=sheetHead("Tài khoản",esc(FB.laTenDn(FB.email)?"Tên đăng nhập: "+tenDnCua(FB.email):FB.email));
   h+='<div class="small muted">'+(laCdt()?"Chủ đầu tư: chỉ xem villa của mình.":isMgr()?"Giám đốc, quản lý: sao lưu và nhập dữ liệu ở tab Dữ liệu.":"Nhân viên.")+'</div>';
   h+=fbPhanThongBao();
+  h+=fbDoiMkForm();
   h+='<div class="acts"><button class="btn" id="fbDx">Đăng xuất</button><button class="btn" id="fbDong">Đóng</button></div>';
-  formSheet(h);$("#fbDong").onclick=closeSheet;$("#fbDx").onclick=e=>twoStep(e.target,()=>FB.signOut());fbGanNutThongBao();
+  formSheet(h);$("#fbDong").onclick=closeSheet;$("#fbDx").onclick=e=>twoStep(e.target,()=>FB.signOut());fbGanNutThongBao();fbDoiMkGan();
 }
 (()=>{const w=document.getElementById("who");if(w){w.style.cursor="pointer";w.onclick=fbMoTaiKhoan}})();
 async function fbXuat(){
@@ -1670,6 +1679,102 @@ function fbGiaoSection(t) {
 }
 function fbGiaoGan(sh, id) {
   sh.querySelectorAll("[data-gvph]").forEach((x) => x.onclick = () => { const p = (GV_PH[id] || []).find((y) => y.id === x.dataset.gvph); if (p) openLb(p.data, fmtDT(p.luc) + " · ảnh kèm khi giao việc"); });
+}
+
+/* ---------- Đặt phòng mới: tự giao quản gia việc làm sạch căn trước giờ mở cửa cho khách ---------- */
+/* quản gia của căn: nhân viên bộ phận Đón tiếp, quản gia đang hoạt động, phụ trách đúng villa đó (không ghi villa thì coi là phụ trách cả chuỗi, chỉ nhận khi có đúng một người) */
+function fbQuanGia(vid) {
+  const ds = STAFF.filter((s) => s.hoatDong !== false && s.boPhan === "don-tiep");
+  const rieng = ds.filter((s) => s.villa === vid);
+  if (rieng.length) return rieng[0];
+  const chung = ds.filter((s) => !s.villa);
+  return chung.length === 1 ? chung[0] : null;
+}
+function fbHanMoCua(b) {
+  const hm = String(b.gioNhan || GIO_NHAN).split(":").map(Number);
+  const [y, m, d] = String(b.nhan).split("-").map(Number);
+  return new Date(y, m - 1, d, hm[0] || 0, hm[1] || 0, 0, 0).toISOString();
+}
+function fbViecTruocKhach() {
+  const hom = ymd(new Date());
+  for (const b of BOOKINGS) {
+    if (!b.nhan || !b.villa) continue;
+    const id = "bk_" + b.id + "_truoc";
+    const t = TASKS.find((x) => x.id === id);
+    const v = VILLAS.find((x) => x.id === b.villa);
+    const qg = fbQuanGia(b.villa);
+    if (t) {
+      if (!isOpen(t)) continue;
+      const k = "truoc@" + b.id + "@" + b.nhan + "@" + (b.gioNhan || "") + "@" + bkActive(b) + "@" + (qg ? qg.id : "") + "@" + (t.giaoCho || "");
+      if (GEN.has(k)) continue; GEN.add(k);
+      if (!bkActive(b)) { updDoc("tasks/" + id, { trangThai: "huy", lichSu: hist(t, "Tự hủy vì đặt phòng đã hủy") }); continue; }
+      const han = fbHanMoCua(b), d = {}, ghi = [];
+      if (t.hanXong !== han) { d.hanXong = han; ghi.push("đổi hạn theo giờ mở cửa mới"); }
+      if (!t.giaoCho && qg) { d.giaoCho = qg.id; ghi.push("giao cho " + qg.ten); }
+      if (ghi.length) { d.lichSu = hist(t, "Tự cập nhật: " + ghi.join(", ")); updDoc("tasks/" + id, d); }
+      continue;
+    }
+    if (!bkActive(b) || b.nhan < hom || !v) continue;
+    const k = "truoc@" + b.id + "@moi"; if (GEN.has(k)) continue; GEN.add(k);
+    const rs = ROOMS.filter((r) => r.villa === b.villa).sort((a, c) => (a.loai === "ngu" ? 0 : 1) - (c.loai === "ngu" ? 0 : 1) || (a.thuTu || 99) - (c.thuTu || 99));
+    const ck = rs.map((r) => r.loai === "ngu" ? "Dọn sạch, trải giường, thay đồ vải " + r.ten : r.loai === "ho-boi" ? "Hồ bơi sạch, nước trong, đo clo và pH " + r.ten : "Dọn sạch " + r.ten);
+    ck.push("Set-up đồ miễn phí, hàng quầy, bộ ăn, dụng cụ bếp", "Rác đã dọn, mùi dễ chịu, điều hòa, đèn, wifi chạy tốt", "Chụp ảnh căn sạch sẽ làm bằng chứng");
+    const gio = b.gioNhan || GIO_NHAN;
+    const han = fbHanMoCua(b);
+    newTask({
+      id, loai: "don-chung", boPhan: "don-tiep", villa: b.villa, giaoCho: qg ? qg.id : "", hanXong: han, ck,
+      tieuDe: "Quản gia: làm sạch cả căn trước khi khách đến · " + v.ten,
+      moTa: "Khách " + bkLabel(b) + ", nhận " + fmtNgay(b.nhan) + " lúc " + gio + (qg ? "" : ". Chưa có quản gia phụ trách căn này (gán ở tab Nhân viên: bộ phận Đón tiếp, villa phụ trách)."),
+      datPhong: b.id, hd: "Tự tạo khi có đặt phòng mới" + (qg ? ", giao cho quản gia " + qg.ten : ", chưa có quản gia"),
+    });
+  }
+}
+
+/* ---------- Tài khoản tên đăng nhập (không cần email), giám đốc và quản lý cấp trong form nhân viên ---------- */
+const tenDnCua = (email) => lcEmail(email).replace("@" + FB.DN_MIEN, "");
+const laEmailDn = (email) => !!window.FB && FB.laTenDn(email);
+function fbStaffDn(s) {
+  if (!window.FB || !isMgr() || laCdt()) return "";
+  if (!s) return '<div class="small muted">Muốn cấp tên đăng nhập (không cần email): bấm Thêm nhân viên trước, rồi mở lại hồ sơ người đó để tạo tài khoản.</div>';
+  if (laEmailDn(s.email)) return '<div class="sec-h"><h3>Đăng nhập bằng tên</h3></div><div class="small">Tên đăng nhập: <b>' + esc(tenDnCua(s.email)) + '</b>. Quên mật khẩu thì nhờ người quản lý bot đặt lại (xem HUONG-DAN.md).</div>';
+  if (s.email) return '<div class="small muted">Người này đang đăng nhập bằng email ' + esc(s.email) + '. Muốn đổi sang tên đăng nhập thì xóa ô Email đăng nhập, lưu, rồi mở lại.</div>';
+  return '<div class="sec-h"><h3>Đăng nhập bằng tên, không cần email</h3></div><div class="row"><label class="f grow"><span>Tên đăng nhập</span><input id="sDnTen" autocapitalize="none" autocomplete="off" placeholder="vd: hoa.vi-ba"></label><label class="f grow"><span>Mật khẩu (ít nhất 6 ký tự)</span><input id="sDnMk" type="text" autocomplete="off"></label></div><button type="button" class="btn" id="sDnTao">Tạo tài khoản</button><div class="small muted">Chữ thường không dấu, số, dấu chấm, gạch. Đưa tên và mật khẩu này cho nhân viên; họ vào villa226.com/app, gõ tên vào ô email.</div>';
+}
+function fbStaffDnGan(s) {
+  const b = document.getElementById("sDnTao"); if (!b || !s) return;
+  b.onclick = async () => {
+    const ten = FB.dnEmail($("#sDnTen").value), mk = $("#sDnMk").value;
+    const goc = String($("#sDnTen").value || "").trim();
+    if (!ten || ten.length < 3 + FB.DN_MIEN.length + 1 || goc.includes("@")) return toast("Tên đăng nhập ít nhất 3 ký tự, không có @.");
+    if (mk.length < 6) return toast("Mật khẩu ít nhất 6 ký tự.");
+    if (b.dataset.dang) return; b.dataset.dang = "1"; b.disabled = true;
+    try {
+      await FB.taoTaiKhoan(ten, mk);
+      updDoc("staff/" + s.id, { email: ten });
+      syncMember(s.id, { ...s, email: ten }, s.email);
+      toast("Đã tạo tài khoản " + tenDnCua(ten) + ". Đưa tên và mật khẩu cho " + (s.ten || "nhân viên"));
+      closeSheet();
+    } catch (e) {
+      delete b.dataset.dang; b.disabled = false;
+      toast(e && e.code === "auth/email-already-in-use" ? "Tên này đã có người dùng, chọn tên khác." : e && e.code === "auth/weak-password" ? "Mật khẩu quá yếu." : "Chưa tạo được tài khoản, thử lại.");
+      console.error(e);
+    }
+  };
+}
+/* mọi người dùng mật khẩu tự đổi mật khẩu của mình */
+function fbDoiMkForm() {
+  if (!window.FB || !FB.auth.currentUser || !(FB.auth.currentUser.providerData || []).some((p) => p.providerId === "password")) return "";
+  return '<div class="sec-h"><h3>Đổi mật khẩu</h3></div><div class="row"><label class="f grow"><span>Mật khẩu hiện tại</span><input id="mkCu" type="password" autocomplete="current-password"></label><label class="f grow"><span>Mật khẩu mới</span><input id="mkMoi" type="password" autocomplete="new-password"></label></div><button type="button" class="btn" id="mkDoi">Đổi mật khẩu</button>';
+}
+function fbDoiMkGan() {
+  const b = document.getElementById("mkDoi"); if (!b) return;
+  b.onclick = async () => {
+    const cu = $("#mkCu").value, moi = $("#mkMoi").value;
+    if (!cu) return toast("Nhập mật khẩu hiện tại."); if (moi.length < 6) return toast("Mật khẩu mới ít nhất 6 ký tự.");
+    b.disabled = true;
+    try { await FB.doiMatKhau(cu, moi); toast("Đã đổi mật khẩu"); closeSheet(); }
+    catch (e) { b.disabled = false; toast(e && (e.code === "auth/invalid-credential" || e.code === "auth/wrong-password") ? "Mật khẩu hiện tại chưa đúng." : "Chưa đổi được mật khẩu, thử lại."); console.error(e); }
+  };
 }
 </script>
 </body>
