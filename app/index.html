@@ -1310,7 +1310,7 @@ function openStaffForm(id){
   formSheet(h);$("#sCancel").onclick=closeSheet;fbStaffDnGan(s);
   if(s)$("#sDel").onclick=e=>twoStep(e.target,()=>{delDoc("staff/"+id);if(s.email)delDoc("members/"+lcEmail(s.email));closeSheet()});
   $("#fStaff").onsubmit=e=>{e.preventDefault();const data={ten:(s&&s._autoTen&&$("#sTen").value.trim()===s.ten)?"":$("#sTen").value.trim(),boPhan:$("#sBp").value,vaiTro:$("#sVai").value,villa:$("#sVilla").value,sdt:$("#sSdt").value.trim(),email:lcEmail($("#sEmail").value),hoatDong:$("#sHoat").value==="1"};
-    if(s){updDoc("staff/"+id,data);syncMember(id,{...s,...data},s.email)}else{const sid=nid("s");setDoc("staff/"+sid,{...data,id:sid,userId:"",tao:now()});syncMember(sid,data,"")}closeSheet()};
+    if(s){updDoc("staff/"+id,data);syncMember(id,{...s,...data},s.email)}else{const sid=nid("s");setDoc("staff/"+sid,{...data,id:sid,userId:"",tao:now()});syncMember(sid,data,"");fbDnKhiThem(sid,data)}closeSheet()};
 }
 
 /* ---------- kết nối kho ---------- */
@@ -1733,32 +1733,42 @@ function fbViecTruocKhach() {
 /* ---------- Tài khoản tên đăng nhập (không cần email), giám đốc và quản lý cấp trong form nhân viên ---------- */
 const tenDnCua = (email) => lcEmail(email).replace("@" + FB.DN_MIEN, "");
 const laEmailDn = (email) => !!window.FB && FB.laTenDn(email);
+const KHOI_DN_TAO = '<div class="sec-h"><h3>Đăng nhập bằng tên, không cần email</h3></div><div class="row"><label class="f grow"><span>Tên đăng nhập</span><input id="sDnTen" autocapitalize="none" autocomplete="off" placeholder="vd: hoa.viba"></label><label class="f grow"><span>Mật khẩu (ít nhất 6 ký tự)</span><input id="sDnMk" type="text" autocomplete="off"></label></div>';
+const GHI_CHU_DN = '<div class="small muted">Chữ thường không dấu, số, dấu chấm, gạch. Đưa tên và mật khẩu này cho nhân viên; họ vào villa226.com/app, gõ tên vào ô email. Để trống nếu nhân viên dùng email.</div>';
 function fbStaffDn(s) {
   if (!window.FB || !isMgr() || laCdt()) return "";
-  if (!s) return '<div class="small muted">Muốn cấp tên đăng nhập (không cần email): bấm Thêm nhân viên trước, rồi mở lại hồ sơ người đó để tạo tài khoản.</div>';
+  if (!s) return KHOI_DN_TAO + GHI_CHU_DN;
   if (laEmailDn(s.email)) return '<div class="sec-h"><h3>Đăng nhập bằng tên</h3></div><div class="small">Tên đăng nhập: <b>' + esc(tenDnCua(s.email)) + '</b>. Quên mật khẩu thì nhờ người quản lý bot đặt lại (xem HUONG-DAN.md).</div>';
   if (s.email) return '<div class="small muted">Người này đang đăng nhập bằng email ' + esc(s.email) + '. Muốn đổi sang tên đăng nhập thì xóa ô Email đăng nhập, lưu, rồi mở lại.</div>';
-  return '<div class="sec-h"><h3>Đăng nhập bằng tên, không cần email</h3></div><div class="row"><label class="f grow"><span>Tên đăng nhập</span><input id="sDnTen" autocapitalize="none" autocomplete="off" placeholder="vd: hoa.vi-ba"></label><label class="f grow"><span>Mật khẩu (ít nhất 6 ký tự)</span><input id="sDnMk" type="text" autocomplete="off"></label></div><button type="button" class="btn" id="sDnTao">Tạo tài khoản</button><div class="small muted">Chữ thường không dấu, số, dấu chấm, gạch. Đưa tên và mật khẩu này cho nhân viên; họ vào villa226.com/app, gõ tên vào ô email.</div>';
+  return KHOI_DN_TAO + '<button type="button" class="btn" id="sDnTao">Tạo tài khoản</button>' + GHI_CHU_DN;
+}
+/* tạo tài khoản rồi gắn vào hồ sơ; trả về chuỗi lỗi để hiện, hoặc "" nếu xong */
+async function fbDnTao(s, tenGoc, mk) {
+  const ten = FB.dnEmail(tenGoc);
+  if (!ten || String(tenGoc).includes("@") || tenDnCua(ten).length < 3) return "Tên đăng nhập ít nhất 3 ký tự, không có @.";
+  if (mk.length < 6) return "Mật khẩu ít nhất 6 ký tự.";
+  try { await FB.taoTaiKhoan(ten, mk); }
+  catch (e) { console.error(e); return e && e.code === "auth/email-already-in-use" ? "Tên " + tenDnCua(ten) + " đã có người dùng, chọn tên khác (nhân viên chưa có tài khoản)." : e && e.code === "auth/weak-password" ? "Mật khẩu quá yếu." : "Chưa tạo được tài khoản, thử lại."; }
+  updDoc("staff/" + s.id, { email: ten });
+  syncMember(s.id, { ...s, email: ten }, s.email);
+  toast("Đã tạo tài khoản " + tenDnCua(ten) + ". Đưa tên và mật khẩu cho " + (s.ten || "nhân viên"));
+  return "";
+}
+/* thêm nhân viên mới có điền tên, mật khẩu: tạo luôn sau khi ghi hồ sơ */
+function fbDnKhiThem(sid, data) {
+  const t = document.getElementById("sDnTen"), m = document.getElementById("sDnMk");
+  const tg = t ? t.value.trim() : "", mk = m ? m.value : "";
+  if (!tg && !mk) return;
+  if (data.email) return toast("Đã điền email đăng nhập nên bỏ qua tên đăng nhập.");
+  fbDnTao({ id: sid, ten: data.ten, email: "", ...data }, tg, mk).then((l) => { if (l) toast("Đã thêm nhân viên nhưng chưa tạo tài khoản: " + l + " Mở lại hồ sơ để tạo."); });
 }
 function fbStaffDnGan(s) {
   const b = document.getElementById("sDnTao"); if (!b || !s) return;
   b.onclick = async () => {
-    const ten = FB.dnEmail($("#sDnTen").value), mk = $("#sDnMk").value;
-    const goc = String($("#sDnTen").value || "").trim();
-    if (!ten || ten.length < 3 + FB.DN_MIEN.length + 1 || goc.includes("@")) return toast("Tên đăng nhập ít nhất 3 ký tự, không có @.");
-    if (mk.length < 6) return toast("Mật khẩu ít nhất 6 ký tự.");
     if (b.dataset.dang) return; b.dataset.dang = "1"; b.disabled = true;
-    try {
-      await FB.taoTaiKhoan(ten, mk);
-      updDoc("staff/" + s.id, { email: ten });
-      syncMember(s.id, { ...s, email: ten }, s.email);
-      toast("Đã tạo tài khoản " + tenDnCua(ten) + ". Đưa tên và mật khẩu cho " + (s.ten || "nhân viên"));
-      closeSheet();
-    } catch (e) {
-      delete b.dataset.dang; b.disabled = false;
-      toast(e && e.code === "auth/email-already-in-use" ? "Tên này đã có người dùng, chọn tên khác." : e && e.code === "auth/weak-password" ? "Mật khẩu quá yếu." : "Chưa tạo được tài khoản, thử lại.");
-      console.error(e);
-    }
+    const l = await fbDnTao(s, $("#sDnTen").value.trim(), $("#sDnMk").value);
+    if (!l) return closeSheet();
+    delete b.dataset.dang; b.disabled = false; toast(l);
   };
 }
 /* mọi người dùng mật khẩu tự đổi mật khẩu của mình */
