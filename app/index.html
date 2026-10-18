@@ -650,7 +650,7 @@ function taoViecDinhKy(){
     const villas=l.villa==="all"?VILLAS.map(v=>v.id):[l.villa||""];
     for(const v of villas){const id="lich_"+l.id+"_"+key.replace(/-/g,"")+"_"+(v||"chuoi");if(TASKS.some(t=>t.id===id))continue;
       const L=LOAI[l.loai]||LOAI.khac;const han=l.gio?todayAt(l.gio).toISOString():todayAt("17:00").toISOString();
-      newTask({id,loai:l.loai,boPhan:l.boPhan||L.bp,villa:v,phong:"",tieuDe:(l.ten||L.ten)+(v?" · "+villaName(v):""),giaoCho:l.giaoCho||"",hanXong:han,uuTien:l.uuTien||"thuong",moTa:l.moTa||"",ck:(l.checklist&&l.checklist.length)?l.checklist:L.ck,lichId:l.id,hd:"Tự tạo theo lịch "+(CHU_KY[l.chuKy]||"").toLowerCase()});n++}
+      newTask({id,loai:l.loai,boPhan:l.boPhan||L.bp,villa:v,phong:l.phong||"",matBang:l.matBang||"",tieuDe:(l.ten||L.ten)+(l.phong?" · "+roomName(l.phong):v?" · "+villaName(v):""),giaoCho:l.giaoCho||"",hanXong:han,uuTien:l.uuTien||"thuong",moTa:l.moTa||"",ck:(l.checklist&&l.checklist.length)?l.checklist:L.ck,lichId:l.id,hd:"Tự tạo theo lịch "+(CHU_KY[l.chuKy]||"").toLowerCase()});n++}
     updDoc("lich/"+l.id,{lanCuoi:key})}
   if(n)toast("Đã tạo "+n+" việc định kỳ hôm nay");taoViecDatPhong()}
 /* việc theo lịch khách: sáng ngày trả tạo loạt dọn + tiễn khách; ngày nhận tạo việc đón khách (set-up nếu chưa có) */
@@ -894,7 +894,7 @@ function renderBoPhan(){
     h+='<div class="row" style="justify-content:space-between;margin-bottom:10px"><div class="small muted">Việc tự tạo đúng ngày khi có người mở app. Nhịp SOP: ngày hồ bơi, tuần kỹ thuật và kiểm kê, tháng an toàn và chốt sổ, quý brand audit.</div>'+(can?'<button class="btn sm p" id="btnAddLich">+ Lịch</button>':"")+'</div>';
     if(!LICH.length)h+='<div class="empty"><b>Chưa có lịch định kỳ</b></div>';
     const ls=LICH.slice().sort((a,b)=>({ngay:0,tuan:1,thang:2,quy:3}[a.chuKy]??9)-({ngay:0,tuan:1,thang:2,quy:3}[b.chuKy]??9)||String(a.ten).localeCompare(String(b.ten),"vi"));
-    h+=ls.map(l=>'<div class="mb" data-l="'+esc(l.id)+'"'+(l.hoatDong===false?' style="opacity:.6"':"")+'><b>'+esc(l.ten||(LOAI[l.loai]||{}).ten||"")+(l.hoatDong===false?' <span class="chip plain">Tắt</span>':"")+'</b><div class="d">'+esc(lichMota(l))+'</div><div class="r"><span class="tag">'+esc(bpName(l.boPhan||(LOAI[l.loai]||{}).bp))+'</span><span>'+esc(l.villa==="all"?"Mỗi villa một việc":villaName(l.villa))+'</span><span>· '+esc(l.giaoCho?staffName(l.giaoCho):"chưa ai nhận")+'</span>'+(l.lanCuoi?'<span class="muted">· tạo gần nhất '+esc(l.lanCuoi.split("-").reverse().join("/"))+'</span>':"")+'</div></div>').join("");
+    h+=ls.map(l=>'<div class="mb" data-l="'+esc(l.id)+'"'+(l.hoatDong===false?' style="opacity:.6"':"")+'><b>'+esc(l.ten||(LOAI[l.loai]||{}).ten||"")+(l.hoatDong===false?' <span class="chip plain">Tắt</span>':"")+'</b><div class="d">'+esc(lichMota(l))+'</div><div class="r"><span class="tag">'+esc(bpName(l.boPhan||(LOAI[l.loai]||{}).bp))+'</span><span>'+esc(l.villa==="all"?"Mỗi villa một việc":villaName(l.villa)+(l.phong?" · "+roomName(l.phong):""))+'</span><span>· '+esc(l.giaoCho?staffName(l.giaoCho):"chưa ai nhận")+'</span>'+(l.lanCuoi?'<span class="muted">· tạo gần nhất '+esc(l.lanCuoi.split("-").reverse().join("/"))+'</span>':"")+'</div></div>').join("");
   }
   el.innerHTML=h;
   el.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{bpSeg=b.dataset.s;render()});
@@ -1020,7 +1020,7 @@ function openGiaoViec(o){
   h+='<label class="f"><span>Mô tả, dặn dò</span><textarea id="gMoTa" placeholder="Vd: khách 12 người, thêm 2 nệm phòng P3">'+esc(t?t.moTa||"":"")+'</textarea></label>';
   h+='<label class="f"><span>Checklist (mỗi dòng một mục, sửa tùy ý)</span><textarea id="gCk" style="min-height:120px">'+esc(t?(t.checklist||[]).map(c=>c.t).join("\n"):"")+'</textarea></label>';
   h+=fbGiaoForm(t);h+='<div class="acts"><button type="submit" class="btn p">'+(t?"Lưu thay đổi":"Giao việc")+'</button><button type="button" class="btn" id="gCancel">Đóng</button></div></form>';
-  formSheet(h);$("#gCancel").onclick=closeSheet;fbGiaoVe();
+  formSheet(h);$("#gCancel").onclick=closeSheet;fbGiaoVe();fbLapGan();
   const gB=$("#gBp"),gV=$("#gVilla"),gL=$("#gLoai"),gP=$("#gPhong"),gT=$("#gTieuDe"),gH=$("#gHan"),gC=$("#gCk"),gM=$("#gMuc"),gA=$("#gAi"),gMb=$("#gMb");
   let touchedTitle=!!t,touchedCk=!!t,touchedHan=!!t;
   function fillLoai(){const cur=t?t.loai:(gL.value||loai);const ks=loaiCua(gB.value).concat(["khac"]);gL.innerHTML=ks.map(k=>opt(k,LOAI[k].ten,cur)).join("");if(!ks.includes(gL.value))gL.value=ks[0]}
@@ -1041,10 +1041,10 @@ function openGiaoViec(o){
     const data={boPhan:gB.value,villa:gV.value,loai:gL.value,phong,phongTen:phong?roomName(phong):"",matBang:gB.value==="phat-trien"?gMb.value:"",tieuDe,giaoCho:gA.value,hanXong:gH.value?new Date(gH.value).toISOString():"",uuTien:$("#gUu").value,moTa:$("#gMoTa").value.trim()};
     if(gL.value==="bao-tri")data.mucSuCo=gM.value;const gTid=t?t.id:GV_FORM.tid;data.soAnhGiao=fbGiaoLuu(gTid,data.villa,t?t.soAnhGiao:0);
     if(t){const old=(t.checklist||[]);data.checklist=ck.map(x=>{const o2=old.find(c=>c.t===x);return o2?{...o2}:{t:x,ok:false}});data.lichSu=hist(t,"Sửa việc"+(data.giaoCho!==t.giaoCho?", giao cho "+(staffName(data.giaoCho)||"chưa ai"):""));updDoc("tasks/"+t.id,data);toast("Đã lưu")}
-    else{newTask({...data,id:gTid,ck,mucSuCo:data.mucSuCo});
+    else{const gLich=fbLapLuu(data,ck,touchedTitle);newTask({...data,id:gTid,ck,mucSuCo:data.mucSuCo,lichId:gLich?gLich.id:"",hd:gLich?fbLapHd(data,gLich):undefined});
       if(gL.value==="bao-tri"&&phong)roomStatus(phong,"bao-tri");
       if((gL.value==="don-tra"||gL.value==="don-chung")&&phong){const r=roomOf(phong);if(r&&r.trangThai==="sach")roomStatus(phong,"ban")}
-      toast("Đã giao việc")}
+      toast(gLich?(gLich.trung?"Đã giao việc. Lịch lặp này đã có sẵn, không tạo thêm":"Đã giao việc, lặp "+gLich.mota.toLowerCase()):"Đã giao việc")}
     closeSheet()};
 }
 
@@ -1786,6 +1786,80 @@ function fbDoiMkGan() {
     catch (e) { b.disabled = false; toast(e && (e.code === "auth/invalid-credential" || e.code === "auth/wrong-password") ? "Mật khẩu hiện tại chưa đúng." : "Chưa đổi được mật khẩu, thử lại."); console.error(e); }
   };
 }
+
+/* ---------- LẶP LẠI ngay trong form Giao việc (18/10/2026) ----------
+   Việc nào cũng có thể lặp: chọn chu kỳ thì ngoài việc giao ngay bây giờ, app lưu thêm một "lịch định kỳ" (cùng bộ sưu tập
+   `lich` với 13 mẫu). Đến ngày, taoViecDinhKy tự tạo việc như mọi lịch khác. Sửa, tắt lịch: tab Bộ phận, mục Lịch định kỳ.
+   13 mẫu thành gợi ý: chọn loại việc có mẫu thì hiện nút "Lặp theo mẫu" điền sẵn chu kỳ và giờ của mẫu. */
+function fbLapForm(t) {
+  if (t) return "";   // sửa việc đã giao: không đụng lịch ở đây
+  return '<div class="sec-h"><h3>Lặp lại</h3></div>'
+    + '<div class="row"><label class="f grow"><span>Chu kỳ</span><select id="gLap">' + opt("", "Không lặp, làm một lần", "") + Object.keys(CHU_KY).map((k) => opt(k, CHU_KY[k], "")).join("") + '</select></label>'
+    + '<label class="f grow" id="gLapThuW" hidden><span>Vào thứ</span><select id="gLapThu">' + [1, 2, 3, 4, 5, 6, 0].map((d) => opt(d, THU[d], 1)).join("") + '</select></label>'
+    + '<label class="f grow" id="gLapNgayW" hidden><span>Ngày trong tháng (1 đến 28)</span><input type="number" id="gLapNgay" min="1" max="28" value="1"></label></div>'
+    + '<div class="small muted" id="gLapGhi" style="margin-bottom:8px"></div><div id="gLapMau"></div>';
+}
+function fbLapHanDate() { const v = (document.getElementById("gHan") || {}).value; const d = v ? new Date(v) : null; return d && !isNaN(d) ? d : null; }
+function fbLapGan() {
+  const sel = document.getElementById("gLap"); if (!sel) return;
+  const g = (i) => document.getElementById(i);
+  const hien = (macDinh) => {
+    const ck = sel.value, d = fbLapHanDate();
+    g("gLapThuW").hidden = ck !== "tuan"; g("gLapNgayW").hidden = ck !== "thang" && ck !== "quy";
+    if (macDinh && d) { g("gLapThu").value = String(d.getDay()); g("gLapNgay").value = Math.min(28, d.getDate()); }
+    if (!ck) { g("gLapGhi").textContent = ""; return; }
+    const l = { chuKy: ck, thu: +g("gLapThu").value, ngay: +g("gLapNgay").value || 1, gio: d ? pad(d.getHours()) + ":" + pad(d.getMinutes()) : "" };
+    g("gLapGhi").textContent = "Việc này giao ngay bây giờ. Các lần sau app tự tạo: " + lichMota(l).toLowerCase() + ". Sửa hoặc tắt ở tab Bộ phận, mục Lịch định kỳ.";
+  };
+  const mauCua = () => {
+    const lo = g("gLoai") && g("gLoai").value, bp = g("gBp") && g("gBp").value; if (!lo) return null;
+    const ds = LICH.filter((l) => l.loai === lo && (l.boPhan || (LOAI[l.loai] || {}).bp) === bp);
+    return ds.find((l) => /^l-/.test(l.id) && l.hoatDong === false) || ds[0] || null;
+  };
+  const veMau = () => {
+    const box = g("gLapMau"); if (!box) return;
+    const l = mauCua();
+    if (!l || sel.value) { box.innerHTML = ""; return; }
+    box.innerHTML = '<div class="small muted" style="margin-bottom:6px">Mẫu việc này thường lặp: ' + esc(lichMota(l)) + '</div><div class="acts" style="margin-bottom:8px"><button type="button" class="btn sm" id="gLapMauBtn">Lặp theo mẫu</button></div>';
+    g("gLapMauBtn").onclick = () => {
+      sel.value = l.chuKy || "ngay"; hien(true);
+      if (l.thu != null && sel.value === "tuan") g("gLapThu").value = String(l.thu);
+      if (l.ngay && (sel.value === "thang" || sel.value === "quy")) g("gLapNgay").value = l.ngay;
+      if (l.gio) {   // chỉnh giờ hạn theo mẫu, giờ đã qua thì sang ngày mai
+        const d = fbLapHanDate() || new Date(), [hh, mm] = l.gio.split(":").map(Number); d.setHours(hh, mm, 0, 0);
+        if (d < new Date()) d.setTime(d.getTime() + 86400000);
+        g("gHan").value = localInput(d); g("gHan").dispatchEvent(new Event("input"));
+      }
+      hien(false); veMau();
+    };
+  };
+  sel.addEventListener("change", () => { hien(true); veMau(); });
+  for (const i of ["gLapThu", "gLapNgay"]) g(i).addEventListener("change", () => hien(false));
+  g("gHan").addEventListener("input", () => hien(false));
+  for (const i of ["gLoai", "gBp"]) g(i).addEventListener("change", () => setTimeout(veMau, 0));
+  setTimeout(veMau, 0);   // gLoai được điền sau khi form vẽ xong
+}
+/* bấm Giao việc: có chọn chu kỳ thì lưu lịch định kỳ. Trả về {id, mota} hoặc null. Lịch giống hệt đã có thì dùng lại, không tạo đôi. */
+function fbLapLuu(data, ck, tenTuy) {
+  const sel = document.getElementById("gLap"); if (!sel || !sel.value) return null;
+  const d = new Date(data.hanXong), chuKy = sel.value;
+  const L = {
+    boPhan: data.boPhan, loai: data.loai, ten: tenTuy ? data.tieuDe : "", chuKy,
+    thu: chuKy === "tuan" ? (+document.getElementById("gLapThu").value || 0) : d.getDay(),
+    ngay: Math.min(28, Math.max(1, +document.getElementById("gLapNgay").value || d.getDate())),
+    gio: pad(d.getHours()) + ":" + pad(d.getMinutes()), villa: data.villa || "", phong: data.phong || "", matBang: data.matBang || "",
+    giaoCho: data.giaoCho || "", uuTien: data.uuTien || "thuong", moTa: data.moTa || "", checklist: ck, hoatDong: true,
+  };
+  const mota = lichMota(L);
+  const trung = LICH.find((l) => l.hoatDong !== false && (l.boPhan || (LOAI[l.loai] || {}).bp) === L.boPhan && l.loai === L.loai && (l.villa || "") === L.villa
+    && (l.phong || "") === L.phong && (l.giaoCho || "") === L.giaoCho && l.chuKy === chuKy && (l.gio || "") === L.gio
+    && (chuKy !== "tuan" || +l.thu === L.thu) && ((chuKy !== "thang" && chuKy !== "quy") || +l.ngay === L.ngay));
+  if (trung) return { id: trung.id, mota, trung: true };
+  const id = nid("l");
+  setDoc("lich/" + id, { ...L, id, tao: now(), lanCuoi: ymd(d), nguoiTao: meId() });   // lanCuoi = ngày của việc giao ngay, để hôm đó không tạo đôi
+  return { id, mota };
+}
+function fbLapHd(data, lich) { return "Giao việc" + (data.giaoCho ? " cho " + staffName(data.giaoCho) : "") + ", lặp " + lich.mota.toLowerCase(); }
 </script>
 </body>
 </html>
