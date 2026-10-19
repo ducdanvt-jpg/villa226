@@ -633,13 +633,13 @@ function wantProfiles(ids){if(!USER)return;const need=[...new Set(ids.filter(i=>
 /* ---------- ghi kho: mỗi tài liệu một hàng chờ, một lần ghi một lúc ---------- */
 const Q={};
 function write(path,fn){Q[path]=(Q[path]||Promise.resolve()).then(()=>fn(db.doc(path))).catch(e=>{const c=FB_CODE(e&&e.code);if(c==="invalid_argument"&&canWriteKnown===false&&canWrite!==false){canWrite=false;renderWho();showNotice()}toast(c==="quota_exceeded"?"Kho đã đầy, cần xóa việc cũ.":c==="invalid_argument"?"Tài khoản này chỉ được xem, không ghi được.":"Chưa ghi được, thử lại sau.");console.error(path,e)});return Q[path]}
-const setDoc=(path,data)=>write(path,d=>d.set(data));
-const updDoc=(path,data)=>write(path,d=>d.update(data));
-const delDoc=path=>write(path,d=>d.delete());
+const setDoc=(path,data)=>{fbLog("them",path,data);return write(path,d=>d.set(data))};
+const updDoc=(path,data)=>{fbLog("sua",path,data);return write(path,d=>d.update(data))};
+const delDoc=path=>{fbLog("xoa",path,{});return write(path,d=>d.delete())};
 function hist(t,hd){const h=Array.isArray(t.lichSu)?t.lichSu.slice():[];h.push({luc:now(),ai:meId(),hd});return h}
 function roomStatus(roomId,st,boi){const r=roomOf(roomId);if(!r||r.trangThai===st)return;updDoc("rooms/"+roomId,{trangThai:st,capNhat:now(),boi:boi||meId()})}
 function newTask(o){const id=o.id||nid("t");const L=LOAI[o.loai]||LOAI.khac;const t={id,boPhan:o.boPhan||L.bp||"",villa:o.villa||"",loai:o.loai||"khac",phong:o.phong||"",phongTen:o.phong?roomName(o.phong):"",matBang:o.matBang||"",datPhong:o.datPhong||"",tieuDe:o.tieuDe||L.ten,giaoCho:o.giaoCho||"",hanXong:o.hanXong||"",uuTien:o.uuTien||"thuong",moTa:o.moTa||"",trangThai:"moi",tao:now(),nguoiGiao:meId(),soLanTraLai:0,lichId:o.lichId||"",checklist:(o.ck||L.ck||[]).map(x=>({t:x,ok:false})),lichSu:[{luc:now(),ai:meId(),hd:o.hd||("Giao việc"+(o.giaoCho?" cho "+staffName(o.giaoCho):""))}]};if(o.mucSuCo)t.mucSuCo=o.mucSuCo;if(o.soAnhGiao)t.soAnhGiao=o.soAnhGiao;setDoc("tasks/"+id,t);return t}
-function addNhatKy(villa,loai,nd,ca){const key=(villa||"chuoi")+"_"+ymd(new Date());write("nhatky/"+key,async d=>{const s=await d.get();const cur=s.exists?s.data():{villa:villa||"",ngay:ymd(new Date()),muc:[]};const muc=(cur.muc||[]).slice();muc.push({luc:now(),ai:meId(),loai,ca:ca||"",nd});return d.set({...cur,villa:villa||"",ngay:cur.ngay||ymd(new Date()),muc})})}
+function addNhatKy(villa,loai,nd,ca){fbLog("them","nhatky/"+(villa||"chuoi"),{villa:villa||"",loai,nd});const key=(villa||"chuoi")+"_"+ymd(new Date());write("nhatky/"+key,async d=>{const s=await d.get();const cur=s.exists?s.data():{villa:villa||"",ngay:ymd(new Date()),muc:[]};const muc=(cur.muc||[]).slice();muc.push({luc:now(),ai:meId(),loai,ca:ca||"",nd});return d.set({...cur,villa:villa||"",ngay:cur.ngay||ymd(new Date()),muc})})}
 
 /* ---------- việc định kỳ: tạo việc hôm nay từ lịch, id cố định nên nhiều máy cùng tạo cũng chỉ một việc ---------- */
 const GEN=new Set();
@@ -696,7 +696,7 @@ document.querySelectorAll(".tabbar button").forEach(b=>b.onclick=()=>setTab(b.da
 $("#fab").onclick=()=>openGiaoViec({});
 function render(){
   document.body.classList.toggle("wide",tab==="bophan"&&bpSeg==="datphong");
-  renderWho();showNotice();fbCapNhatTab();
+  renderWho();showNotice();fbCapNhatTab();fbLogMoApp();
   const me=myStaff();
   const bd=canManageAny()?TASKS.filter(t=>t.trangThai==="cho-duyet"&&canManage(bpOf(t))).length:TASKS.filter(t=>isOpen(t)&&me&&t.giaoCho===me.id&&t.trangThai!=="cho-duyet").length;
   $("#bdViec").hidden=!bd;$("#bdViec").textContent=bd;
@@ -1346,7 +1346,7 @@ document.querySelectorAll(".tabbar button").forEach(b=>b.classList.toggle("on",b
 <script>
 /* ---------- Firebase: email đăng nhập của nhân viên, sao lưu và nhập dữ liệu ---------- */
 const lcEmail=e=>String(e||"").trim().toLowerCase();
-const FB_COLS=["villas","rooms","staff","tasks","lich","matbang","bookings","dat-luu","nhatky","anh","members"];
+const FB_COLS=["villas","rooms","staff","tasks","lich","matbang","bookings","dat-luu","nhatky","anh","lichsu","members"];
 /* hồ sơ nhân viên có email thì email đó vào được app (members/<email>); đổi email, xóa email hoặc chuyển "Đã nghỉ" là khóa */
 function syncMember(staffId,data,oldEmail){
   const email=lcEmail(data.email);oldEmail=lcEmail(oldEmail);
@@ -1369,8 +1369,9 @@ function renderDuLieu(){
   let h='<div class="sec-h"><h2>Dữ liệu</h2></div>';
   h+='<div class="card"><h3>Sao lưu</h3><div class="small muted" style="margin:6px 0 10px">Tải toàn bộ dữ liệu app (villa, phòng, việc, đặt phòng, sổ doanh thu, nhân viên, chủ đầu tư, nhật ký, ảnh) về máy thành một file JSON. Nên làm mỗi tuần.</div><div class="acts"><button class="btn p" id="fbXuat">Tải bản sao lưu</button></div></div>';
   if(FB.member.owner)h+='<div class="card"><h3>Nhập dữ liệu từ file</h3><div class="small muted" style="margin:6px 0 10px">Dùng file sao lưu hoặc file dữ liệu do em chuẩn bị. Mục trùng mã sẽ bị <b>ghi đè</b>, mục khác giữ nguyên, không xóa gì. Chỉ chủ app thấy mục này.</div><div class="acts"><label class="btn" style="cursor:pointer;justify-content:center">Chọn file để nhập<input type="file" id="fbNhap" accept="application/json,.json" hidden></label></div></div>';
+  h+=fbLsKhung();
   h+='<div class="card"><h3>Tài khoản</h3><div class="small" style="margin:6px 0 10px">Đang đăng nhập: <b>'+esc(FB.email)+'</b></div><div class="acts"><button class="btn" id="fbDangXuat">Đăng xuất</button></div></div>';
-  el.innerHTML=h;fbBindTaiKhoan(el);
+  el.innerHTML=h;fbBindTaiKhoan(el);fbLsGan(el);
 }
 function fbBindTaiKhoan(el){
   const ac=el.querySelector("#btnAddCdt");if(ac)ac.onclick=()=>openCdtForm(null);
@@ -1874,6 +1875,94 @@ function fbStaffBpPhu(s) {
 function fbBpPhuDoc() {
   const chinh = ($("#sBp") || {}).value;
   return [...document.querySelectorAll("#sBpPhu input:checked")].map((i) => i.value).filter((k) => k && k !== chinh);
+}
+
+/* ---------- Lịch sử sử dụng: ai làm gì lúc nào. Mọi ghi dữ liệu trong app đi qua fbLog, chỉ giám đốc và quản lý xem được ---------- */
+const LS_TEN = { rooms: "Phòng", tasks: "Việc", villas: "Villa", staff: "Nhân viên", lich: "Lịch lặp", matbang: "Mặt bằng", bookings: "Đặt phòng", "dat-luu": "Sổ doanh thu", members: "Quyền vào app", nhatky: "Nhật ký ca" };
+const LS_BO_QUA = new Set(["anh", "users", "pushTokens", "lichsu"]);
+function fbLsMota(op, col, id, data) {
+  data = data || {}; let ten = "", mota = "";
+  const lay = (arr, i) => (arr || []).find((x) => x.id === i) || {};
+  const hdCuoi = Array.isArray(data.lichSu) && data.lichSu.length ? data.lichSu[data.lichSu.length - 1].hd : "";
+  if (col === "tasks") { const t = lay(TASKS, id); ten = data.tieuDe || t.tieuDe || ""; mota = op === "them" ? "Giao việc" : op === "xoa" ? "Xóa việc" : (hdCuoi || "Sửa việc"); }
+  else if (col === "rooms") { const r = lay(ROOMS, id); const vl = data.villa || r.villa; ten = (data.ten || r.ten || "") + (vl ? " · " + villaName(vl) : ""); mota = op === "them" ? "Thêm phòng" : op === "xoa" ? "Xóa phòng" : data.trangThai ? "Đổi trạng thái thành " + (ROOM_ST[data.trangThai] || data.trangThai) : "Sửa phòng"; }
+  else if (col === "villas") { ten = data.ten || lay(VILLAS, id).ten || ""; mota = op === "them" ? "Thêm villa" : op === "xoa" ? "Xóa villa" : ("khachHienTai" in data ? "Cập nhật khách đang ở" : "Sửa villa"); }
+  else if (col === "staff") { ten = data.ten || lay(STAFF, id).ten || ""; mota = op === "them" ? "Thêm nhân viên" : op === "xoa" ? "Xóa nhân viên" : ("userId" in data && Object.keys(data).length === 1 ? (data.userId ? "Gắn tài khoản" : "Bỏ gắn tài khoản") : "Sửa hồ sơ nhân viên"); }
+  else if (col === "lich") { ten = data.ten || lay(LICH, id).ten || ""; mota = op === "them" ? "Thêm lịch lặp" : op === "xoa" ? "Xóa lịch lặp" : "Sửa lịch lặp"; }
+  else if (col === "matbang") { ten = data.ten || lay(MATBANG, id).ten || ""; mota = op === "them" ? "Thêm mặt bằng" : op === "xoa" ? "Xóa mặt bằng" : (hdCuoi || "Sửa mặt bằng"); }
+  else if (col === "bookings") { const b = lay(BOOKINGS, id); const vl = data.villa || b.villa; ten = bkTen({ ...b, ...data }) + (vl ? " · " + villaName(vl) : ""); mota = op === "them" ? "Ghi đặt phòng" : op === "xoa" ? "Xóa đặt phòng" : (data.trangThai === "huy" ? "Hủy đặt phòng" : data.trangThai ? "Đổi trạng thái đặt phòng" : "Sửa đặt phòng"); }
+  else if (col === "dat-luu") { ten = id; mota = op === "xoa" ? "Xóa mục sổ doanh thu" : "Sửa sổ doanh thu"; }
+  else if (col === "members") { ten = id; mota = op === "xoa" ? "Thu hồi quyền vào app" : "Cấp quyền vào app"; }
+  else if (col === "nhatky") { ten = data.loai || ""; mota = "Ghi nhật ký ca" + (data.nd ? ": " + String(data.nd).slice(0, 120) : ""); }
+  else { ten = id; mota = op; }
+  return { ten, mota };
+}
+function fbLog(op, path, data) {
+  try {
+    if (!db || !window.FB) return;
+    const i = path.indexOf("/"); const col = path.slice(0, i), id = path.slice(i + 1);
+    if (LS_BO_QUA.has(col)) return;
+    if (col === "tasks" && /^lich_/.test(id)) return;   // việc tự tạo theo lịch: nhiều máy cùng tạo, không phải thao tác của người
+    if (col === "lich" && op === "sua" && data && Object.keys(data).length === 1 && "lanCuoi" in data) return;
+    if (col === "tasks" && data && Array.isArray(data.lichSu) && data.lichSu.length && /^Tự /.test(data.lichSu[data.lichSu.length - 1].hd || "")) return;
+    const m = fbLsMota(op, col, id, data);
+    ghiLs({ op, col, doc: id, loai: LS_TEN[col] || col, ten: m.ten, mota: m.mota, villa: (data && data.villa) || "" });
+  } catch (e) {}
+}
+function ghiLs(o) {
+  try {
+    const mid = meId();
+    const id = "ls_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    db.collection("lichsu").doc(id).set({ ...o, id, luc: now(), ngay: ymd(new Date()), email: FB.email, ai: mid, nguoi: staffName(mid) || FB.ten || FB.email }).catch(() => {});
+  } catch (e) {}
+}
+// một dòng "Mở app" cho mỗi lần mở tab trình duyệt
+let LS_DA_MO = false;
+function fbLogMoApp() {
+  if (LS_DA_MO || !db || !window.FB || !STAFF.length) return; LS_DA_MO = true;
+  try { if (sessionStorage.getItem("ls_mo")) return; sessionStorage.setItem("ls_mo", "1"); } catch (e) {}
+  ghiLs({ op: "mo", col: "", doc: "", loai: "Đăng nhập", ten: "", mota: "Mở app", villa: "" });
+}
+let LS = [], LS_TAI = 0, LS_LOC = { ai: "", ngay: "", loai: "" }, LS_LOI = "";
+async function fbLsTai() {
+  LS_TAI = 1; LS_LOI = ""; fbLsVe();
+  try { const s = await db.collection("lichsu").orderBy("luc", "desc").limit(500).get(); LS = s.docs.map((d) => d.data()); }
+  catch (e) { console.error(e); LS_LOI = "Chưa đọc được lịch sử. Kiểm tra đã dán quy tắc bảo mật mới chưa."; }
+  LS_TAI = 2; fbLsVe();
+}
+function fbLsKhung() {
+  if (!isMgr()) return "";
+  return '<div class="card" id="lsCard"><h3>Lịch sử sử dụng</h3><div class="small muted" style="margin:6px 0 10px">Ai làm gì, lúc nào trong app. 500 dòng mới nhất, chỉ giám đốc và quản lý xem được.</div><div id="lsBody"></div></div>';
+}
+function fbLsGan(el) {
+  if (!isMgr() || !el.querySelector("#lsBody")) return;
+  if (LS_TAI === 0) fbLsTai(); else fbLsVe();
+}
+function fbLsVe() {
+  const b = document.getElementById("lsBody"); if (!b) return;
+  if (LS_TAI === 1) { b.innerHTML = '<div class="small muted">Đang tải…</div>'; return; }
+  if (LS_LOI) { b.innerHTML = '<div class="small" style="color:var(--bad)">' + esc(LS_LOI) + '</div><div class="acts"><button class="btn" id="lsLai">Thử lại</button></div>'; b.querySelector("#lsLai").onclick = fbLsTai; return; }
+  const ais = [...new Set(LS.map((x) => x.nguoi || x.email).filter(Boolean))].sort();
+  const loais = [...new Set(LS.map((x) => x.loai).filter(Boolean))].sort();
+  let h = '<div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:10px">' +
+    '<select id="lsAi"><option value="">Mọi người</option>' + ais.map((a) => opt(a, a, LS_LOC.ai)).join("") + '</select>' +
+    '<select id="lsLoai"><option value="">Mọi loại</option>' + loais.map((a) => opt(a, a, LS_LOC.loai)).join("") + '</select>' +
+    '<input type="date" id="lsNgay" value="' + esc(LS_LOC.ngay) + '"><button class="btn sm" id="lsLai">Tải lại</button></div>';
+  const ds = LS.filter((x) => (!LS_LOC.ai || (x.nguoi || x.email) === LS_LOC.ai) && (!LS_LOC.loai || x.loai === LS_LOC.loai) && (!LS_LOC.ngay || x.ngay === LS_LOC.ngay));
+  if (!ds.length) h += '<div class="empty"><b>Chưa có dòng nào</b>Lịch sử bắt đầu ghi từ lần cập nhật app này.</div>';
+  else {
+    let ng = "";
+    for (const x of ds.slice(0, 200)) {
+      if (x.ngay !== ng) { ng = x.ngay; h += '<div class="small muted" style="margin:10px 0 4px"><b>' + esc(fmtNgay(x.ngay) + "/" + String(x.ngay || "").slice(0, 4)) + '</b></div>'; }
+      h += '<div style="padding:6px 0;border-top:1px solid rgba(0,0,0,.08)"><div><b>' + esc(x.nguoi || x.email || "?") + '</b> · ' + esc(x.mota || "") + '</div><div class="small muted">' + esc(fmtHM(x.luc)) + (x.loai ? " · " + esc(x.loai) : "") + (x.ten ? " · " + esc(x.ten) : "") + '</div></div>';
+    }
+    if (ds.length > 200) h += '<div class="small muted" style="margin-top:8px">Còn ' + (ds.length - 200) + ' dòng nữa, lọc theo người hoặc ngày để xem.</div>';
+  }
+  b.innerHTML = h;
+  b.querySelector("#lsAi").onchange = (e) => { LS_LOC.ai = e.target.value; fbLsVe(); };
+  b.querySelector("#lsLoai").onchange = (e) => { LS_LOC.loai = e.target.value; fbLsVe(); };
+  b.querySelector("#lsNgay").onchange = (e) => { LS_LOC.ngay = e.target.value; fbLsVe(); };
+  b.querySelector("#lsLai").onclick = fbLsTai;
 }
 </script>
 </body>
