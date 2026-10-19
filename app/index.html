@@ -603,7 +603,7 @@ const OLD_VT={"buong-phong":"buong-phong","bao-tri":"bao-tri","ho-boi":"ho-boi",
 function normStaff(s){s={...s};if(!s.boPhan){if(OLD_VT[s.vaiTro]){s.boPhan=OLD_VT[s.vaiTro];s.vaiTro="nhan-vien"}else if(s.vaiTro==="quan-ly"){s.boPhan="giam-doc";s.vaiTro="giam-doc"}else s.boPhan=s.boPhan||""}if(!VAI_TRO[s.vaiTro])s.vaiTro="nhan-vien";if(!s.ten&&s.userId){s._autoTen=true;s.ten=PROF[s.userId]||"Thành viên mới";wantProfiles([s.userId])}return s}
 const myStaff=()=>STAFF.find(s=>uid&&s.userId===uid)||null;
 const isMgr=()=>isAdmin||(myStaff()||{}).vaiTro==="giam-doc";
-const canManage=bp=>{if(isMgr())return true;const m=myStaff();return !!(m&&m.vaiTro==="truong"&&(m.boPhan===bp||!bp))};
+const canManage=bp=>{if(isMgr())return true;const m=myStaff();return !!(m&&m.vaiTro==="truong"&&(bpCuaNguoi(m).includes(bp)||!bp))};
 const canManageAny=()=>isMgr()||((myStaff()||{}).vaiTro==="truong");
 const meId=()=>(myStaff()||{}).id||uid||"";
 const bpOf=t=>t.boPhan||(LOAI[t.loai]||{}).bp||"";
@@ -754,7 +754,7 @@ function renderTong(){
   h+='<div class="sec-h"><h2>Bộ phận</h2><small>việc mở · chờ duyệt · quá hạn</small></div><div class="bpgrid">'+Object.keys(BO_PHAN).map(k=>{const s=bpStats(k);return '<div class="bpc'+(s.open?"":" quiet")+'" style="--bpc:var(--bp-'+k+')" data-bp="'+k+'"><b>'+esc(BO_PHAN[k].ngan)+'</b><div class="n"><i>'+s.open+'</i>'+(s.cho?'<i class="w">'+s.cho+' duyệt</i>':"")+(s.late?'<i class="h">'+s.late+' trễ</i>':"")+'</div></div>'}).join("")+'</div>';
   const late=TASKS.filter(isLate);const cd=TASKS.filter(t=>t.trangThai==="cho-duyet"&&canManage(bpOf(t)));
   const mine=me?TASKS.filter(t=>isOpen(t)&&t.giaoCho===me.id):[];
-  const pool=TASKS.filter(t=>t.trangThai==="moi"&&!t.giaoCho&&(!me||!me.boPhan||bpOf(t)===me.boPhan||mgr));
+  const pool=TASKS.filter(t=>t.trangThai==="moi"&&!t.giaoCho&&(!me||!me.boPhan||bpCuaNguoi(me).includes(bpOf(t))||mgr));
   const moiVao=STAFF.filter(s=>s.tuDong&&!s.boPhan&&s.hoatDong!==false);
   if(isMgr()&&moiVao.length)h+='<div class="banner" id="bnMoiVao" style="cursor:pointer"><b>'+moiVao.length+' người mới vào app</b> chờ xếp bộ phận: '+esc(moiVao.map(s=>s.ten).join(", "))+'. Bấm để mở tab Nhân viên.</div>';
   if(mgr){h+='<div class="sec-h"><h2>Cần anh/chị xử lý</h2><small>'+(cd.length+late.length)+' việc</small></div>';
@@ -930,7 +930,7 @@ function renderNhanVien(){
   for(const g of groups){const ss=STAFF.filter(s=>(s.boPhan||"")===g).sort((a,b)=>({"giam-doc":0,truong:1}[a.vaiTro]??2)-({"giam-doc":0,truong:1}[b.vaiTro]??2)||String(a.ten).localeCompare(String(b.ten),"vi"));if(!ss.length)continue;
     h+='<div class="sec-h"><h3>'+esc(g?BO_PHAN[g].ten:"Chưa xếp bộ phận")+'</h3><small>'+ss.length+'</small></div>';
     h+=ss.map(s=>{const st=staffStats(s.id);const mine=me&&me.id===s.id;
-      return '<div class="staff" data-s="'+esc(s.id)+'"><div class="av">'+esc(initials(s.ten))+'</div><div class="in"><b>'+esc(s.ten)+(mine?' <span class="chip plain sach">Tôi</span>':"")+(s.hoatDong===false?' <span class="chip plain">Nghỉ</span>':"")+(s.tuDong&&!s.boPhan?' <span class="chip plain ban">Mới vào, chờ xếp</span>':"")+'</b><span>'+esc(VAI_TRO[s.vaiTro]||"")+(s.villa?" · "+esc(villaName(s.villa)):"")+(s.sdt?" · "+esc(s.sdt):"")+(s.userId?"":(s.email?" · chưa đăng nhập lần nào":" · chưa có email đăng nhập"))+'</span></div><div class="st"><div><b class="num">'+st.open+'</b>đang mở</div><div><b class="num">'+st.done+'</b>xong</div><div><b class="num">'+(st.pct===null?"-":st.pct+"%")+'</b>đạt lần đầu</div></div></div>'}).join("")}
+      return '<div class="staff" data-s="'+esc(s.id)+'"><div class="av">'+esc(initials(s.ten))+'</div><div class="in"><b>'+esc(s.ten)+(mine?' <span class="chip plain sach">Tôi</span>':"")+(s.hoatDong===false?' <span class="chip plain">Nghỉ</span>':"")+(s.tuDong&&!s.boPhan?' <span class="chip plain ban">Mới vào, chờ xếp</span>':"")+'</b><span>'+esc(VAI_TRO[s.vaiTro]||"")+esc(bpPhuChu(s))+(s.villa?" · "+esc(villaName(s.villa)):"")+(s.sdt?" · "+esc(s.sdt):"")+(s.userId?"":(s.email?" · chưa đăng nhập lần nào":" · chưa có email đăng nhập"))+'</span></div><div class="st"><div><b class="num">'+st.open+'</b>đang mở</div><div><b class="num">'+st.done+'</b>xong</div><div><b class="num">'+(st.pct===null?"-":st.pct+"%")+'</b>đạt lần đầu</div></div></div>'}).join("")}
   h+=fbCdtCard();
   el.innerHTML=h;fbBindTaiKhoan(el);
   const a=el.querySelector("#btnAddStaff");if(a)a.onclick=()=>openStaffForm(null);
@@ -1024,7 +1024,7 @@ function openGiaoViec(o){
   const gB=$("#gBp"),gV=$("#gVilla"),gL=$("#gLoai"),gP=$("#gPhong"),gT=$("#gTieuDe"),gH=$("#gHan"),gC=$("#gCk"),gM=$("#gMuc"),gA=$("#gAi"),gMb=$("#gMb");
   let touchedTitle=!!t,touchedCk=!!t,touchedHan=!!t;
   function fillLoai(){const cur=t?t.loai:(gL.value||loai);const ks=loaiCua(gB.value).concat(["khac"]);gL.innerHTML=ks.map(k=>opt(k,LOAI[k].ten,cur)).join("");if(!ks.includes(gL.value))gL.value=ks[0]}
-  function fillAi(){const cur=t?t.giaoCho:(o.ai||"");const inBp=STAFF.filter(s=>s.hoatDong!==false&&s.boPhan===gB.value),other=STAFF.filter(s=>s.hoatDong!==false&&s.boPhan!==gB.value);gA.innerHTML=opt("","Chưa giao, ai nhận cũng được",cur)+inBp.map(s=>opt(s.id,s.ten,cur)).join("")+other.map(s=>opt(s.id,s.ten+" · "+bpName(s.boPhan),cur)).join("")}
+  function fillAi(){const cur=t?t.giaoCho:(o.ai||"");const inBp=STAFF.filter(s=>s.hoatDong!==false&&bpCuaNguoi(s).includes(gB.value)),other=STAFF.filter(s=>s.hoatDong!==false&&!bpCuaNguoi(s).includes(gB.value));gA.innerHTML=opt("","Chưa giao, ai nhận cũng được",cur)+inBp.map(s=>opt(s.id,s.ten,cur)).join("")+other.map(s=>opt(s.id,s.ten+" · "+bpName(s.boPhan),cur)).join("")}
   function fillRooms(){const L=LOAI[gL.value]||{};const usesRoom=(BO_PHAN[gB.value]||{}).phong;$("#wrapPhong").hidden=!usesRoom||!gV.value;$("#wrapMb").hidden=gB.value!=="phat-trien";
     const rs=ROOMS.filter(r=>r.villa===gV.value).sort((a,b)=>(a.loai==="ngu"?0:1)-(b.loai==="ngu"?0:1)||(a.thuTu||99)-(b.thuTu||99));const cur=t?t.phong:(o.phong||"");
     gP.innerHTML=opt("","Cả villa, không gắn phòng",cur)+rs.map(r=>opt(r.id,r.ten+" · "+(ROOM_LOAI[r.loai]||""),cur)).join("");
@@ -1283,11 +1283,11 @@ function openStaff(id){openSheet({type:"staff",id})}
 function renderStaffSheet(id){
   const s=STAFF.find(x=>x.id===id);const sh=$("#sheet");if(!s){sh.innerHTML=sheetHead("Không còn");bindClose();return}
   const mgr=isMgr();const st=staffStats(id);const me=myStaff();const open=TASKS.filter(t=>t.giaoCho===id&&isOpen(t)).sort(sortTask);
-  let h=sheetHead(esc(s.ten),esc(VAI_TRO[s.vaiTro]||"")+" · "+esc(s.boPhan?BO_PHAN[s.boPhan].ten:"chưa xếp bộ phận")+(s.villa?" · "+esc(villaName(s.villa)):"")+(s.sdt?" · "+esc(s.sdt):""));
+  let h=sheetHead(esc(s.ten),esc(VAI_TRO[s.vaiTro]||"")+" · "+esc(s.boPhan?BO_PHAN[s.boPhan].ten+bpPhuChu(s):"chưa xếp bộ phận")+(s.villa?" · "+esc(villaName(s.villa)):"")+(s.sdt?" · "+esc(s.sdt):""));
   h+='<div class="stats c4"><div class="stat"><b class="num">'+st.done+'</b><span>xong tháng này</span></div><div class="stat"><b class="num">'+(st.onTime===null?"-":st.onTime+"%")+'</b><span>đúng hạn</span></div><div class="stat"><b class="num">'+(st.pct===null?"-":st.pct+"%")+'</b><span>đạt lần đầu</span></div><div class="stat"><b class="num">'+(st.avgMin===null?"-":st.avgMin+"'")+'</b><span>phút mỗi việc</span></div></div>';
   let acts="";
   if(uid&&canWrite!==false){if(s.userId===uid)acts+='<button class="btn" data-a="unlink">Bỏ gắn tài khoản của tôi</button>';else if(!s.userId&&(!me||(me.tuDong&&me.id!==s.id)))acts+='<button class="btn p" data-a="link">Đây là tôi</button>';else if(!s.userId&&me&&mgr)acts+='<span class="small muted" style="width:100%">Chưa gắn tài khoản. Điền email đăng nhập ở nút Sửa, người này đăng nhập là tự gắn.</span>';else if(s.userId&&s.userId!==uid)acts+='<span class="small muted" style="width:100%">Đã gắn tài khoản.'+(mgr?' <button class="btn sm" data-a="unlinkAny">Gỡ</button>':"")+'</span>'}
-  if(canManage(s.boPhan)&&canWrite!==false)acts+='<button class="btn" data-a="giao">Giao việc cho '+esc(s.ten)+'</button>';
+  if((canManage(s.boPhan)||bpCuaNguoi(s).some(canManage))&&canWrite!==false)acts+='<button class="btn" data-a="giao">Giao việc cho '+esc(s.ten)+'</button>';
   if(mgr&&canWrite!==false)acts+='<button class="btn" data-a="edit">Sửa</button>';
   if(acts)h+='<div class="acts">'+acts+'</div>';
   h+='<div class="sec-h"><h3>Việc đang mở</h3><small>'+open.length+'</small></div>'+(open.length?open.map(taskCard).join(""):'<div class="small muted">Không có.</div>');
@@ -1305,11 +1305,12 @@ function openStaffForm(id){
   h+='<form id="fStaff"><label class="f"><span>Họ tên</span><input id="sTen" required value="'+esc(s?s.ten:"")+'"></label><div class="row"><label class="f grow"><span>Bộ phận</span><select id="sBp">'+opt("","Chưa xếp",s?s.boPhan:"buong-phong")+Object.keys(BO_PHAN).map(k=>opt(k,BO_PHAN[k].ten,s?s.boPhan:"buong-phong")).join("")+'</select></label><label class="f grow"><span>Vai trò</span><select id="sVai">'+Object.keys(VAI_TRO).map(k=>opt(k,VAI_TRO[k],s?s.vaiTro:"nhan-vien")).join("")+'</select></label></div>';
   h+='<div class="row"><label class="f grow"><span>Villa phụ trách</span><select id="sVilla">'+opt("","Cả chuỗi",s?s.villa||"":"")+VILLAS.map(v=>opt(v.id,v.ten,s?s.villa:"")).join("")+'</select></label><label class="f grow"><span>Số điện thoại</span><input id="sSdt" value="'+esc(s?s.sdt||"":"")+'"></label><label class="f grow"><span>Email đăng nhập</span><input id="sEmail" type="email" autocomplete="off" placeholder="ten@gmail.com" value="'+esc(s?s.email||"":"")+'"></label><label class="f grow"><span>Tình trạng</span><select id="sHoat">'+opt("1","Đang làm",s&&s.hoatDong===false?"0":"1")+opt("0","Đã nghỉ",s&&s.hoatDong===false?"0":"1")+'</select></label></div>';
   h+='<div class="small muted">Giám đốc: giao việc và duyệt mọi bộ phận. Trưởng bộ phận: giao việc và duyệt trong bộ phận mình. Nhân viên: nhận việc, báo xong. Email đăng nhập: người này vào app bằng email này (Google hoặc mật khẩu). Bỏ trống hoặc chọn "Đã nghỉ" thì không vào được.</div>';
+  h+=fbStaffBpPhu(s);
   h+=fbStaffDn(s);
   h+='<div class="acts"><button type="submit" class="btn p">'+(s?"Lưu":"Thêm")+'</button>'+(s?'<button type="button" class="btn bad" id="sDel">Xóa</button>':"")+'<button type="button" class="btn" id="sCancel">Đóng</button></div></form>';
   formSheet(h);$("#sCancel").onclick=closeSheet;fbStaffDnGan(s);
   if(s)$("#sDel").onclick=e=>twoStep(e.target,()=>{delDoc("staff/"+id);if(s.email)delDoc("members/"+lcEmail(s.email));closeSheet()});
-  $("#fStaff").onsubmit=e=>{e.preventDefault();const data={ten:(s&&s._autoTen&&$("#sTen").value.trim()===s.ten)?"":$("#sTen").value.trim(),boPhan:$("#sBp").value,vaiTro:$("#sVai").value,villa:$("#sVilla").value,sdt:$("#sSdt").value.trim(),email:lcEmail($("#sEmail").value),hoatDong:$("#sHoat").value==="1"};
+  $("#fStaff").onsubmit=e=>{e.preventDefault();const data={ten:(s&&s._autoTen&&$("#sTen").value.trim()===s.ten)?"":$("#sTen").value.trim(),boPhan:$("#sBp").value,vaiTro:$("#sVai").value,villa:$("#sVilla").value,sdt:$("#sSdt").value.trim(),email:lcEmail($("#sEmail").value),boPhanPhu:fbBpPhuDoc(),hoatDong:$("#sHoat").value==="1"};
     if(s){updDoc("staff/"+id,data);syncMember(id,{...s,...data},s.email)}else{const sid=nid("s");setDoc("staff/"+sid,{...data,id:sid,userId:"",tao:now()});syncMember(sid,data,"");fbDnKhiThem(sid,data)}closeSheet()};
 }
 
@@ -1684,7 +1685,7 @@ function fbGiaoGan(sh, id) {
 /* ---------- Đặt phòng mới: tự giao quản gia việc làm sạch căn trước giờ mở cửa cho khách ---------- */
 /* quản gia của căn: nhân viên bộ phận Đón tiếp, quản gia đang hoạt động, phụ trách đúng villa đó (không ghi villa thì coi là phụ trách cả chuỗi, chỉ nhận khi có đúng một người) */
 function fbQuanGia(vid) {
-  const ds = STAFF.filter((s) => s.hoatDong !== false && s.boPhan === "don-tiep");
+  const ds = STAFF.filter((s) => s.hoatDong !== false && bpCuaNguoi(s).includes("don-tiep"));
   const rieng = ds.filter((s) => s.villa === vid);
   if (rieng.length) return rieng[0];
   const chung = ds.filter((s) => !s.villa);
@@ -1860,6 +1861,20 @@ function fbLapLuu(data, ck, tenTuy) {
   return { id, mota };
 }
 function fbLapHd(data, lich) { return "Giao việc" + (data.giaoCho ? " cho " + staffName(data.giaoCho) : "") + ", lặp " + lich.mota.toLowerCase(); }
+
+/* ---------- Một người quản lý nhiều bộ phận: bộ phận chính (boPhan) + bộ phận kiêm nhiệm (boPhanPhu) ---------- */
+const bpCuaNguoi = (s) => { const r = []; if (s && s.boPhan) r.push(s.boPhan); for (const k of ((s && s.boPhanPhu) || [])) if (k && !r.includes(k) && BO_PHAN[k]) r.push(k); return r; };
+const bpPhuChu = (s) => { const p = bpCuaNguoi(s).slice(1); return p.length ? " + " + p.map((k) => BO_PHAN[k].ngan || BO_PHAN[k].ten).join(", ") : ""; };
+function fbStaffBpPhu(s) {
+  const co = new Set((s && s.boPhanPhu) || []);
+  return '<div class="sec-h"><h3>Kiêm nhiệm thêm bộ phận</h3></div><div class="small muted">Tích thêm bộ phận người này cùng phụ trách (ngoài bộ phận chính ở trên). Trưởng bộ phận được giao việc, duyệt việc ở tất cả bộ phận đã tích.</div><div class="row" id="sBpPhu" style="flex-wrap:wrap;gap:8px 14px;margin:6px 0 10px">'
+    + Object.keys(BO_PHAN).map((k) => '<label style="display:flex;gap:6px;align-items:center;font-size:14px"><input type="checkbox" value="' + esc(k) + '"' + (co.has(k) ? " checked" : "") + '>' + esc(BO_PHAN[k].ten) + "</label>").join("") + "</div>";
+}
+/* đọc các ô đã tích, bỏ bộ phận trùng bộ phận chính */
+function fbBpPhuDoc() {
+  const chinh = ($("#sBp") || {}).value;
+  return [...document.querySelectorAll("#sBpPhu input:checked")].map((i) => i.value).filter((k) => k && k !== chinh);
+}
 </script>
 </body>
 </html>
