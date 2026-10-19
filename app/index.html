@@ -1019,7 +1019,7 @@ function openGiaoViec(o){
   h+='<div class="row"><label class="f grow"><span>Ưu tiên</span><select id="gUu">'+opt("thuong","Thường",t?t.uuTien:"thuong")+opt("cao","Gấp",t?t.uuTien:"thuong")+'</select></label></div>';
   h+='<label class="f"><span>Mô tả, dặn dò</span><textarea id="gMoTa" placeholder="Vd: khách 12 người, thêm 2 nệm phòng P3">'+esc(t?t.moTa||"":"")+'</textarea></label>';
   h+='<label class="f"><span>Checklist (mỗi dòng một mục, sửa tùy ý)</span><textarea id="gCk" style="min-height:120px">'+esc(t?(t.checklist||[]).map(c=>c.t).join("\n"):"")+'</textarea></label>';
-  h+=fbGiaoForm(t);h+='<div class="acts"><button type="submit" class="btn p">'+(t?"Lưu thay đổi":"Giao việc")+'</button><button type="button" class="btn" id="gCancel">Đóng</button></div></form>';
+  h+=fbGiaoForm(t)+fbLapForm(t);h+='<div class="acts"><button type="submit" class="btn p">'+(t?"Lưu thay đổi":"Giao việc")+'</button><button type="button" class="btn" id="gCancel">Đóng</button></div></form>';
   formSheet(h);$("#gCancel").onclick=closeSheet;fbGiaoVe();fbLapGan();
   const gB=$("#gBp"),gV=$("#gVilla"),gL=$("#gLoai"),gP=$("#gPhong"),gT=$("#gTieuDe"),gH=$("#gHan"),gC=$("#gCk"),gM=$("#gMuc"),gA=$("#gAi"),gMb=$("#gMb");
   let touchedTitle=!!t,touchedCk=!!t,touchedHan=!!t;
