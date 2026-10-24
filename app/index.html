@@ -640,6 +640,10 @@ const delDoc=path=>{fbLog("xoa",path,{});return write(path,d=>d.delete())};
 function hist(t,hd){const h=Array.isArray(t.lichSu)?t.lichSu.slice():[];h.push({luc:now(),ai:meId(),hd});return h}
 /* dọn nguyên căn: một việc cho cả villa (khách thuê theo căn), gồm mọi phòng ngủ và khu chung; hồ bơi vẫn là việc riêng của bộ phận Hồ bơi */
 const canRooms=vid=>ROOMS.filter(r=>r.villa===vid&&r.loai!=="ho-boi").sort((a,b)=>(a.loai==="ngu"?0:1)-(b.loai==="ngu"?0:1)||(a.thuTu||99)-(b.thuTu||99));
+/* người nhận việc dọn nguyên căn: người phụ trách căn đó (anh Dần chốt 24/10/2026) */
+function nguoiCan(vid){const ds=STAFF.filter(s=>s.hoatDong!==false);const co=(s,bp)=>s.boPhan===bp||(s.boPhanPhu||[]).includes(bp);
+  const a=ds.filter(s=>s.villa===vid&&co(s,"buong-phong"));if(a.length)return a[0].id;const b=ds.filter(s=>s.villa===vid&&co(s,"don-tiep"));if(b.length)return b[0].id;
+  const c=ds.filter(s=>!s.villa&&s.boPhan==="buong-phong");return c.length===1?c[0].id:""}
 function taskRooms(t){if(t.phong)return [t.phong];if(!(LOAI[t.loai]||{}).nguyenCan)return [];return (t.phongs&&t.phongs.length)?t.phongs:canRooms(t.villa).map(r=>r.id)}
 function ckNguyenCan(rs){const ngu=rs.filter(r=>r.loai==="ngu"),chung=rs.filter(r=>r.loai!=="ngu");if(!rs.length)return LOAI["don-can"].ck;
   return ngu.map(r=>r.ten+": thay ga gối, khăn tắm mới, gấp chuẩn 226; nhà tắm, gương sạch; amenities, nước uống đủ")
@@ -672,7 +676,7 @@ function taoViecDatPhong(){
       let han=todayAt(GIO_SAN_SANG);if(next&&next.gioNhan){const [h,m]=next.gioNhan.split(":").map(Number);han=new Date();han.setHours(h,m,0,0);han=new Date(han.getTime()-3600000)}han=han.toISOString();
       const ghi="Khách "+bkLabel(b)+" trả "+(b.gioTra||GIO_TRA)+(next?". Khách tiếp theo nhận "+(next.gioNhan||GIO_NHAN)+" hôm nay, "+bkLabel(next):"");
       const rs=canRooms(b.villa);
-      if(rs.length&&!TASKS.some(t=>t.id==="bk_"+b.id+"_can")){newTask({id:"bk_"+b.id+"_can",loai:"don-can",villa:b.villa,tieuDe:"Dọn nguyên căn · "+v.ten,hanXong:han,moTa:ghi,datPhong:b.id,ck:ckNguyenCan(rs),phongs:rs.map(r=>r.id),hd:"Tự tạo theo lịch khách trả phòng"});n++}
+      if(rs.length&&!TASKS.some(t=>t.id==="bk_"+b.id+"_can")){const ai=nguoiCan(b.villa);newTask({id:"bk_"+b.id+"_can",loai:"don-can",villa:b.villa,tieuDe:"Dọn nguyên căn · "+v.ten,giaoCho:ai,hanXong:han,moTa:ghi,datPhong:b.id,ck:ckNguyenCan(rs),phongs:rs.map(r=>r.id),hd:"Tự tạo theo lịch khách trả phòng"+(ai?", giao cho "+staffName(ai):"")});n++}
       for(const r of ROOMS.filter(r=>r.villa===b.villa&&r.loai==="ho-boi")){if(TASKS.some(t=>t.id==="bk_"+b.id+"_"+r.id))continue;newTask({id:"bk_"+b.id+"_"+r.id,loai:"ho-boi",villa:b.villa,phong:r.id,tieuDe:LOAI["ho-boi"].ten+" · "+r.ten,hanXong:han,moTa:ghi,datPhong:b.id,hd:"Tự tạo theo lịch khách trả phòng"});n++}
       if(!TASKS.some(t=>t.id==="bk_"+b.id+"_setup")){madeSetup.add(b.villa);newTask({id:"bk_"+b.id+"_setup",loai:"set-up",villa:b.villa,tieuDe:LOAI["set-up"].ten+" · "+v.ten,hanXong:han,moTa:ghi,datPhong:b.id,hd:"Tự tạo theo lịch khách"});n++}
       if(!TASKS.some(t=>t.id==="bk_"+b.id+"_checkout")){const [h,m]=(b.gioTra||GIO_TRA).split(":").map(Number);const d=new Date();d.setHours(h,m,0,0);newTask({id:"bk_"+b.id+"_checkout",loai:"check-out",villa:b.villa,tieuDe:LOAI["check-out"].ten+" · "+v.ten,hanXong:d.toISOString(),moTa:ghi,datPhong:b.id,hd:"Tự tạo theo lịch khách"});n++}
@@ -1069,7 +1073,7 @@ function openTraPhong(vid){
   h+='<form id="fTra"><ul class="ck pick" id="traRooms">'+rs.map(r=>'<li class="done" data-r="'+esc(r.id)+'"><span class="box">'+CHECK+'</span><span>'+esc(r.ten)+' <small class="muted">'+esc(ROOM_LOAI[r.loai]||"")+'</small></span></li>').join("")+'</ul>';
   if(!rs.length)h+='<div class="empty">Villa chưa có phòng nào.</div>';
   const bp=STAFF.filter(s=>s.hoatDong!==false);
-  h+='<div class="row" style="margin-top:12px"><label class="f grow"><span>Giao dọn cho</span><select id="traAi">'+opt("","Chưa giao, ai nhận cũng được")+bp.filter(s=>s.boPhan==="buong-phong").map(s=>opt(s.id,s.ten)).join("")+bp.filter(s=>s.boPhan!=="buong-phong").map(s=>opt(s.id,s.ten+" · "+bpName(s.boPhan))).join("")+'</select></label><label class="f grow"><span>Hạn sẵn sàng</span><input type="datetime-local" id="traHan" value="'+localInput(d)+'"></label></div>';
+  h+='<div class="row" style="margin-top:12px"><label class="f grow"><span>Giao dọn cho</span><select id="traAi">'+opt("","Chưa giao, ai nhận cũng được",nguoiCan(vid))+bp.filter(s=>s.boPhan==="buong-phong").map(s=>opt(s.id,s.ten,nguoiCan(vid))).join("")+bp.filter(s=>s.boPhan!=="buong-phong").map(s=>opt(s.id,s.ten+" · "+bpName(s.boPhan),nguoiCan(vid))).join("")+'</select></label><label class="f grow"><span>Hạn sẵn sàng</span><input type="datetime-local" id="traHan" value="'+localInput(d)+'"></label></div>';
   h+='<label class="f"><span>Dặn dò chung</span><input id="traGhi" placeholder="Vd: khách tiếp theo 15 người, nhận 14:00"></label>';
   h+='<label class="cb"><input type="checkbox" id="traSetup" checked> Thêm việc "Set-up trước khách nhận" (bộ phận Set-up)</label>';
   h+='<label class="cb"><input type="checkbox" id="traCheckout" checked> Thêm việc "Tiễn khách trả phòng" (Đón tiếp: kiểm đồ, tính tiền quầy)</label>';
@@ -1342,7 +1346,7 @@ document.querySelectorAll(".tabbar button").forEach(b=>b.classList.toggle("on",b
   fbKhoiDongThongBao();
   if(laCdt()){fbChuDauTuBoot();return}
   const first={};
-  const sub=(col,set,sortFn,q)=>(q||db.collection(col)).onSnapshot(s=>{set(s.docs.map(d=>({id:d.id,...d.data()})).sort(sortFn));if(!first[col]){first[col]=1;loadedCols++}render();if(loadedCols>=8)taoViecDinhKy()},e=>{console.error(col,e);if(!first[col]){first[col]=1;loadedCols++}if(e&&e.code==="revoked")toast("Mất kết nối kho, tải lại trang.")});
+  const sub=(col,set,sortFn,q)=>(q||db.collection(col)).onSnapshot({includeMetadataChanges:true},s=>{set(s.docs.map(d=>({id:d.id,...d.data()})).sort(sortFn));if(!first[col]&&!(s.metadata&&s.metadata.fromCache)){first[col]=1;loadedCols++}render();if(loadedCols>=8)taoViecDinhKy()},e=>{console.error(col,e);if(!first[col]){first[col]=1;loadedCols++}if(e&&e.code==="revoked")toast("Mất kết nối kho, tải lại trang.")});
   sub("villas",a=>VILLAS=a,(a,b)=>(a.thuTu||99)-(b.thuTu||99));
   sub("rooms",a=>ROOMS=a,(a,b)=>(a.thuTu||99)-(b.thuTu||99));
   sub("staff",a=>{STAFF=a.map(normStaff);setTimeout(autoEnroll,300)},(a,b)=>String(a.ten).localeCompare(String(b.ten),"vi"));
@@ -1702,6 +1706,9 @@ function fbQuanGia(vid) {
   const ds = STAFF.filter((s) => s.hoatDong !== false && bpCuaNguoi(s).includes("don-tiep"));
   const rieng = ds.filter((s) => s.villa === vid);
   if (rieng.length) return rieng[0];
+  /* căn chưa có quản gia Đón tiếp riêng: người Buồng phòng phụ trách căn đó (anh Dần chốt 24/10/2026) */
+  const canNay = STAFF.find((s) => s.hoatDong !== false && s.villa === vid && bpCuaNguoi(s).includes("buong-phong"));
+  if (canNay) return canNay;
   const chung = ds.filter((s) => !s.villa);
   return chung.length === 1 ? chung[0] : null;
 }
