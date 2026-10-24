@@ -537,6 +537,7 @@ const LOAI={
   "dang-ky-luu-tru":{bp:"don-tiep",ten:"Đăng ký lưu trú",ck:["Đủ ảnh căn cước của khách","Khai báo trên hệ thống theo quy định","Đối chiếu số người đăng ký với thực tế"],gio:""},
   "nhac-trat-tu":{bp:"don-tiep",ten:"Nhắc trật tự 21:30",ck:["21:30 nhắc khách giữ trật tự theo nội quy","Karaoke tắt trước giờ quy định","Khách không hợp tác: báo quản lý, ghi nhật ký"],gio:"21:30"},
   /* buồng phòng */
+  "don-can":{bp:"buong-phong",ten:"Dọn nguyên căn sau khách trả",ck:CK14.concat(CK_CHUNG),nguyenCan:true,roomStart:"dang-don",roomDone:"sach",gio:GIO_SAN_SANG},
   "don-tra":{bp:"buong-phong",ten:"Dọn phòng sau khách trả",ck:CK14,phong:"ngu",roomStart:"dang-don",roomDone:"sach",gio:GIO_SAN_SANG},
   "don-chung":{bp:"buong-phong",ten:"Dọn khu chung",ck:CK_CHUNG,phong:"chung",roomStart:"dang-don",roomDone:"sach",gio:GIO_SAN_SANG},
   "giat-ui":{bp:"buong-phong",ten:"Giặt ủi đồ vải",ck:["Thu gom, phân loại đồ vải bẩn, tách riêng đồ sạch","Giặt, phơi hoặc sấy, ủi","Gấp đúng chuẩn 226, nhập kho","Kiểm tồn: đủ 3 bộ mỗi vị trí, ghi sổ xuất nhập"],gio:""},
@@ -637,8 +638,17 @@ const setDoc=(path,data)=>{fbLog("them",path,data);return write(path,d=>d.set(da
 const updDoc=(path,data)=>{fbLog("sua",path,data);return write(path,d=>d.update(data))};
 const delDoc=path=>{fbLog("xoa",path,{});return write(path,d=>d.delete())};
 function hist(t,hd){const h=Array.isArray(t.lichSu)?t.lichSu.slice():[];h.push({luc:now(),ai:meId(),hd});return h}
+/* dọn nguyên căn: một việc cho cả villa (khách thuê theo căn), gồm mọi phòng ngủ và khu chung; hồ bơi vẫn là việc riêng của bộ phận Hồ bơi */
+const canRooms=vid=>ROOMS.filter(r=>r.villa===vid&&r.loai!=="ho-boi").sort((a,b)=>(a.loai==="ngu"?0:1)-(b.loai==="ngu"?0:1)||(a.thuTu||99)-(b.thuTu||99));
+function taskRooms(t){if(t.phong)return [t.phong];if(!(LOAI[t.loai]||{}).nguyenCan)return [];return (t.phongs&&t.phongs.length)?t.phongs:canRooms(t.villa).map(r=>r.id)}
+function ckNguyenCan(rs){const ngu=rs.filter(r=>r.loai==="ngu"),chung=rs.filter(r=>r.loai!=="ngu");if(!rs.length)return LOAI["don-can"].ck;
+  return ngu.map(r=>r.ten+": thay ga gối, khăn tắm mới, gấp chuẩn 226; nhà tắm, gương sạch; amenities, nước uống đủ")
+    .concat(ngu.length?["Mọi phòng ngủ: sàn sạch, không tóc; mùi dễ chịu; rác đổ, thùng có túi mới","Mọi phòng ngủ: điều hòa, đèn, ổ cắm, TV, WiFi chạy; rèm, cửa sổ sạch","Mọi phòng ngủ: đồ đạc đúng vị trí, thẻ WiFi, welcome book đặt đúng chỗ"]:[])
+    .concat(chung.length?CK_CHUNG.concat(["Đi một vòng kiểm lại khu chung: "+chung.map(r=>r.ten).join(", ")]):[])}
+/* đổi trạng thái mọi phòng của việc; việc nguyên căn bỏ qua phòng đang có khách, đang bảo trì */
+function taskRoomStatus(t,st,chiKhi){const L=LOAI[t.loai]||{};for(const rid of taskRooms(t)){const r=roomOf(rid);if(!r)continue;if(chiKhi&&r.trangThai!==chiKhi)continue;if(L.nguyenCan&&(r.trangThai==="co-khach"||r.trangThai==="bao-tri"))continue;roomStatus(rid,st)}}
 function roomStatus(roomId,st,boi){const r=roomOf(roomId);if(!r||r.trangThai===st)return;updDoc("rooms/"+roomId,{trangThai:st,capNhat:now(),boi:boi||meId()})}
-function newTask(o){const id=o.id||nid("t");const L=LOAI[o.loai]||LOAI.khac;const t={id,boPhan:o.boPhan||L.bp||"",villa:o.villa||"",loai:o.loai||"khac",phong:o.phong||"",phongTen:o.phong?roomName(o.phong):"",matBang:o.matBang||"",datPhong:o.datPhong||"",tieuDe:o.tieuDe||L.ten,giaoCho:o.giaoCho||"",hanXong:o.hanXong||"",uuTien:o.uuTien||"thuong",moTa:o.moTa||"",trangThai:"moi",tao:now(),nguoiGiao:meId(),soLanTraLai:0,lichId:o.lichId||"",checklist:(o.ck||L.ck||[]).map(x=>({t:x,ok:false})),lichSu:[{luc:now(),ai:meId(),hd:o.hd||("Giao việc"+(o.giaoCho?" cho "+staffName(o.giaoCho):""))}]};if(o.mucSuCo)t.mucSuCo=o.mucSuCo;if(o.soAnhGiao)t.soAnhGiao=o.soAnhGiao;setDoc("tasks/"+id,t);return t}
+function newTask(o){const id=o.id||nid("t");const L=LOAI[o.loai]||LOAI.khac;const t={id,boPhan:o.boPhan||L.bp||"",villa:o.villa||"",loai:o.loai||"khac",phong:o.phong||"",phongTen:o.phong?roomName(o.phong):"",matBang:o.matBang||"",datPhong:o.datPhong||"",tieuDe:o.tieuDe||L.ten,giaoCho:o.giaoCho||"",hanXong:o.hanXong||"",uuTien:o.uuTien||"thuong",moTa:o.moTa||"",trangThai:"moi",tao:now(),nguoiGiao:meId(),soLanTraLai:0,lichId:o.lichId||"",checklist:(o.ck||L.ck||[]).map(x=>({t:x,ok:false})),lichSu:[{luc:now(),ai:meId(),hd:o.hd||("Giao việc"+(o.giaoCho?" cho "+staffName(o.giaoCho):""))}]};if(o.phongs&&o.phongs.length)t.phongs=o.phongs;if(o.mucSuCo)t.mucSuCo=o.mucSuCo;if(o.soAnhGiao)t.soAnhGiao=o.soAnhGiao;setDoc("tasks/"+id,t);return t}
 function addNhatKy(villa,loai,nd,ca){fbLog("them","nhatky/"+(villa||"chuoi"),{villa:villa||"",loai,nd});const key=(villa||"chuoi")+"_"+ymd(new Date());write("nhatky/"+key,async d=>{const s=await d.get();const cur=s.exists?s.data():{villa:villa||"",ngay:ymd(new Date()),muc:[]};const muc=(cur.muc||[]).slice();muc.push({luc:now(),ai:meId(),loai,ca:ca||"",nd});return d.set({...cur,villa:villa||"",ngay:cur.ngay||ymd(new Date()),muc})})}
 
 /* ---------- việc định kỳ: tạo việc hôm nay từ lịch, id cố định nên nhiều máy cùng tạo cũng chỉ một việc ---------- */
@@ -661,8 +671,9 @@ function taoViecDatPhong(){
       const next=BOOKINGS.find(o=>o.id!==b.id&&o.villa===b.villa&&bkActive(o)&&o.nhan===key);
       let han=todayAt(GIO_SAN_SANG);if(next&&next.gioNhan){const [h,m]=next.gioNhan.split(":").map(Number);han=new Date();han.setHours(h,m,0,0);han=new Date(han.getTime()-3600000)}han=han.toISOString();
       const ghi="Khách "+bkLabel(b)+" trả "+(b.gioTra||GIO_TRA)+(next?". Khách tiếp theo nhận "+(next.gioNhan||GIO_NHAN)+" hôm nay, "+bkLabel(next):"");
-      const rs=ROOMS.filter(r=>r.villa===b.villa);
-      for(const r of rs){const loai=r.loai==="ngu"?"don-tra":r.loai==="ho-boi"?"ho-boi":"don-chung";const L=LOAI[loai];if(TASKS.some(t=>t.id==="bk_"+b.id+"_"+r.id))continue;newTask({id:"bk_"+b.id+"_"+r.id,loai,villa:b.villa,phong:r.id,tieuDe:L.ten+" · "+r.ten,hanXong:han,moTa:ghi,datPhong:b.id,hd:"Tự tạo theo lịch khách trả phòng"});n++}
+      const rs=canRooms(b.villa);
+      if(rs.length&&!TASKS.some(t=>t.id==="bk_"+b.id+"_can")){newTask({id:"bk_"+b.id+"_can",loai:"don-can",villa:b.villa,tieuDe:"Dọn nguyên căn · "+v.ten,hanXong:han,moTa:ghi,datPhong:b.id,ck:ckNguyenCan(rs),phongs:rs.map(r=>r.id),hd:"Tự tạo theo lịch khách trả phòng"});n++}
+      for(const r of ROOMS.filter(r=>r.villa===b.villa&&r.loai==="ho-boi")){if(TASKS.some(t=>t.id==="bk_"+b.id+"_"+r.id))continue;newTask({id:"bk_"+b.id+"_"+r.id,loai:"ho-boi",villa:b.villa,phong:r.id,tieuDe:LOAI["ho-boi"].ten+" · "+r.ten,hanXong:han,moTa:ghi,datPhong:b.id,hd:"Tự tạo theo lịch khách trả phòng"});n++}
       if(!TASKS.some(t=>t.id==="bk_"+b.id+"_setup")){madeSetup.add(b.villa);newTask({id:"bk_"+b.id+"_setup",loai:"set-up",villa:b.villa,tieuDe:LOAI["set-up"].ten+" · "+v.ten,hanXong:han,moTa:ghi,datPhong:b.id,hd:"Tự tạo theo lịch khách"});n++}
       if(!TASKS.some(t=>t.id==="bk_"+b.id+"_checkout")){const [h,m]=(b.gioTra||GIO_TRA).split(":").map(Number);const d=new Date();d.setHours(h,m,0,0);newTask({id:"bk_"+b.id+"_checkout",loai:"check-out",villa:b.villa,tieuDe:LOAI["check-out"].ten+" · "+v.ten,hanXong:d.toISOString(),moTa:ghi,datPhong:b.id,hd:"Tự tạo theo lịch khách"});n++}
       bkUpd(b,{daTaoViecTra:true,lichSu:hist(b,"Tự tạo việc dọn, set-up, tiễn khách")})}
@@ -807,7 +818,7 @@ function renderPhong(){
   if(!rs.length)h+='<div class="empty"><b>Villa chưa có phòng</b>'+(mgr?'Bấm "+ Phòng, khu vực" để thêm từng phòng ngủ, hồ bơi, bếp...':'')+'</div>';
   else{
     const ngu=rs.filter(r=>r.loai==="ngu"),chung=rs.filter(r=>r.loai!=="ngu");
-    const card=r=>{const open=TASKS.filter(t=>t.phong===r.id&&isOpen(t));return '<div class="room '+esc(r.trangThai)+'" data-r="'+esc(r.id)+'"><b>'+esc(r.ten)+'</b><span class="k">'+esc(ROOM_LOAI[r.loai]||"")+(r.ghiChu?" · "+esc(r.ghiChu):"")+'</span><span class="chip '+esc(r.trangThai)+'" style="align-self:flex-start">'+esc(ROOM_ST[r.trangThai]||r.trangThai)+'</span><span class="t">'+(open.length?open.length+" việc đang mở":(r.capNhat?"Cập nhật "+esc(fmtDT(r.capNhat))+(r.boi?" · "+esc(staffName(r.boi)):""):""))+'</span></div>'};
+    const card=r=>{const open=TASKS.filter(t=>isOpen(t)&&taskRooms(t).includes(r.id));return '<div class="room '+esc(r.trangThai)+'" data-r="'+esc(r.id)+'"><b>'+esc(r.ten)+'</b><span class="k">'+esc(ROOM_LOAI[r.loai]||"")+(r.ghiChu?" · "+esc(r.ghiChu):"")+'</span><span class="chip '+esc(r.trangThai)+'" style="align-self:flex-start">'+esc(ROOM_ST[r.trangThai]||r.trangThai)+'</span><span class="t">'+(open.length?open.length+" việc đang mở":(r.capNhat?"Cập nhật "+esc(fmtDT(r.capNhat))+(r.boi?" · "+esc(staffName(r.boi)):""):""))+'</span></div>'};
     if(ngu.length)h+='<div class="sec-h"><h2>Phòng ngủ</h2><small>'+ngu.filter(r=>r.trangThai==="sach").length+'/'+ngu.length+' sạch</small></div><div class="rgrid">'+ngu.map(card).join("")+'</div>';
     if(chung.length)h+='<div class="sec-h"><h2>Khu chung, hồ bơi</h2><small>'+chung.filter(r=>r.trangThai==="sach").length+'/'+chung.length+' sạch</small></div><div class="rgrid">'+chung.map(card).join("")+'</div>';
     h+='<div class="legend">'+Object.keys(ROOM_ST).map(k=>'<span><i style="background:var(--'+({sach:"ok",ban:"warn","dang-don":"info","co-khach":"busy","bao-tri":"bad"}[k])+')"></i>'+ROOM_ST[k]+'</span>').join("")+'</div>';
@@ -988,17 +999,17 @@ function toggleCk(id,i){write("tasks/"+id,d=>{const t=TASKS.find(x=>x.id===id);i
 function taskAction(id,a,btn){
   const t=TASKS.find(x=>x.id===id);if(!t)return;const L=LOAI[t.loai]||{};const me=myStaff();
   if(a==="nhan"){if(!me)return toast("Bạn chưa gắn tên ở tab Nhân viên.");updDoc("tasks/"+id,{giaoCho:me.id,lichSu:hist(t,"Nhận việc")});toast("Đã nhận việc")}
-  else if(a==="batdau"){const data={trangThai:"dang-lam",batDau:now(),lichSu:hist(t,"Bắt đầu làm")};if(!t.giaoCho&&me)data.giaoCho=me.id;updDoc("tasks/"+id,data);if(L.roomStart&&t.phong)roomStatus(t.phong,L.roomStart)}
+  else if(a==="batdau"){const data={trangThai:"dang-lam",batDau:now(),lichSu:hist(t,"Bắt đầu làm")};if(!t.giaoCho&&me)data.giaoCho=me.id;updDoc("tasks/"+id,data);if(L.roomStart)taskRoomStatus(t,L.roomStart)}
   else if(a==="baoxong"){const n=(t.checklist||[]).length,d=ckDone(t);const g=($("#ghiXong")||{}).value||"";
     const soAnh=(PH[t.id]||[]).length||t.soAnh||0;const canAnh=L.roomDone||t.loai==="set-up"||t.loai==="canh-quan";
     const warn=[];if(n&&d<n)warn.push("còn "+(n-d)+" dòng chưa tick");if(canAnh&&!soAnh)warn.push("chưa có ảnh chứng minh");
     if(warn.length&&!btn.dataset.arm){const lbl=btn.textContent;btn.dataset.arm="1";btn.classList.add("confirming");btn.textContent=warn.join(", ").replace(/^./,c=>c.toUpperCase())+". Bấm lại nếu vẫn báo xong";setTimeout(()=>{if(btn.dataset.arm){delete btn.dataset.arm;btn.classList.remove("confirming");btn.textContent=lbl}},4000);return}
     updDoc("tasks/"+id,{trangThai:"cho-duyet",baoXong:now(),ghiChuXong:g.trim(),lichSu:hist(t,"Báo xong"+(n?" ("+d+"/"+n+" dòng)":"")+(g.trim()?": "+g.trim():""))});toast("Đã báo xong, chờ duyệt")}
-  else if(a==="duyet"){const g=($("#ghiDuyet")||{}).value||"";updDoc("tasks/"+id,{trangThai:"xong",duyetLuc:now(),nguoiDuyet:meId(),ghiChuDuyet:g.trim(),lichSu:hist(t,"Duyệt đạt"+(g.trim()?": "+g.trim():""))});if(L.roomDone&&t.phong){const r=roomOf(t.phong);if(r&&r.trangThai!=="co-khach")roomStatus(t.phong,L.roomDone)}toast("Đã duyệt")}
+  else if(a==="duyet"){const g=($("#ghiDuyet")||{}).value||"";updDoc("tasks/"+id,{trangThai:"xong",duyetLuc:now(),nguoiDuyet:meId(),ghiChuDuyet:g.trim(),lichSu:hist(t,"Duyệt đạt"+(g.trim()?": "+g.trim():""))});if(L.roomDone)for(const rid of taskRooms(t)){const r=roomOf(rid);if(r&&r.trangThai!=="co-khach"&&!(L.nguyenCan&&r.trangThai==="bao-tri"))roomStatus(rid,L.roomDone)}toast("Đã duyệt")}
   else if(a==="tralai"){const g=(($("#ghiDuyet")||{}).value||"").trim();if(!g){toast("Ghi rõ lý do trả lại để người làm biết sửa gì.");$("#ghiDuyet")&&$("#ghiDuyet").focus();return}
-    const ck=(t.checklist||[]).map(c=>({t:c.t,ok:false}));updDoc("tasks/"+id,{trangThai:"dang-lam",soLanTraLai:(t.soLanTraLai||0)+1,ghiChuDuyet:g,checklist:ck,lichSu:hist(t,"Trả lại: "+g)});if(L.roomStart&&t.phong)roomStatus(t.phong,L.roomStart);toast("Đã trả lại")}
+    const ck=(t.checklist||[]).map(c=>({t:c.t,ok:false}));updDoc("tasks/"+id,{trangThai:"dang-lam",soLanTraLai:(t.soLanTraLai||0)+1,ghiChuDuyet:g,checklist:ck,lichSu:hist(t,"Trả lại: "+g)});if(L.roomStart)taskRoomStatus(t,L.roomStart);toast("Đã trả lại")}
   else if(a==="molai"){updDoc("tasks/"+id,{trangThai:"dang-lam",lichSu:hist(t,"Mở lại việc")})}
-  else if(a==="huy"){twoStep(btn,()=>{updDoc("tasks/"+id,{trangThai:"huy",lichSu:hist(t,"Hủy việc")});if(t.phong&&roomOf(t.phong)&&roomOf(t.phong).trangThai==="dang-don")roomStatus(t.phong,"ban")})}
+  else if(a==="huy"){twoStep(btn,()=>{updDoc("tasks/"+id,{trangThai:"huy",lichSu:hist(t,"Hủy việc")});taskRoomStatus(t,"ban","dang-don")})}
   else if(a==="xoa"){twoStep(btn,()=>{delAllPhotos(id);fbGiaoXoaHet(id);delDoc("tasks/"+id);closeSheet()})}
   else if(a==="sua"){openGiaoViec({edit:t})}
 }
@@ -1025,14 +1036,14 @@ function openGiaoViec(o){
   let touchedTitle=!!t,touchedCk=!!t,touchedHan=!!t;
   function fillLoai(){const cur=t?t.loai:(gL.value||loai);const ks=loaiCua(gB.value).concat(["khac"]);gL.innerHTML=ks.map(k=>opt(k,LOAI[k].ten,cur)).join("");if(!ks.includes(gL.value))gL.value=ks[0]}
   function fillAi(){const cur=t?t.giaoCho:(o.ai||"");const inBp=STAFF.filter(s=>s.hoatDong!==false&&bpCuaNguoi(s).includes(gB.value)),other=STAFF.filter(s=>s.hoatDong!==false&&!bpCuaNguoi(s).includes(gB.value));gA.innerHTML=opt("","Chưa giao, ai nhận cũng được",cur)+inBp.map(s=>opt(s.id,s.ten,cur)).join("")+other.map(s=>opt(s.id,s.ten+" · "+bpName(s.boPhan),cur)).join("")}
-  function fillRooms(){const L=LOAI[gL.value]||{};const usesRoom=(BO_PHAN[gB.value]||{}).phong;$("#wrapPhong").hidden=!usesRoom||!gV.value;$("#wrapMb").hidden=gB.value!=="phat-trien";
+  function fillRooms(){const L=LOAI[gL.value]||{};const usesRoom=(BO_PHAN[gB.value]||{}).phong;$("#wrapPhong").hidden=!usesRoom||!gV.value||!!L.nguyenCan;$("#wrapMb").hidden=gB.value!=="phat-trien";
     const rs=ROOMS.filter(r=>r.villa===gV.value).sort((a,b)=>(a.loai==="ngu"?0:1)-(b.loai==="ngu"?0:1)||(a.thuTu||99)-(b.thuTu||99));const cur=t?t.phong:(o.phong||"");
     gP.innerHTML=opt("","Cả villa, không gắn phòng",cur)+rs.map(r=>opt(r.id,r.ten+" · "+(ROOM_LOAI[r.loai]||""),cur)).join("");
     if(!cur&&L.phong==="ho-boi"&&!t){const f=rs.find(r=>r.loai==="ho-boi");if(f)gP.value=f.id}}
-  function autoTitle(){if(touchedTitle)return;const L=LOAI[gL.value];const rn=!$("#wrapPhong").hidden&&gP.value?roomName(gP.value):"";const mb=gB.value==="phat-trien"&&gMb.value?(mbOf(gMb.value)||{}).ten:"";gT.value=(L?L.ten:"")+(rn?" · "+rn:mb?" · "+mb:(gV.value&&!(BO_PHAN[gB.value]||{}).phong?" · "+villaName(gV.value):""))}
-  function autoCk(){if(touchedCk)return;const L=LOAI[gL.value];gC.value=(L?L.ck:[]).join("\n")}
+  function autoTitle(){if(touchedTitle)return;const L=LOAI[gL.value];const rn=!$("#wrapPhong").hidden&&gP.value?roomName(gP.value):"";const mb=gB.value==="phat-trien"&&gMb.value?(mbOf(gMb.value)||{}).ten:"";gT.value=L&&L.nguyenCan?"Dọn nguyên căn"+(gV.value?" · "+villaName(gV.value):""):(L?L.ten:"")+(rn?" · "+rn:mb?" · "+mb:(gV.value&&!(BO_PHAN[gB.value]||{}).phong?" · "+villaName(gV.value):""))}
+  function autoCk(){if(touchedCk)return;const L=LOAI[gL.value];gC.value=(L&&L.nguyenCan&&gV.value?ckNguyenCan(canRooms(gV.value)):(L?L.ck:[])).join("\n")}
   function autoHan(){if(touchedHan)return;const L=LOAI[gL.value];$("#wrapMuc").hidden=gL.value!=="bao-tri";if(gL.value==="bao-tri"){gH.value=localInput(new Date(Date.now()+MUC_SU_CO[gM.value][1]*3600000))}else if(L&&L.gio){let d=todayAt(L.gio);if(d<new Date())d=new Date(d.getTime()+86400000);gH.value=localInput(d)}else{let d=todayAt("17:00");if(d<new Date())d=new Date(d.getTime()+86400000);gH.value=localInput(d)}}
-  gB.onchange=()=>{fillLoai();fillAi();fillRooms();autoTitle();autoCk();autoHan()};gV.onchange=()=>{fillRooms();autoTitle()};gL.onchange=()=>{fillRooms();autoTitle();autoCk();autoHan()};gP.onchange=autoTitle;gMb.onchange=autoTitle;gM.onchange=autoHan;
+  gB.onchange=()=>{fillLoai();fillAi();fillRooms();autoTitle();autoCk();autoHan()};gV.onchange=()=>{fillRooms();autoTitle();if((LOAI[gL.value]||{}).nguyenCan)autoCk()};gL.onchange=()=>{fillRooms();autoTitle();autoCk();autoHan()};gP.onchange=autoTitle;gMb.onchange=autoTitle;gM.onchange=autoHan;
   gT.oninput=()=>touchedTitle=true;gC.oninput=()=>touchedCk=true;gH.oninput=()=>touchedHan=true;
   fillLoai();fillAi();fillRooms();if(t){$("#wrapMuc").hidden=gL.value!=="bao-tri"}autoTitle();autoCk();autoHan();
   $("#fGiao").onsubmit=e=>{e.preventDefault();
@@ -1041,7 +1052,8 @@ function openGiaoViec(o){
     const data={boPhan:gB.value,villa:gV.value,loai:gL.value,phong,phongTen:phong?roomName(phong):"",matBang:gB.value==="phat-trien"?gMb.value:"",tieuDe,giaoCho:gA.value,hanXong:gH.value?new Date(gH.value).toISOString():"",uuTien:$("#gUu").value,moTa:$("#gMoTa").value.trim()};
     if(gL.value==="bao-tri")data.mucSuCo=gM.value;const gTid=t?t.id:GV_FORM.tid;data.soAnhGiao=fbGiaoLuu(gTid,data.villa,t?t.soAnhGiao:0);
     if(t){const old=(t.checklist||[]);data.checklist=ck.map(x=>{const o2=old.find(c=>c.t===x);return o2?{...o2}:{t:x,ok:false}});data.lichSu=hist(t,"Sửa việc"+(data.giaoCho!==t.giaoCho?", giao cho "+(staffName(data.giaoCho)||"chưa ai"):""));updDoc("tasks/"+t.id,data);toast("Đã lưu")}
-    else{const gLich=fbLapLuu(data,ck,touchedTitle);newTask({...data,id:gTid,ck,mucSuCo:data.mucSuCo,lichId:gLich?gLich.id:"",hd:gLich?fbLapHd(data,gLich):undefined});
+    else{const nc=(LOAI[gL.value]||{}).nguyenCan&&gV.value?canRooms(gV.value):[];if(nc.length)data.phongs=nc.map(r=>r.id);const gLich=fbLapLuu(data,ck,touchedTitle);newTask({...data,id:gTid,ck,mucSuCo:data.mucSuCo,lichId:gLich?gLich.id:"",hd:gLich?fbLapHd(data,gLich):undefined});
+      for(const r of nc)if(r.trangThai==="sach")roomStatus(r.id,"ban");
       if(gL.value==="bao-tri"&&phong)roomStatus(phong,"bao-tri");
       if((gL.value==="don-tra"||gL.value==="don-chung")&&phong){const r=roomOf(phong);if(r&&r.trangThai==="sach")roomStatus(phong,"ban")}
       toast(gLich?(gLich.trung?"Đã giao việc. Lịch lặp này đã có sẵn, không tạo thêm":"Đã giao việc, lặp "+gLich.mota.toLowerCase()):"Đã giao việc")}
@@ -1053,7 +1065,7 @@ function openTraPhong(vid){
   const v=VILLAS.find(x=>x.id===vid);if(!v)return;
   const rs=ROOMS.filter(r=>r.villa===vid).sort((a,b)=>(a.loai==="ngu"?0:1)-(b.loai==="ngu"?0:1)||(a.thuTu||99)-(b.thuTu||99));
   let d=todayAt(GIO_SAN_SANG);const kn=bkHomNay(vid).nhan;if(kn&&kn.gioNhan){const [hh,mm]=kn.gioNhan.split(":").map(Number);d=new Date();d.setHours(hh,mm,0,0);d=new Date(d.getTime()-3600000)}if(d<new Date())d=new Date(d.getTime()+86400000);
-  let h=sheetHead("Khách trả phòng · "+esc(v.ten),"Mọi phòng chuyển sang Chờ dọn, mỗi phòng một việc dọn kèm checklist.");
+  let h=sheetHead("Khách trả phòng · "+esc(v.ten),"Phòng được chọn chuyển sang Chờ dọn. Tạo một việc dọn nguyên căn cho Buồng phòng (khách thuê cả căn); hồ bơi là việc riêng của bộ phận Hồ bơi.");
   h+='<form id="fTra"><ul class="ck pick" id="traRooms">'+rs.map(r=>'<li class="done" data-r="'+esc(r.id)+'"><span class="box">'+CHECK+'</span><span>'+esc(r.ten)+' <small class="muted">'+esc(ROOM_LOAI[r.loai]||"")+'</small></span></li>').join("")+'</ul>';
   if(!rs.length)h+='<div class="empty">Villa chưa có phòng nào.</div>';
   const bp=STAFF.filter(s=>s.hoatDong!==false);
@@ -1066,9 +1078,10 @@ function openTraPhong(vid){
   document.querySelectorAll("#traRooms li").forEach(li=>li.onclick=()=>li.classList.toggle("done"));
   $("#fTra").onsubmit=e=>{e.preventDefault();const ids=[...document.querySelectorAll("#traRooms li.done")].map(l=>l.dataset.r);if(!ids.length)return toast("Chọn ít nhất một phòng.");
     const ai=$("#traAi").value,han=$("#traHan").value?new Date($("#traHan").value).toISOString():"",ghi=$("#traGhi").value.trim();let n=0;
-    for(const rid of ids){const r=roomOf(rid);if(!r)continue;const loai=r.loai==="ngu"?"don-tra":r.loai==="ho-boi"?"ho-boi":"don-chung";const L=LOAI[loai];
-      newTask({loai,villa:vid,phong:rid,tieuDe:L.ten+" · "+r.ten,giaoCho:ai,hanXong:han,moTa:ghi,hd:"Khách trả phòng, giao việc dọn"+(ai?" cho "+staffName(ai):"")});
-      if(r.trangThai!=="bao-tri")roomStatus(rid,"ban");n++}
+    const chon=ids.map(roomOf).filter(Boolean);const canR=chon.filter(r=>r.loai!=="ho-boi");
+    if(canR.length){newTask({loai:"don-can",villa:vid,tieuDe:"Dọn nguyên căn · "+v.ten,giaoCho:ai,hanXong:han,moTa:ghi,ck:ckNguyenCan(canR),phongs:canR.map(r=>r.id),hd:"Khách trả phòng, giao dọn nguyên căn"+(ai?" cho "+staffName(ai):"")});n++}
+    for(const r of chon.filter(r=>r.loai==="ho-boi")){newTask({loai:"ho-boi",villa:vid,phong:r.id,tieuDe:LOAI["ho-boi"].ten+" · "+r.ten,hanXong:han,moTa:ghi,hd:"Khách trả phòng"});n++}
+    for(const r of chon)if(r.trangThai!=="bao-tri")roomStatus(r.id,"ban");
     if($("#traSetup").checked){newTask({loai:"set-up",villa:vid,tieuDe:LOAI["set-up"].ten+" · "+v.ten,hanXong:han,moTa:ghi});n++}
     if($("#traCheckout").checked){newTask({loai:"check-out",villa:vid,tieuDe:LOAI["check-out"].ten+" · "+v.ten,hanXong:todayAt(GIO_TRA).toISOString(),moTa:ghi});n++}
     addNhatKy(vid,"khach","Khách trả phòng, đã tạo "+n+" việc dọn và chuẩn bị lượt mới");
@@ -1236,7 +1249,7 @@ function openMatBangForm(id){
 function openRoom(id){openSheet({type:"room",id})}
 function renderRoomSheet(id){
   const r=roomOf(id);const sh=$("#sheet");if(!r){sh.innerHTML=sheetHead("Phòng không còn");bindClose();return}
-  const mgr=isMgr();const canRoom=canManage("buong-phong")||canManage("bao-tri");const can=canWrite!==false;const open=TASKS.filter(t=>t.phong===id&&isOpen(t)).sort(sortTask);const done=TASKS.filter(t=>t.phong===id&&t.trangThai==="xong").sort((a,b)=>String(b.duyetLuc||"").localeCompare(String(a.duyetLuc||""))).slice(0,5);
+  const mgr=isMgr();const canRoom=canManage("buong-phong")||canManage("bao-tri");const can=canWrite!==false;const open=TASKS.filter(t=>isOpen(t)&&taskRooms(t).includes(id)).sort(sortTask);const done=TASKS.filter(t=>t.trangThai==="xong"&&taskRooms(t).includes(id)).sort((a,b)=>String(b.duyetLuc||"").localeCompare(String(a.duyetLuc||""))).slice(0,5);
   wantProfiles([r.boi]);
   let h=sheetHead(esc(r.ten),esc(villaName(r.villa))+" · "+esc(ROOM_LOAI[r.loai]||"")+(r.ghiChu?" · "+esc(r.ghiChu):""));
   h+='<div class="small muted">Trạng thái hiện tại'+(r.capNhat?", cập nhật "+esc(fmtDT(r.capNhat))+(r.boi?" bởi "+esc(staffName(r.boi)):""):"")+'</div>';
