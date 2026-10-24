@@ -610,8 +610,10 @@ const meId=()=>(myStaff()||{}).id||uid||"";
 const bpOf=t=>t.boPhan||(LOAI[t.loai]||{}).bp||"";
 const bpName=id=>(BO_PHAN[id]||{}).ngan||(id?id:"Chung");
 /* việc app hoặc Bông tự tạo, tự cập nhật thì ghi "Tự động", không ghi tên người tình cờ mở app (anh Dần chốt 24/10/2026) */
-const TU_DONG="tu-dong",laTuDong=hd=>/^Tự /.test(hd||"");
-const staffName=id=>{if(id===TU_DONG||id==="bot-bong")return "Tự động";const s=STAFF.find(x=>x.id===id);if(s)return s.ten;if(id&&PROF[id]!==undefined)return PROF[id]||"Thành viên";return id?"Thành viên":""};
+const TU_DONG="tu-dong",BONG="bot-bong",laTuDong=hd=>/^Tự /.test(hd||""),quaZalo=hd=>/\(qua Zalo\)/.test(hd||"");
+/* tên người ghi một dòng lịch sử: Bông tự làm thì "Bông", app tự làm thì "Tự động" */
+const tenGhi=(ai,hd)=>ai===BONG||(laTuDong(hd)&&quaZalo(hd))?"Bông":laTuDong(hd)?"Tự động":staffName(ai)||"";
+const staffName=id=>{if(id===BONG)return "Bông";if(id===TU_DONG)return "Tự động";const s=STAFF.find(x=>x.id===id);if(s)return s.ten;if(id&&PROF[id]!==undefined)return PROF[id]||"Thành viên";return id?"Thành viên":""};
 const villaName=id=>(VILLAS.find(v=>v.id===id)||{}).ten||(id?id:"Cả chuỗi");
 const roomOf=id=>ROOMS.find(r=>r.id===id);
 const roomName=id=>(roomOf(id)||{}).ten||"";
@@ -976,7 +978,7 @@ function renderTaskSheet(id){
   const ro=!(canAct&&(t.trangThai==="dang-lam"||t.trangThai==="moi"));
   wantProfiles([t.nguoiGiao,t.nguoiDuyet,...(t.lichSu||[]).map(h=>h.ai)]);loadPhotos(t.id);
   let h=sheetHead(esc(t.tieuDe),'<span class="tag bp" style="--bpc:var(--bp-'+(BO_PHAN[bp]?bp:"khac")+')">'+esc(bpName(bp))+'</span> <span class="chip '+esc(t.trangThai)+'">'+esc(TASK_ST[t.trangThai])+'</span>'+(isLate(t)?' <span class="chip quahan">Quá hạn</span>':"")+(t.uuTien==="cao"?' <span class="uu cao">Gấp</span>':""));
-  h+='<dl class="kv"><dt>Nơi</dt><dd>'+esc(villaName(t.villa))+(t.phong?" · "+esc(roomName(t.phong)||t.phongTen||""):"")+(t.matBang?' · <a href="#" id="lnkMb">'+esc((mbOf(t.matBang)||{}).ten||"mặt bằng")+'</a>':"")+'</dd><dt>Giao cho</dt><dd>'+(t.giaoCho?esc(staffName(t.giaoCho)):'<i>Chưa ai nhận</i>')+'</dd><dt>Hạn xong</dt><dd class="num">'+(t.hanXong?esc(fmtDT(t.hanXong)):'<span class="late">Chưa đặt hạn</span>')+(t.mucSuCo?" · "+esc(MUC_SU_CO[t.mucSuCo][0]):"")+'</dd><dt>Người giao</dt><dd>'+esc(laTuDong(((t.lichSu||[])[0]||{}).hd)?"Tự động":staffName(t.nguoiGiao)||"")+' · '+esc(fmtDT(t.tao))+(t.lichId?" · theo lịch định kỳ":"")+'</dd>'+(t.moTa?'<dt>Mô tả</dt><dd>'+esc(t.moTa)+'</dd>':"")+(t.ghiChuXong?'<dt>Ghi chú khi báo xong</dt><dd>'+esc(t.ghiChuXong)+'</dd>':"")+(t.ghiChuDuyet?'<dt>Ghi chú duyệt</dt><dd>'+esc(t.ghiChuDuyet)+'</dd>':"")+'</dl>';
+  h+='<dl class="kv"><dt>Nơi</dt><dd>'+esc(villaName(t.villa))+(t.phong?" · "+esc(roomName(t.phong)||t.phongTen||""):"")+(t.matBang?' · <a href="#" id="lnkMb">'+esc((mbOf(t.matBang)||{}).ten||"mặt bằng")+'</a>':"")+'</dd><dt>Giao cho</dt><dd>'+(t.giaoCho?esc(staffName(t.giaoCho)):'<i>Chưa ai nhận</i>')+'</dd><dt>Hạn xong</dt><dd class="num">'+(t.hanXong?esc(fmtDT(t.hanXong)):'<span class="late">Chưa đặt hạn</span>')+(t.mucSuCo?" · "+esc(MUC_SU_CO[t.mucSuCo][0]):"")+'</dd><dt>Người giao</dt><dd>'+esc((h0=>{const n=tenGhi(t.nguoiGiao,h0);return n+(n&&n!=="Bông"&&n!=="Tự động"&&quaZalo(h0)?", qua Bông":"")})(((t.lichSu||[])[0]||{}).hd))+' · '+esc(fmtDT(t.tao))+(t.lichId?" · theo lịch định kỳ":"")+'</dd>'+(t.moTa?'<dt>Mô tả</dt><dd>'+esc(t.moTa)+'</dd>':"")+(t.ghiChuXong?'<dt>Ghi chú khi báo xong</dt><dd>'+esc(t.ghiChuXong)+'</dd>':"")+(t.ghiChuDuyet?'<dt>Ghi chú duyệt</dt><dd>'+esc(t.ghiChuDuyet)+'</dd>':"")+'</dl>';
   if(n){h+='<div class="sec-h"><h3>Checklist</h3><small class="num">'+d+'/'+n+(d===n?" · đủ":"")+'</small></div><ul class="ck'+(ro?" ro":"")+'">'+ck.map((c,i)=>'<li class="'+(c.ok?"done":"")+'" data-i="'+i+'"><span class="box">'+CHECK+'</span><span>'+esc(c.t)+'</span></li>').join("")+'</ul>';
     if(t.loai==="don-tra")h+='<div class="small muted" style="margin-top:6px">Quy tắc vàng: một dòng chưa đạt là phòng chưa được bàn giao.</div>'}
   h+=fbGiaoSection(t);
@@ -992,7 +994,7 @@ function renderTaskSheet(id){
   }
   if(acts)h+='<div class="acts">'+acts+'</div>';
   const hs=(t.lichSu||[]).slice().reverse();
-  if(hs.length)h+='<div class="sec-h"><h3>Lịch sử</h3></div><ul class="hist">'+hs.map(x=>'<li><time>'+esc(fmtDT(x.luc))+'</time><span>'+esc(laTuDong(x.hd)?"Tự động":staffName(x.ai)||"")+(x.ai||laTuDong(x.hd)?": ":"")+esc(x.hd)+'</span></li>').join("")+'</ul>';
+  if(hs.length)h+='<div class="sec-h"><h3>Lịch sử</h3></div><ul class="hist">'+hs.map(x=>'<li><time>'+esc(fmtDT(x.luc))+'</time><span>'+esc(tenGhi(x.ai,x.hd))+(tenGhi(x.ai,x.hd)?": ":"")+esc(x.hd)+'</span></li>').join("")+'</ul>';
   sh.innerHTML=h;bindClose();
   if(!ro)sh.querySelectorAll(".ck li").forEach(li=>li.onclick=()=>toggleCk(t.id,+li.dataset.i));
   sh.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>taskAction(t.id,b.dataset.a,b));fbGiaoGan(sh,t.id);
@@ -1182,7 +1184,7 @@ function renderBookingSheet(id){
     h+='<div class="acts"><button class="btn" id="bkEdit">Sửa</button>'+(b.tra===ymd(new Date())||b.nhan===ymd(new Date())?'<button class="btn p" id="bkTao">Tạo việc hôm nay ngay</button>':"")+'</div>'}
   h+='<div class="sec-h"><h3>Việc theo lượt khách này</h3><small>'+ts.length+'</small></div>'+(ts.length?ts.map(taskCard).join(""):'<div class="small muted">Sáng ngày trả phòng app tự tạo việc dọn, set-up, tiễn khách; ngày nhận tạo việc đón khách.</div>');
   const hs=(b.lichSu||[]).slice().reverse();
-  if(hs.length)h+='<div class="sec-h"><h3>Lịch sử</h3></div><ul class="hist">'+hs.map(x=>'<li><time>'+esc(fmtDT(x.luc))+'</time><span>'+esc(laTuDong(x.hd)?"Tự động":staffName(x.ai)||"")+(x.ai||laTuDong(x.hd)?": ":"")+esc(x.hd)+'</span></li>').join("")+'</ul>';
+  if(hs.length)h+='<div class="sec-h"><h3>Lịch sử</h3></div><ul class="hist">'+hs.map(x=>'<li><time>'+esc(fmtDT(x.luc))+'</time><span>'+esc(tenGhi(x.ai,x.hd))+(tenGhi(x.ai,x.hd)?": ":"")+esc(x.hd)+'</span></li>').join("")+'</ul>';
   sh.innerHTML=h;bindClose();
   sh.querySelectorAll("[data-st]").forEach(x=>x.onclick=()=>{if(x.dataset.st===b.trangThai)return;bkUpd(b,{trangThai:x.dataset.st,capNhat:now(),lichSu:hist(b,"Chuyển sang "+BK_ST[x.dataset.st])});toast(BK_ST[x.dataset.st])});
   sh.querySelectorAll(".task").forEach(c=>c.onclick=()=>openTask(c.dataset.id));
@@ -1225,7 +1227,7 @@ function renderMatBangSheet(id){
     h+='<div class="acts"><button class="btn p" id="mbGiao">Giao việc cho mặt bằng này</button><button class="btn" id="mbEdit">Sửa hồ sơ</button></div>'}
   h+='<div class="sec-h"><h3>Việc liên quan</h3><small>'+ts.length+'</small></div>'+(ts.length?ts.map(taskCard).join(""):'<div class="small muted">Chưa có. Gợi ý: khảo sát, lập phương án, đàm phán, pháp lý.</div>');
   const hs=(m.lichSu||[]).slice().reverse();
-  if(hs.length)h+='<div class="sec-h"><h3>Lịch sử</h3></div><ul class="hist">'+hs.map(x=>'<li><time>'+esc(fmtDT(x.luc))+'</time><span>'+esc(laTuDong(x.hd)?"Tự động":staffName(x.ai)||"")+(x.ai||laTuDong(x.hd)?": ":"")+esc(x.hd)+'</span></li>').join("")+'</ul>';
+  if(hs.length)h+='<div class="sec-h"><h3>Lịch sử</h3></div><ul class="hist">'+hs.map(x=>'<li><time>'+esc(fmtDT(x.luc))+'</time><span>'+esc(tenGhi(x.ai,x.hd))+(tenGhi(x.ai,x.hd)?": ":"")+esc(x.hd)+'</span></li>').join("")+'</ul>';
   sh.innerHTML=h;bindClose();
   fbMbAnhGan(sh,id);
   sh.querySelectorAll("[data-gd]").forEach(b=>b.onclick=()=>{if(b.dataset.gd===(m.giaiDoan||"moi"))return;updDoc("matbang/"+id,{giaiDoan:b.dataset.gd,capNhat:now(),lichSu:hist(m,"Chuyển sang "+MB_GD[b.dataset.gd])});toast(MB_GD[b.dataset.gd])});
