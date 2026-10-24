@@ -654,6 +654,7 @@ function nguoiCan(vid){const ds=STAFF.filter(s=>s.hoatDong!==false);const co=(s,
 const BP_CAN=["don-tiep","buong-phong","set-up","ho-boi","an-ninh","bao-tri","dich-vu"];
 function nguoiMacDinh(bp,vid){const ds=STAFF.filter(s=>s.hoatDong!==false&&s.boPhan);const co=(s,b)=>s.boPhan===b||(s.boPhanPhu||[]).includes(b);
   const mo=x=>TASKS.filter(t=>t.giaoCho===x.id&&isOpen(t)).length;const it=a=>a.slice().sort((x,y)=>mo(x)-mo(y)||(x.vaiTro==="nhan-vien"?0:1)-(y.vaiTro==="nhan-vien"?0:1))[0].id;
+  if(vid&&(bp==="set-up"||bp==="ho-boi")){const q=ds.find(s=>s.villa===vid&&co(s,"don-tiep"))||ds.find(s=>s.villa===vid&&co(s,"buong-phong"));if(q)return q.id}   /* set-up, hồ bơi: quản gia căn đó (anh Dần chốt 24/10/2026) */
   if(vid){const a=ds.filter(s=>s.villa===vid&&co(s,bp));if(a.length)return it(a);if(BP_CAN.includes(bp)){const c=nguoiCan(vid);if(c)return c}}
   const b=ds.filter(s=>!s.villa&&co(s,bp));if(b.length)return it(b);const g=ds.filter(s=>s.vaiTro==="giam-doc");return g.length?it(g):""}
 function taskRooms(t){if(t.phong)return [t.phong];if(!(LOAI[t.loai]||{}).nguyenCan)return [];return (t.phongs&&t.phongs.length)?t.phongs:canRooms(t.villa).map(r=>r.id)}
