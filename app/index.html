@@ -1065,9 +1065,22 @@ function renderBaoCao(){
     else{
       const lai=T.dt-chi;const mucT={};for(const c of cps)for(const k in c.muc||{})mucT[k]=(mucT[k]||0)+(+c.muc[k]||0);const mx=Math.max(1,...Object.values(mucT));
       h+='<div class="kpis" style="grid-template-columns:repeat(3,1fr)"><div class="kpi gold"><small>Lãi gộp</small><b class="num" style="color:'+(lai>=0?"var(--ok)":"var(--bad)")+'">'+esc(fmtTien(lai))+'</b><div class="dl">'+(T.dt?Math.round(lai/T.dt*100)+'% doanh thu':'')+'</div></div><div class="kpi"><small>Chi phí</small><b class="num">'+esc(fmtTien(chi))+'</b><div class="dl">'+cps.length+' bản ghi</div></div><div class="kpi"><small>Doanh thu</small><b class="num">'+esc(fmtTien(T.dt))+'</b><div class="dl">tiền phòng</div></div></div>';
-      h+='<div class="card">'+VILLAS.map(v=>{const c=cps.find(x=>x.villa===v.id);const o=S.per[v.id];
-        return '<div class="bcrow"><div class="t"><b>'+esc(v.ten)+'</b>'+(c?'<b class="num" style="color:'+(o.dt-chiTong(c)>=0?"var(--ok)":"var(--bad)")+'">'+esc(fmtTien(o.dt-chiTong(c)))+'</b>':'<span class="small muted">chưa nhập chi phí</span>')+'</div><div class="s num">Thu '+esc(fmtTien(o.dt))+(c?' · chi '+esc(fmtTien(chiTong(c))):'')+'</div></div>'}).join("")
-        +(cps.find(x=>x.villa==="chung")?'<div class="bcrow"><div class="t"><b>Chi chung cả chuỗi</b><b class="num">-'+esc(fmtTien(chiTong(cps.find(x=>x.villa==="chung"))))+'</b></div></div>':'')+'</div>';
+      /* mỗi villa một thẻ: doanh thu, chi phí theo nhóm, lãi gộp */
+      h+=VILLAS.map(v=>{const c=cps.find(x=>x.villa===v.id);const o=S.per[v.id];const ci=c?chiTong(c):0,lv=o.dt-ci;
+        const mau=lv>=0?"var(--ok)":"var(--bad)";
+        let s='<div class="card"><h3>'+esc(v.ten)+'</h3>'
+          +'<div class="bcrow"><div class="t"><span>Doanh thu phòng</span><b class="num">'+esc(fmtTien(o.dt))+'</b></div><div class="s num">'+o.chot.size+'/'+S.n+' đêm có khách · '+o.luot+' lượt đến</div></div>';
+        if(c){
+          s+='<div class="bcrow"><div class="t"><span>Chi phí</span><b class="num">'+esc(fmtTien(ci))+'</b></div>'
+            +Object.keys(CHI_MUC).filter(k=>+(c.muc||{})[k]).map(k=>'<div class="s num" style="display:flex;justify-content:space-between"><span>'+esc(CHI_MUC[k])+'</span><span>'+esc(fmtTien(c.muc[k]))+'</span></div>').join("")+'</div>'
+            +'<div class="bcrow"><div class="t"><b>Lãi gộp</b><b class="num" style="color:'+mau+'">'+esc(fmtTien(lv))+'</b></div>'+(o.dt?'<div class="s num">'+Math.round(lv/o.dt*100)+'% doanh thu</div>':'')+'</div>'
+            +(c.ghiChu?'<div class="small muted">'+esc(c.ghiChu)+'</div>':'')}
+        else s+='<div class="bcrow"><div class="t"><span>Chi phí</span><span class="small muted">chưa nhập</span></div></div>';
+        return s+'</div>'}).join("");
+      const cc=cps.find(x=>x.villa==="chung");
+      if(cc)h+='<div class="card"><h3>Chi chung cả chuỗi</h3><div class="bcrow"><div class="t"><span>Chi phí</span><b class="num">'+esc(fmtTien(chiTong(cc)))+'</b></div>'
+        +Object.keys(CHI_MUC).filter(k=>+(cc.muc||{})[k]).map(k=>'<div class="s num" style="display:flex;justify-content:space-between"><span>'+esc(CHI_MUC[k])+'</span><span>'+esc(fmtTien(cc.muc[k]))+'</span></div>').join("")+'</div>'
+        +'<div class="small muted">Khoản này không chia cho từng villa, nhưng đã trừ vào lãi gộp chung ở trên.</div></div>';
       h+='<div class="card"><h3>Chi theo nhóm</h3>'+Object.keys(CHI_MUC).filter(k=>mucT[k]).map(k=>'<div class="bcrow"><div class="t"><span>'+esc(CHI_MUC[k])+'</span><b class="num">'+esc(fmtTien(mucT[k]))+'</b></div><div class="bar"><i class="o" style="width:'+(mucT[k]/mx*100).toFixed(1)+'%"></i></div></div>').join("")+'</div>';
       const gc=cps.filter(c=>c.ghiChu).map(c=>(c.villa==="chung"?"Chung":villaName(c.villa))+": "+c.ghiChu);if(gc.length)h+='<div class="small muted">'+esc(gc.join(" · "))+'</div>'}
   }
