@@ -868,17 +868,6 @@ function renderTong(){
   else h+='<div class="vgrid">'+vs.map(v=>{const s=villaSummary(v);
     const dots=s.rs.slice().sort((a,b)=>(a.thuTu||99)-(b.thuTu||99)).map(r=>'<span class="dot '+r.trangThai+(r.loai!=="ngu"?" chung":"")+'" title="'+esc(r.ten+": "+ROOM_ST[r.trangThai])+'">'+esc(r.loai==="ngu"?String(r.ten).replace(/\D/g,"")||r.ten[0]:r.ten[0])+'</span>').join("");
     return '<div class="vcard '+s.st+'" data-villa="'+esc(v.id)+'"><h3><span>'+esc(v.ten)+'</span><span class="chip plain '+(s.st==="co-khach"?"co-khach":s.st==="cho-don"?"ban":s.st==="san-sang"?"sach":"")+'">'+esc(s.lbl)+'</span></h3><div class="addr">'+esc(v.diaChi||"")+(v.khachHienTai&&s.st==="co-khach"?" · "+esc(v.khachHienTai):"")+'</div><div class="small" style="margin-top:4px">'+bkLine(v.id)+'</div><div class="dots">'+(dots||'<span class="muted small">Chưa có phòng</span>')+'</div><div class="stats"><div class="stat"><b class="num">'+s.dangLam+'</b><span>việc đang làm</span></div><div class="stat'+(s.choDuyet?" att":"")+'"><b class="num">'+s.choDuyet+'</b><span>chờ duyệt</span></div><div class="stat'+(s.quaHan?" hot":"")+'"><b class="num">'+s.quaHan+'</b><span>quá hạn</span></div></div></div>'}).join("")+'</div>';
-  /* đặt phòng: đưa ra Hôm nay cho dễ xem (anh Dần 02/11/2026) */
-  {const today=ymd(new Date());if(!calMonth)calMonth=today.slice(0,7);const cm=+calMonth.slice(5),mF=calMonth+"-01",mL=calMonth+"-31";
-    const ls=BOOKINGS.filter(b=>b.trangThai!=="huy"&&b.nhan<=mL&&b.tra>mF);const sum=f=>ls.reduce((a,b)=>a+(+b[f]||0),0);
-    const conThu=ls.filter(b=>!b._luu&&(b.trangThai==="da-coc"||b.trangThai==="dang-o")&&(+b.tien||0)>(+b.coc||0)).reduce((a,b)=>a+(+b.tien)-(+b.coc||0),0);
-    const chuaGia=ls.filter(b=>!b._luu&&b.trangThai!=="da-tra"&&!(+b.tien)).length;const vnd=n=>n?money(n)+" đ":"0";
-    h+='<div class="sec-h"><h2>Đặt phòng</h2>'+(canManage("kinh-doanh")&&canWrite!==false?'<button class="btn sm" id="btnBkAdd">+ Đặt phòng</button>':"")+'</div>';
-    h+='<div class="kpis" id="bkTong"><div class="kpi"><small>Lượt khách tháng '+cm+'</small><b class="num">'+ls.length+'</b></div><div class="kpi gold"><small>Tổng tiền phòng</small><b class="num">'+esc(trieu(sum("tien"))||"0")+'</b><div class="dl num">'+esc(vnd(sum("tien")))+'</div></div><div class="kpi"><small>Đã cọc</small><b class="num">'+esc(trieu(sum("coc"))||"0")+'</b><div class="dl num">'+esc(vnd(sum("coc")))+'</div></div><div class="kpi"><small>Còn phải thu</small><b class="num">'+esc(trieu(conThu)||"0")+'</b><div class="dl">'+(chuaGia?esc(chuaGia+" lượt chưa có giá phòng"):"khách đã cọc, đang ở")+'</div></div></div>';
-    h+=lichDatPhongHtml();
-    const sap=BOOKINGS.filter(b=>bkActive(b)&&b.tra>=today&&b.nhan<=addDays(today,7)).sort((a,b)=>a.nhan.localeCompare(b.nhan));
-    h+='<div class="sec-h"><h2>Lịch khách 7 ngày tới</h2><small>'+sap.length+' lượt</small></div>';
-    h+=sap.length?sap.map(b=>bkCard(b,true)).join(""):'<div class="empty"><b>Chưa có lượt khách nào trong 7 ngày tới</b>Đặt phòng ghi ở nút "+ Đặt phòng" trên, hoặc nhờ Bông qua Zalo. Đến ngày, app tự tạo việc dọn, set-up, đón khách.</div>'}
   /* bộ phận */
   h+='<div class="sec-h"><h2>Bộ phận</h2><small>việc mở · chờ duyệt · quá hạn</small></div><div class="bpgrid">'+Object.keys(BO_PHAN).map(k=>{const s=bpStats(k);return '<div class="bpc'+(s.open?"":" quiet")+'" style="--bpc:var(--bp-'+k+')" data-bp="'+k+'"><b>'+esc(BO_PHAN[k].ngan)+'</b><div class="n"><i>'+s.open+'</i>'+(s.cho?'<i class="w">'+s.cho+' duyệt</i>':"")+(s.late?'<i class="h">'+s.late+' trễ</i>':"")+'</div></div>'}).join("")+'</div>';
   const late=TASKS.filter(isLate);const cd=TASKS.filter(t=>t.trangThai==="cho-duyet"&&canManage(bpOf(t)));
@@ -895,7 +884,9 @@ function renderTong(){
   /* mặt bằng + nhật ký hôm nay */
   const mbOpen=MATBANG.filter(m=>m.giaiDoan!=="chot"&&m.giaiDoan!=="bo");
   if(mbOpen.length)h+='<div class="sec-h"><h2>Mặt bằng đang theo</h2><small>'+mbOpen.length+'</small></div><div class="row" style="gap:6px">'+Object.keys(MB_GD).filter(k=>k!=="chot"&&k!=="bo").map(k=>{const n=mbOpen.filter(m=>(m.giaiDoan||"moi")===k).length;return n?'<span class="chip '+k+'">'+esc(MB_GD[k])+' '+n+'</span>':""}).join("")+'</div>';
-  const today=ymd(new Date());
+  const today=ymd(new Date());const sap=BOOKINGS.filter(b=>bkActive(b)&&b.tra>=today&&b.nhan<=addDays(today,7)).sort((a,b)=>a.nhan.localeCompare(b.nhan));
+  h+='<div class="sec-h"><h2>Lịch khách 7 ngày tới</h2>'+(canManage("kinh-doanh")&&canWrite!==false?'<button class="btn sm" id="btnBkAdd">+ Đặt phòng</button>':"")+'</div>';
+  h+=sap.length?sap.map(b=>bkCard(b,true)).join(""):'<div class="empty"><b>Chưa có lượt khách nào trong 7 ngày tới</b>Kinh doanh ghi đặt phòng ở tab Bộ phận, mục Đặt phòng. Đến ngày, app tự tạo việc dọn, set-up, đón khách.</div>';
   const nk=NHATKY.filter(d=>d.ngay===today).flatMap(d=>(d.muc||[]).map(m=>({...m,villa:d.villa}))).sort((a,b)=>String(b.luc).localeCompare(String(a.luc)));
   h+='<div class="sec-h"><h2>Nhật ký hôm nay</h2>'+(canWrite!==false?'<button class="btn sm" id="btnNk">+ Ghi</button>':"")+'</div>';
   h+=nk.length?'<div class="card"><ul class="nk">'+nk.slice(0,20).map(nkRow).join("")+'</ul></div>':'<div class="empty"><b>Chưa có ghi chép hôm nay</b>Bàn giao ca, sự vụ, yêu cầu khách: ghi ngay khi phát sinh, không ghi dồn.</div>';
@@ -908,7 +899,6 @@ function renderTong(){
   const bn=el.querySelector("#btnNk");if(bn)bn.onclick=()=>openNhatKyForm(villaSel||"");
   el.querySelectorAll(".bk").forEach(c=>c.onclick=()=>openBooking(c.dataset.bk));
   const ba=el.querySelector("#btnBkAdd");if(ba)ba.onclick=()=>openBookingForm(null,villaSel);
-  ganLichDatPhong(el);
 }
 function bkLine(vid){const k=bkHomNay(vid);const parts=[];if(k.tra)parts.push('<span class="chip ban plain">Trả '+esc(k.tra.gioTra||GIO_TRA)+' hôm nay</span>');if(k.nhan)parts.push('<span class="chip co-khach plain">Nhận '+esc(k.nhan.gioNhan||GIO_NHAN)+' hôm nay · '+esc(bkLabel(k.nhan))+'</span>');if(!k.tra&&!k.nhan&&k.dangO)parts.push('<span class="muted">'+esc(bkLabel(k.dangO))+', trả '+esc(fmtNgay(k.dangO.tra))+'</span>');if(!k.nhan&&k.sap)parts.push('<span class="muted">Khách tới '+esc(fmtNgay(k.sap.nhan))+'</span>');if(!parts.length)parts.push('<span class="muted">Chưa có lịch khách</span>');return parts.join(" ")}
 function bkCard(b,showVilla){const t=ymd(new Date());return '<div class="bk '+({"giu-cho":"bk-giu","da-coc":"bk-coc","dang-o":"bk-o","da-tra":"bk-tra"}[b.trangThai]||"")+'" data-bk="'+esc(b.id)+'"><div class="dt">'+esc(fmtNgay(b.nhan))+' → '+esc(fmtNgay(b.tra))+'<small>'+soDem(b)+' đêm'+(b.nhan===t?" · nhận hôm nay":b.tra===t?" · trả hôm nay":"")+'</small></div><div class="in"><b>'+esc(bkTen(b))+(showVilla?' <span class="tag">'+esc(villaName(b.villa))+'</span>':"")+'</b><span>'+esc([KENH[b.kenh]||"",b.soKhach?b.soKhach+" người":"",b.tien?money(b.tien)+" đ":""].filter(Boolean).join(" · "))+'</span></div><span class="chip '+({"giu-cho":"bk-giu","da-coc":"bk-coc","dang-o":"bk-o","da-tra":"bk-tra",huy:"huy"}[b.trangThai]||"")+'">'+esc(BK_ST[b.trangThai]||"")+'</span></div>'}
