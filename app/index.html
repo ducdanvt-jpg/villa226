@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="226 Villa">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<script>const FB_BAN="2026-11-02 11:15";</script>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -328,6 +329,7 @@ section[hidden]{display:none}
 .dayb .c i{display:block;width:100%}
 .dayb .c i.k{background:var(--brand)}.dayb .c i.g{background:repeating-linear-gradient(135deg,var(--s-warn) 0 3px,#F59E0B 3px 6px)}
 .dayb .c.today{box-shadow:0 0 0 2px var(--gold)}
+.dayb.vl{height:20px;margin-top:5px}
 .dayl{display:grid;gap:2px;font-size:10px;color:var(--muted);text-align:center;margin-top:3px}
 .bcal{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line-2);cursor:pointer}
 .bcal:first-child{border-top:0;padding-top:0}
@@ -1083,11 +1085,12 @@ function renderBaoCao(){
   h+='<div class="sec-h"><h2>Cần chú ý</h2><small>'+al.length+' mục</small></div>';
   h+=al.length?'<div class="card">'+al.map(a=>'<div class="bcal" data-go="'+a[4]+'"><div class="n '+a[0]+'">'+a[1]+'</div><div class="in">'+a[2]+'<span>'+a[3]+'</span></div></div>').join("")+'</div>':'<div class="empty"><b>Không có gì cần xử lý gấp</b></div>';
   if(soon.length)h+=soon.slice(0,6).map(b=>bkCard(b,true)).join("");
-  /* theo ngày */
-  const nv=VILLAS.length;
-  h+='<div class="sec-h"><h2>Villa có khách theo ngày</h2><small>cao nhất = '+nv+' villa</small></div><div class="card"><div class="dayb" style="grid-template-columns:repeat('+S.n+',1fr)">'
-   +S.days.map(d=>'<div class="c'+(d===today?" today":"")+'" title="'+esc(fmtNgay(d)+": "+(S.dayK[d]||0)+" villa có khách"+(S.dayG[d]?", "+S.dayG[d]+" giữ chỗ":""))+'"><i class="g" style="height:'+((S.dayG[d]||0)/nv*100)+'%"></i><i class="k" style="height:'+((S.dayK[d]||0)/nv*100)+'%"></i></div>').join("")
-   +'</div><div class="dayl" style="grid-template-columns:repeat('+S.n+',1fr)">'+S.days.map((d,i)=>'<span>'+((i===0||(i+1)%5===0)?i+1:"")+'</span>').join("")+'</div>'
+  /* theo ngày: mỗi villa một dải riêng (anh Dần yêu cầu 02/11/2026), ô = một đêm */
+  const oDay=(o,d)=>o.chot.has(d)?['k','Đã chốt']:o.giu.has(d)?['g','Giữ chỗ']:['','Trống'];
+  h+='<div class="sec-h"><h2>Villa có khách theo ngày</h2><small>'+VILLAS.length+' villa · '+S.n+' đêm</small></div><div class="card">'
+   +VILLAS.map(v=>{const o=S.per[v.id];return '<div class="bcrow"><div class="t"><b>'+esc(v.ten)+'</b><span class="s num">'+o.chot.size+' đêm chốt'+(o.giu.size?' · '+o.giu.size+' giữ chỗ':'')+'</span></div><div class="dayb vl" style="grid-template-columns:repeat('+S.n+',1fr)">'
+     +S.days.map(d=>{const [k,t]=oDay(o,d);return '<div class="c'+(d===today?' today':'')+'" title="'+esc(fmtNgay(d)+': '+t)+'">'+(k?'<i class="'+k+'" style="height:100%"></i>':'')+'</div>'}).join('')+'</div></div>'}).join('')
+   +'<div class="dayl" style="grid-template-columns:repeat('+S.n+',1fr)">'+S.days.map((d,i)=>'<span>'+((i===0||(i+1)%5===0)?i+1:'')+'</span>').join('')+'</div>'
    +'<div class="legend big" style="margin-top:8px"><span><i style="background:var(--brand)"></i>Đã chốt</span><span><i style="background:repeating-linear-gradient(135deg,#B45309 0 4px,#F59E0B 4px 8px)"></i>Giữ chỗ</span><span><i style="background:var(--line-2)"></i>Trống</span></div></div>';
   /* theo villa */
   h+='<div class="sec-h"><h2>Theo villa</h2><small>công suất · doanh thu</small></div><div class="card">'
@@ -1659,7 +1662,7 @@ function renderDuLieu(){
   h+='<div class="card"><h3>Sao lưu</h3><div class="small muted" style="margin:6px 0 10px">Tải toàn bộ dữ liệu app (villa, phòng, việc, đặt phòng, sổ doanh thu, nhân viên, chủ đầu tư, nhật ký, ảnh) về máy thành một file JSON. Nên làm mỗi tuần.</div><div class="acts"><button class="btn p" id="fbXuat">Tải bản sao lưu</button></div></div>';
   if(FB.member.owner)h+='<div class="card"><h3>Nhập dữ liệu từ file</h3><div class="small muted" style="margin:6px 0 10px">Dùng file sao lưu hoặc file dữ liệu do em chuẩn bị. Mục trùng mã sẽ bị <b>ghi đè</b>, mục khác giữ nguyên, không xóa gì. Chỉ chủ app thấy mục này.</div><div class="acts"><label class="btn" style="cursor:pointer;justify-content:center">Chọn file để nhập<input type="file" id="fbNhap" accept="application/json,.json" hidden></label></div></div>';
   h+=fbLsKhung();
-  h+='<div class="card"><h3>Tài khoản</h3><div class="small" style="margin:6px 0 10px">Đang đăng nhập: <b>'+esc(FB.email)+'</b></div><div class="acts"><button class="btn" id="fbDangXuat">Đăng xuất</button></div></div>';
+  h+='<div class="card"><h3>Tài khoản</h3><div class="small" style="margin:6px 0 10px">Đang đăng nhập: <b>'+esc(FB.email)+'</b> · Bản app <b>'+esc(fbBan()||"?")+'</b></div><div class="acts"><button class="btn" id="fbDangXuat">Đăng xuất</button></div></div>';
   el.innerHTML=h;fbBindTaiKhoan(el);fbLsGan(el);
 }
 function fbBindTaiKhoan(el){
@@ -2343,6 +2346,36 @@ function fbBaoLoiKho(col, e) {
   }
   bar.textContent = "Chưa tải được dữ liệu (" + col + "). " + (window.FB_MOTA_LOI ? window.FB_MOTA_LOI(e) : "") ;
 }
+
+/* ---------- Tự nhận bản mới (02/11/2026) ----------
+Một máy mở app từ trước 24/10 không tải lại suốt hơn một tuần, cứ có đặt phòng trả là tạo 11-13 việc dọn lẻ theo mã cũ.
+Nay mỗi 10 phút (và khi quay lại tab, khi có mạng lại) app tải index.html, so dấu bản FB_BAN do build.py đóng vào.
+Khác thì tải lại trang; đang mở phiếu hoặc đang gõ thì báo một câu và chờ rảnh mới tải lại. */
+function fbBan(){return (typeof FB_BAN==="string"&&FB_BAN)||""}
+const FB_CAP_NHAT={co:false,luc:0,ban:"",daBao:false};
+async function fbKiemBanMoi(){
+  if(!fbBan()||navigator.onLine===false)return;
+  FB_CAP_NHAT.luc=Date.now();
+  let txt="";
+  try{const r=await fetch("index.html?ban="+Date.now(),{cache:"no-store",credentials:"omit"});if(!r.ok)return;txt=await r.text()}catch(e){return}
+  const m=/FB_BAN="([0-9 :\-]+)"/.exec(txt);if(!m||m[1]===fbBan())return;
+  FB_CAP_NHAT.co=true;FB_CAP_NHAT.ban=m[1];fbTaiLaiKhiRanh();
+}
+function fbDangBan(){
+  const a=document.activeElement;const go=!!(a&&(/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)||a.isContentEditable));
+  return !!(typeof sheetState!=="undefined"&&sheetState)||go;
+}
+function fbTaiLaiKhiRanh(){
+  if(!FB_CAP_NHAT.co)return;
+  if(fbDangBan()){
+    if(!FB_CAP_NHAT.daBao){FB_CAP_NHAT.daBao=true;try{toast("Có bản app mới, sẽ tự tải lại khi anh/chị đóng phiếu")}catch(e){}}
+    setTimeout(fbTaiLaiKhiRanh,15000);return;
+  }
+  location.reload();
+}
+setTimeout(fbKiemBanMoi,90000);setInterval(fbKiemBanMoi,600000);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState!=="visible")return;if(FB_CAP_NHAT.co)fbTaiLaiKhiRanh();else if(Date.now()-FB_CAP_NHAT.luc>120000)fbKiemBanMoi()});
+window.addEventListener("online",()=>{if(Date.now()-FB_CAP_NHAT.luc>120000)fbKiemBanMoi()});
 </script>
 </body>
 </html>
