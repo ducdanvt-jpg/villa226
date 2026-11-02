@@ -730,7 +730,7 @@ function taoViecDinhKy(){
     const villas=l.villa==="all"?VILLAS.map(v=>v.id):[l.villa||""];
     for(const v of villas){const id="lich_"+l.id+"_"+key.replace(/-/g,"")+"_"+(v||"chuoi");if(TASKS.some(t=>t.id===id))continue;
       const L=LOAI[l.loai]||LOAI.khac;const han=l.gio?todayAt(l.gio).toISOString():todayAt("17:00").toISOString();
-      newTask({id,loai:l.loai,boPhan:l.boPhan||L.bp,villa:v,phong:l.phong||"",matBang:l.matBang||"",tieuDe:(l.ten||L.ten)+(l.phong?" · "+roomName(l.phong):v?" · "+villaName(v):""),giaoCho:l.giaoCho||"",hanXong:han,uuTien:l.uuTien||"thuong",moTa:l.moTa||"",ck:(l.checklist&&l.checklist.length)?l.checklist:L.ck,lichId:l.id,hd:"Tự tạo theo lịch "+(CHU_KY[l.chuKy]||"").toLowerCase()});n++}
+      newTask({id,loai:l.loai,boPhan:l.boPhan||L.bp,villa:v,phong:l.phong||"",matBang:l.matBang||"",tieuDe:(l.ten||L.ten)+(l.phong?" · "+roomName(l.phong):v?" · "+villaName(v):""),giaoCho:l.giaoCho||"",hanXong:han,uuTien:l.uuTien||"thuong",moTa:l.moTa||"",ck:(l.checklist&&l.checklist.length)?l.checklist:(L.nguyenCan&&v?ckNguyenCan(canRooms(v)):L.ck),phongs:L.nguyenCan&&v?canRooms(v).map(r=>r.id):undefined,lichId:l.id,hd:"Tự tạo theo lịch "+(CHU_KY[l.chuKy]||"").toLowerCase()});n++}
     updDoc("lich/"+l.id,{lanCuoi:key})}
   if(n)toast("Đã tạo "+n+" việc định kỳ hôm nay");taoViecDatPhong()}
 /* việc theo lịch khách: sáng ngày trả tạo loạt dọn + tiễn khách; ngày nhận tạo việc đón khách (set-up nếu chưa có) */
@@ -1507,13 +1507,13 @@ function renderRoomSheet(id){
   let h=sheetHead(esc(r.ten),esc(villaName(r.villa))+" · "+esc(ROOM_LOAI[r.loai]||"")+(r.ghiChu?" · "+esc(r.ghiChu):""));
   h+='<div class="small muted">Trạng thái hiện tại'+(r.capNhat?", cập nhật "+esc(fmtDT(r.capNhat))+(r.boi?" bởi "+esc(staffName(r.boi)):""):"")+'</div>';
   h+='<div class="stbtns">'+Object.keys(ROOM_ST).map(k=>'<button data-st="'+k+'" class="'+(r.trangThai===k?"on":"")+'"'+(can?"":" disabled")+'><i style="background:var(--'+({sach:"ok",ban:"warn","dang-don":"info","co-khach":"busy","bao-tri":"bad"}[k])+')"></i>'+ROOM_ST[k]+'</button>').join("")+'</div>';
-  if(canRoom&&can)h+='<div class="acts"><button class="btn p" id="rGiao">Giao việc '+(r.loai==="ho-boi"?"kiểm tra hồ bơi":"dọn chỗ này")+'</button><button class="btn" id="rBaoTri">Báo bảo trì</button>'+(mgr?'<button class="btn" id="rEdit">Sửa phòng</button>':"")+'</div>';
+  if(canRoom&&can)h+='<div class="acts"><button class="btn p" id="rGiao">Giao việc '+(r.loai==="ho-boi"?"kiểm tra hồ bơi":"dọn nguyên căn")+'</button><button class="btn" id="rBaoTri">Báo bảo trì</button>'+(mgr?'<button class="btn" id="rEdit">Sửa phòng</button>':"")+'</div>';
   h+='<div class="sec-h"><h3>Việc đang mở</h3><small>'+open.length+'</small></div>'+(open.length?open.map(taskCard).join(""):'<div class="small muted">Không có.</div>');
   if(done.length)h+='<div class="sec-h"><h3>Đã xong gần đây</h3></div>'+done.map(taskCard).join("");
   sh.innerHTML=h;bindClose();
   sh.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>{roomStatus(id,b.dataset.st);toast(r.ten+": "+ROOM_ST[b.dataset.st])});
   sh.querySelectorAll(".task").forEach(c=>c.onclick=()=>openTask(c.dataset.id));
-  const g=sh.querySelector("#rGiao");if(g)g.onclick=()=>openGiaoViec({bp:r.loai==="ho-boi"?"ho-boi":"buong-phong",villa:r.villa,phong:id,loai:r.loai==="ngu"?"don-tra":r.loai==="ho-boi"?"ho-boi":"don-chung"});
+  const g=sh.querySelector("#rGiao");if(g)g.onclick=()=>openGiaoViec(r.loai==="ho-boi"?{bp:"ho-boi",villa:r.villa,phong:id,loai:"ho-boi"}:{bp:"buong-phong",villa:r.villa,loai:"don-can"});/* khách thuê cả căn: dọn là dọn nguyên căn (anh Dần chốt 02/11/2026); dọn lại riêng một phòng thì đổi Loại việc trong form */
   const bt=sh.querySelector("#rBaoTri");if(bt)bt.onclick=()=>openGiaoViec({bp:"bao-tri",villa:r.villa,phong:id,loai:"bao-tri"});
   const ed=sh.querySelector("#rEdit");if(ed)ed.onclick=()=>openRoomForm(id,r.villa);
 }
