@@ -707,9 +707,21 @@ function nguoiCan(vid){const ds=STAFF.filter(s=>s.hoatDong!==false);const co=(s,
 const BP_CAN=["don-tiep","buong-phong","set-up","ho-boi","an-ninh","bao-tri","dich-vu"];
 function nguoiMacDinh(bp,vid){const ds=STAFF.filter(s=>s.hoatDong!==false&&s.boPhan);const co=(s,b)=>s.boPhan===b||(s.boPhanPhu||[]).includes(b);
   const mo=x=>TASKS.filter(t=>t.giaoCho===x.id&&isOpen(t)).length;const it=a=>a.slice().sort((x,y)=>mo(x)-mo(y)||(x.vaiTro==="nhan-vien"?0:1)-(y.vaiTro==="nhan-vien"?0:1))[0].id;
+  if(bp==="ho-boi"&&vid)return nguoiHoBoi(vid,nguoiDonCan(vid));
   if(vid&&(bp==="set-up"||bp==="ho-boi")){const q=ds.find(s=>s.villa===vid&&co(s,"don-tiep"))||ds.find(s=>s.villa===vid&&co(s,"buong-phong"));if(q)return q.id}   /* set-up, hồ bơi: quản gia căn đó (anh Dần chốt 24/10/2026) */
   if(vid){const a=ds.filter(s=>s.villa===vid&&co(s,bp));if(a.length)return it(a);if(BP_CAN.includes(bp)){const c=nguoiCan(vid);if(c)return c}}
   const b=ds.filter(s=>!s.villa&&co(s,bp));if(b.length)return it(b);const g=ds.filter(s=>s.vaiTro==="giam-doc");return g.length?it(g):""}
+/* hồ bơi tách khỏi dọn nguyên căn, giao NGƯỜI KHÁC người dọn căn (anh Dần chốt 02/11/2026). Thứ tự, bỏ qua người dọn căn:
+   người Hồ bơi gắn căn > quản gia Đón tiếp gắn căn > người Buồng phòng gắn căn > người Hồ bơi chung > người Buồng phòng, Đón tiếp chung (ai ít việc mở hơn);
+   không còn ai khác thì đành giao người dọn căn */
+function nguoiDonCan(vid){const t=TASKS.find(t=>isOpen(t)&&t.villa===vid&&(LOAI[t.loai]||{}).nguyenCan&&t.giaoCho);return t?t.giaoCho:""}
+function nguoiHoBoi(vid,tranh){const ds=STAFF.filter(s=>s.hoatDong!==false&&s.boPhan&&s.id!==tranh);const co=(s,b)=>s.boPhan===b||(s.boPhanPhu||[]).includes(b);
+  const mo=x=>TASKS.filter(t=>t.giaoCho===x.id&&isOpen(t)).length;const it=a=>a.slice().sort((x,y)=>mo(x)-mo(y))[0].id;
+  const tim=[ds.filter(s=>s.villa===vid&&co(s,"ho-boi")),ds.filter(s=>s.villa===vid&&co(s,"don-tiep")),ds.filter(s=>s.villa===vid&&co(s,"buong-phong")),ds.filter(s=>!s.villa&&co(s,"ho-boi")),ds.filter(s=>!s.villa&&(co(s,"buong-phong")||co(s,"don-tiep")))];
+  for(const a of tim)if(a.length)return it(a);return tranh||""}
+/* tạo việc hồ bơi riêng đi kèm một việc dọn nguyên căn; hồ bơi nào đã có việc đang mở thì thôi */
+function hoBoiKemCan(vid,can,o){const n=[];for(const r of ROOMS.filter(r=>r.villa===vid&&r.loai==="ho-boi")){if(TASKS.some(t=>isOpen(t)&&t.phong===r.id&&t.loai==="ho-boi"))continue;const ai=nguoiHoBoi(vid,can&&can.giaoCho);
+    newTask({...o,loai:"ho-boi",villa:vid,phong:r.id,tieuDe:LOAI["ho-boi"].ten+" · "+r.ten,giaoCho:ai,hd:(o.hd||"Tách hồ bơi khỏi việc dọn nguyên căn")+(ai?", giao cho "+staffName(ai):"")});if(r.trangThai==="sach")roomStatus(r.id,"ban");n.push(ai)}return n}
 function taskRooms(t){if(t.phong)return [t.phong];if(!(LOAI[t.loai]||{}).nguyenCan)return [];return (t.phongs&&t.phongs.length)?t.phongs:canRooms(t.villa).map(r=>r.id)}
 function ckNguyenCan(rs){const ngu=rs.filter(r=>r.loai==="ngu"),chung=rs.filter(r=>r.loai!=="ngu");if(!rs.length)return LOAI["don-can"].ck;
   return ngu.map(r=>r.ten+": thay ga gối, khăn tắm mới, gấp chuẩn 226; nhà tắm, gương sạch; amenities, nước uống đủ")
@@ -742,8 +754,9 @@ function taoViecDatPhong(){
       let han=todayAt(GIO_SAN_SANG);if(next&&next.gioNhan){const [h,m]=next.gioNhan.split(":").map(Number);han=new Date();han.setHours(h,m,0,0);han=new Date(han.getTime()-3600000)}han=han.toISOString();
       const ghi="Khách "+bkLabel(b)+" trả "+(b.gioTra||GIO_TRA)+(next?". Khách tiếp theo nhận "+(next.gioNhan||GIO_NHAN)+" hôm nay, "+bkLabel(next):"");
       const rs=canRooms(b.villa);
-      if(rs.length&&!TASKS.some(t=>t.id==="bk_"+b.id+"_can")){const ai=nguoiCan(b.villa);newTask({id:"bk_"+b.id+"_can",loai:"don-can",villa:b.villa,tieuDe:"Dọn nguyên căn · "+v.ten,giaoCho:ai,hanXong:han,moTa:ghi,datPhong:b.id,ck:ckNguyenCan(rs),phongs:rs.map(r=>r.id),hd:"Tự tạo theo lịch khách trả phòng"+(ai?", giao cho "+staffName(ai):"")});n++}
-      for(const r of ROOMS.filter(r=>r.villa===b.villa&&r.loai==="ho-boi")){if(TASKS.some(t=>t.id==="bk_"+b.id+"_"+r.id))continue;newTask({id:"bk_"+b.id+"_"+r.id,loai:"ho-boi",villa:b.villa,phong:r.id,tieuDe:LOAI["ho-boi"].ten+" · "+r.ten,hanXong:han,moTa:ghi,datPhong:b.id,hd:"Tự tạo theo lịch khách trả phòng"});n++}
+      let canT=TASKS.find(t=>t.id==="bk_"+b.id+"_can");
+      if(rs.length&&!canT){const ai=nguoiCan(b.villa);canT=newTask({id:"bk_"+b.id+"_can",loai:"don-can",villa:b.villa,tieuDe:"Dọn nguyên căn · "+v.ten,giaoCho:ai,hanXong:han,moTa:ghi,datPhong:b.id,ck:ckNguyenCan(rs),phongs:rs.map(r=>r.id),hd:"Tự tạo theo lịch khách trả phòng"+(ai?", giao cho "+staffName(ai):"")});n++}
+      for(const r of ROOMS.filter(r=>r.villa===b.villa&&r.loai==="ho-boi")){if(TASKS.some(t=>t.id==="bk_"+b.id+"_"+r.id))continue;const aiHb=nguoiHoBoi(b.villa,canT&&canT.giaoCho);newTask({id:"bk_"+b.id+"_"+r.id,loai:"ho-boi",villa:b.villa,phong:r.id,tieuDe:LOAI["ho-boi"].ten+" · "+r.ten,giaoCho:aiHb,hanXong:han,moTa:ghi,datPhong:b.id,hd:"Tự tạo theo lịch khách trả phòng, tách khỏi dọn nguyên căn"+(aiHb?", giao cho "+staffName(aiHb):"")});n++}
       if(!TASKS.some(t=>t.id==="bk_"+b.id+"_setup")){madeSetup.add(b.villa);newTask({id:"bk_"+b.id+"_setup",loai:"set-up",villa:b.villa,tieuDe:LOAI["set-up"].ten+" · "+v.ten,hanXong:han,moTa:ghi,datPhong:b.id,hd:"Tự tạo theo lịch khách"});n++}
       if(!TASKS.some(t=>t.id==="bk_"+b.id+"_checkout")){const [h,m]=(b.gioTra||GIO_TRA).split(":").map(Number);const d=new Date();d.setHours(h,m,0,0);newTask({id:"bk_"+b.id+"_checkout",loai:"check-out",villa:b.villa,tieuDe:LOAI["check-out"].ten+" · "+v.ten,hanXong:d.toISOString(),moTa:ghi,datPhong:b.id,hd:"Tự tạo theo lịch khách"});n++}
       bkUpd(b,{daTaoViecTra:true,lichSu:hist(b,"Tự tạo việc dọn, set-up, tiễn khách")})}
@@ -1305,11 +1318,12 @@ function openGiaoViec(o){
     const data={boPhan:gB.value,villa:gV.value,loai:gL.value,phong,phongTen:phong?roomName(phong):"",matBang:gB.value==="phat-trien"?gMb.value:"",tieuDe,giaoCho:gA.value,hanXong:gH.value?new Date(gH.value).toISOString():"",uuTien:$("#gUu").value,moTa:$("#gMoTa").value.trim()};
     if(gL.value==="bao-tri")data.mucSuCo=gM.value;const gTid=t?t.id:GV_FORM.tid;data.soAnhGiao=fbGiaoLuu(gTid,data.villa,t?t.soAnhGiao:0);
     if(t){const old=(t.checklist||[]);data.checklist=ck.map(x=>{const o2=old.find(c=>c.t===x);return o2?{...o2}:{t:x,ok:false}});data.lichSu=hist(t,"Sửa việc"+(data.giaoCho!==t.giaoCho?", giao cho "+(staffName(data.giaoCho)||"chưa ai"):""));updDoc("tasks/"+t.id,data);toast("Đã lưu")}
-    else{const nc=(LOAI[gL.value]||{}).nguyenCan&&gV.value?canRooms(gV.value):[];if(nc.length)data.phongs=nc.map(r=>r.id);const gLich=fbLapLuu(data,ck,touchedTitle);newTask({...data,id:gTid,ck,mucSuCo:data.mucSuCo,lichId:gLich?gLich.id:"",hd:gLich?fbLapHd(data,gLich):undefined});
+    else{const nc=(LOAI[gL.value]||{}).nguyenCan&&gV.value?canRooms(gV.value):[];if(nc.length)data.phongs=nc.map(r=>r.id);const gLich=fbLapLuu(data,ck,touchedTitle);const tMoi=newTask({...data,id:gTid,ck,mucSuCo:data.mucSuCo,lichId:gLich?gLich.id:"",hd:gLich?fbLapHd(data,gLich):undefined});
       for(const r of nc)if(r.trangThai==="sach")roomStatus(r.id,"ban");
+      const nHb=nc.length?hoBoiKemCan(gV.value,tMoi,{hanXong:data.hanXong,uuTien:data.uuTien,moTa:data.moTa}):[];
       if(gL.value==="bao-tri"&&phong)roomStatus(phong,"bao-tri");
       if((gL.value==="don-tra"||gL.value==="don-chung")&&phong){const r=roomOf(phong);if(r&&r.trangThai==="sach")roomStatus(phong,"ban")}
-      toast(gLich?(gLich.trung?"Đã giao việc. Lịch lặp này đã có sẵn, không tạo thêm":"Đã giao việc, lặp "+gLich.mota.toLowerCase()):"Đã giao việc")}
+      toast((gLich?(gLich.trung?"Đã giao việc. Lịch lặp này đã có sẵn, không tạo thêm":"Đã giao việc, lặp "+gLich.mota.toLowerCase()):"Đã giao việc")+(nHb.length?", hồ bơi giao riêng cho "+(nHb.map(staffName).filter(Boolean).join(", ")||"người bộ phận Hồ bơi"):""))}
     closeSheet()};
 }
 
@@ -1332,8 +1346,8 @@ function openTraPhong(vid){
   $("#fTra").onsubmit=e=>{e.preventDefault();const ids=[...document.querySelectorAll("#traRooms li.done")].map(l=>l.dataset.r);if(!ids.length)return toast("Chọn ít nhất một phòng.");
     const ai=$("#traAi").value,han=$("#traHan").value?new Date($("#traHan").value).toISOString():"",ghi=$("#traGhi").value.trim();let n=0;
     const chon=ids.map(roomOf).filter(Boolean);const canR=chon.filter(r=>r.loai!=="ho-boi");
-    if(canR.length){newTask({loai:"don-can",villa:vid,tieuDe:"Dọn nguyên căn · "+v.ten,giaoCho:ai,hanXong:han,moTa:ghi,ck:ckNguyenCan(canR),phongs:canR.map(r=>r.id),hd:"Khách trả phòng, giao dọn nguyên căn"+(ai?" cho "+staffName(ai):"")});n++}
-    for(const r of chon.filter(r=>r.loai==="ho-boi")){newTask({loai:"ho-boi",villa:vid,phong:r.id,tieuDe:LOAI["ho-boi"].ten+" · "+r.ten,hanXong:han,moTa:ghi,hd:"Khách trả phòng"});n++}
+    let canT=null;if(canR.length){canT=newTask({loai:"don-can",villa:vid,tieuDe:"Dọn nguyên căn · "+v.ten,giaoCho:ai,hanXong:han,moTa:ghi,ck:ckNguyenCan(canR),phongs:canR.map(r=>r.id),hd:"Khách trả phòng, giao dọn nguyên căn"+(ai?" cho "+staffName(ai):"")});n++}
+    for(const r of chon.filter(r=>r.loai==="ho-boi")){const aiHb=nguoiHoBoi(vid,canT&&canT.giaoCho);newTask({loai:"ho-boi",villa:vid,phong:r.id,tieuDe:LOAI["ho-boi"].ten+" · "+r.ten,giaoCho:aiHb,hanXong:han,moTa:ghi,hd:"Khách trả phòng, hồ bơi tách khỏi dọn nguyên căn"+(aiHb?", giao cho "+staffName(aiHb):"")});n++}
     for(const r of chon)if(r.trangThai!=="bao-tri")roomStatus(r.id,"ban");
     if($("#traSetup").checked){newTask({loai:"set-up",villa:vid,tieuDe:LOAI["set-up"].ten+" · "+v.ten,hanXong:han,moTa:ghi});n++}
     if($("#traCheckout").checked){newTask({loai:"check-out",villa:vid,tieuDe:LOAI["check-out"].ten+" · "+v.ten,hanXong:todayAt(GIO_TRA).toISOString(),moTa:ghi});n++}
