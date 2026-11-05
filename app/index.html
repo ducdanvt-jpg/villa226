@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="226 Villa">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<script>const FB_BAN="2026-11-05 10:35";</script>
+<script>const FB_BAN="2026-11-05 10:57";</script>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -1604,7 +1604,7 @@ function openStaffForm(id){
   formSheet(h);$("#sCancel").onclick=closeSheet;fbStaffDnGan(s);
   if(s)$("#sDel").onclick=e=>twoStep(e.target,()=>{delDoc("staff/"+id);if(s.email)delDoc("members/"+lcEmail(s.email));closeSheet()});
   $("#fStaff").onsubmit=e=>{e.preventDefault();const data={ten:(s&&s._autoTen&&$("#sTen").value.trim()===s.ten)?"":$("#sTen").value.trim(),boPhan:$("#sBp").value,vaiTro:$("#sVai").value,villa:$("#sVilla").value,sdt:$("#sSdt").value.trim(),email:lcEmail($("#sEmail").value),boPhanPhu:fbBpPhuDoc(),hoatDong:$("#sHoat").value==="1"};
-    if(s){updDoc("staff/"+id,data);syncMember(id,{...s,...data},s.email)}else{const sid=nid("s");setDoc("staff/"+sid,{...data,id:sid,userId:"",tao:now()});syncMember(sid,data,"");fbDnKhiThem(sid,data)}closeSheet()};
+    if(fbEmailTrung(s?id:"",data.email))return;if(s){updDoc("staff/"+id,data);syncMember(id,{...s,...data},s.email)}else{const sid=nid("s");setDoc("staff/"+sid,{...data,id:sid,userId:"",tao:now()});syncMember(sid,data,"");fbDnKhiThem(sid,data)}closeSheet()};
 }
 
 /* ---------- kết nối kho ---------- */
@@ -2478,6 +2478,17 @@ function fbZaloGan(sh, s) {
     updDoc("staff/" + s.id, { zaloLienKet: null });
     toast("Đã gỡ liên kết Zalo của " + (s.ten || "người này"));
   });
+}
+
+/* Email đăng nhập phải của riêng một người (5/11/2026). Điền email đang thuộc hồ sơ khác, hoặc email mình đang đăng nhập
+   cho người khác, thì app ghi đè quyền vào app của email đó sang hồ sơ mới: người chủ email mất quyền ngay, kể cả giám đốc. */
+function fbEmailTrung(id, email) {
+  email = lcEmail(email); if (!email) return false;
+  const k = STAFF.find((x) => x.id !== id && lcEmail(x.email) === email);
+  if (k) { toast("Email " + email + " đang là email đăng nhập của " + (k.ten || "người khác") + ". Mỗi người một email riêng."); return true; }
+  const me = myStaff();
+  if (window.FB && email === FB.email && (!me || me.id !== id)) { toast("Đây là email bạn đang dùng để đăng nhập, không gán cho người khác được."); return true; }
+  return false;
 }
 </script>
 </body>
