@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="226 Villa">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<script>const FB_BAN="2026-11-02 11:15";</script>
+<script>const FB_BAN="2026-11-05 10:35";</script>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -1582,9 +1582,10 @@ function renderStaffSheet(id){
   if((canManage(s.boPhan)||bpCuaNguoi(s).some(canManage))&&canWrite!==false)acts+='<button class="btn" data-a="giao">Giao việc cho '+esc(s.ten)+'</button>';
   if(mgr&&canWrite!==false)acts+='<button class="btn" data-a="edit">Sửa</button>';
   if(acts)h+='<div class="acts">'+acts+'</div>';
+  h+=fbZaloSection(s);
   h+='<div class="sec-h"><h3>Việc đang mở</h3><small>'+open.length+'</small></div>'+(open.length?open.map(taskCard).join(""):'<div class="small muted">Không có.</div>');
   sh.innerHTML=h;bindClose();
-  sh.querySelectorAll(".task").forEach(c=>c.onclick=()=>openTask(c.dataset.id));
+  sh.querySelectorAll(".task").forEach(c=>c.onclick=()=>openTask(c.dataset.id));fbZaloGan(sh,s);
   sh.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>{const a=b.dataset.a;
     if(a==="link"){const old=myStaff();updDoc("staff/"+id,{userId:uid});if(old&&old.tuDong&&old.id!==id){TASKS.filter(t=>t.giaoCho===old.id).forEach(t=>updDoc("tasks/"+t.id,{giaoCho:id}));delDoc("staff/"+old.id)}toast("Đã gắn: bạn là "+s.ten)}
     else if(a==="unlink"||a==="unlinkAny"){updDoc("staff/"+id,{userId:""})}
@@ -2376,6 +2377,108 @@ function fbTaiLaiKhiRanh(){
 setTimeout(fbKiemBanMoi,90000);setInterval(fbKiemBanMoi,600000);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState!=="visible")return;if(FB_CAP_NHAT.co)fbTaiLaiKhiRanh();else if(Date.now()-FB_CAP_NHAT.luc>120000)fbKiemBanMoi()});
 window.addEventListener("online",()=>{if(Date.now()-FB_CAP_NHAT.luc>120000)fbKiemBanMoi()});
+
+/* ---------- Liên kết Zalo với Bông (05/11/2026, làm giống Tiểu Mỹ bên Ngọc Tước) ----------
+   Người có quyền tạo mã: chính nhân viên đó (đã đăng nhập app là đã xác minh), giám đốc, hoặc trưởng bộ phận
+   của người đó. App tạo mã 8 ký tự XXXX-XXXX, sống 24 giờ, dùng một lần; chỉ ghi BĂM của mã vào zaloMa/<băm>,
+   không lưu mã gốc. Nhân viên nhắn riêng Bông "V226 KICHHOAT XXXX-XXXX" (hoặc chuyển tiếp ảnh QR).
+   Bông kiểm lại quyền người tạo, ghi staff.zaloLienKet {duoi4, luc}; uid Zalo thật chỉ nằm ở máy chạy Bông.
+   Gỡ liên kết: đặt staff.zaloLienKet = null, Bông thôi nhận người này. */
+const ZL_CHU = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";   // bỏ I, L, O, 0, 1 cho khỏi đọc nhầm
+const ZL_HAN_GIO = 24;
+const ZL_TIEN_TO = "V226 KICHHOAT";
+const ZL_MA = {};   // staffId -> {ma, het} mã vừa tạo trong phiên này (chỉ trong bộ nhớ)
+function zlTaoMa() {
+  const b = new Uint32Array(8); crypto.getRandomValues(b);
+  let s = ""; for (let i = 0; i < 8; i++) s += ZL_CHU[b[i] % ZL_CHU.length];
+  return s.slice(0, 4) + "-" + s.slice(4);
+}
+async function zlBam(ma) {
+  const t = new TextEncoder().encode("v226:" + String(ma).toUpperCase().replace(/[^A-Z0-9]/g, ""));
+  const h = await crypto.subtle.digest("SHA-256", t);
+  return [...new Uint8Array(h)].map((x) => x.toString(16).padStart(2, "0")).join("");
+}
+function zlDuocTao(s) {
+  if (!s || s.hoatDong === false || laCdt() || canWrite === false) return false;
+  const me = myStaff();
+  if (me && me.id === s.id) return true;
+  return isMgr() || canManage(s.boPhan) || bpCuaNguoi(s).some(canManage);
+}
+function zlNapQr() {
+  if (window.qrcode) return Promise.resolve(true);
+  if (zlNapQr.p) return zlNapQr.p;
+  zlNapQr.p = new Promise((ok) => {
+    const sc = document.createElement("script");
+    sc.src = "https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js";
+    sc.onload = () => ok(!!window.qrcode); sc.onerror = () => { zlNapQr.p = null; ok(false); };
+    document.head.appendChild(sc);
+  });
+  return zlNapQr.p;
+}
+function fbZaloSection(s) {
+  if (!window.FB || !s || laCdt()) return "";
+  const me = myStaff(), toi = me && me.id === s.id, duoc = zlDuocTao(s);
+  if (!toi && !duoc && !isMgr()) return "";
+  const lk = s.zaloLienKet && s.zaloLienKet.duoi4 ? s.zaloLienKet : null;
+  let h = '<div class="sec-h"><h3>Liên kết Zalo với Bông</h3></div>';
+  if (lk) h += '<div class="small">Đã liên kết, Zalo đuôi <b>…' + esc(lk.duoi4) + '</b>' + (lk.luc ? ", ngày " + esc(fmtDT(lk.luc)) : "") + '. Bông nhận ra ' + (toi ? "bạn" : esc(s.ten)) + ' khi nhắn và gửi thông báo việc qua Zalo.</div>';
+  else h += '<div class="small muted">Chưa liên kết. Liên kết xong thì Bông biết chắc ' + (toi ? "bạn" : esc(s.ten)) + ' là ai, giao việc, báo xong, hỏi việc qua Zalo được, và nhận thông báo việc.</div>';
+  const m = ZL_MA[s.id] && ZL_MA[s.id].het > Date.now() ? ZL_MA[s.id] : null;
+  if (m) {
+    h += '<div style="margin:10px 0;padding:12px;border:1px solid var(--line,#ddd);border-radius:10px;text-align:center">' +
+      '<div id="zlQr" style="display:flex;justify-content:center;min-height:40px"></div>' +
+      '<div style="font-size:22px;font-weight:700;letter-spacing:2px;margin-top:6px">' + esc(m.ma) + '</div>' +
+      '<div class="small" style="margin-top:6px">' + (toi ? "Bạn" : esc(s.ten)) + ' nhắn <b>riêng</b> cho Zalo Bông đúng dòng:<br><b>' + esc(ZL_TIEN_TO + " " + m.ma) + '</b><br>hoặc chuyển tiếp ảnh QR này cho Bông.</div>' +
+      '<div class="small muted" style="margin-top:6px">Mã dùng một lần, hết hạn lúc ' + esc(fmtDT(new Date(m.het).toISOString())) + '. Gửi vào nhóm là mã bị hủy. Chỉ đưa mã cho đúng người.</div>' +
+      '<div class="row" style="justify-content:center;margin-top:8px"><button type="button" class="btn sm" id="zlChep">Sao chép dòng lệnh</button></div></div>';
+  }
+  const acts = [];
+  if (duoc) acts.push('<button type="button" class="btn' + (lk ? "" : " p") + '" id="zlTao">' + (m ? "Tạo mã khác" : lk ? "Liên kết lại (đổi Zalo)" : "Tạo mã liên kết") + '</button>');
+  if (lk && duoc) acts.push('<button type="button" class="btn bad" id="zlGo">Gỡ liên kết</button>');
+  if (acts.length) h += '<div class="acts">' + acts.join("") + '</div>';
+  return h;
+}
+function fbZaloGan(sh, s) {
+  if (!sh || !s) return;
+  const m = ZL_MA[s.id] && ZL_MA[s.id].het > Date.now() ? ZL_MA[s.id] : null;
+  const q = sh.querySelector("#zlQr");
+  if (q && m) zlNapQr().then((co) => {
+    if (!co || !q.isConnected) { if (q.isConnected) q.innerHTML = '<span class="small muted">Không tải được ảnh QR, dùng dòng lệnh bên dưới.</span>'; return; }
+    try {
+      // vẽ ra PNG (không dùng ảnh GIF của thư viện) để Zalo giữ nguyên ảnh khi chuyển tiếp, Bông đọc được
+      const qr = window.qrcode(0, "M"); qr.addData(ZL_TIEN_TO + " " + m.ma); qr.make();
+      const n = qr.getModuleCount(), o = 8, le = 4, cv = document.createElement("canvas");
+      cv.width = cv.height = (n + le * 2) * o; const g = cv.getContext("2d");
+      g.fillStyle = "#fff"; g.fillRect(0, 0, cv.width, cv.height); g.fillStyle = "#000";
+      for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) g.fillRect((c + le) * o, (r + le) * o, o, o);
+      const img = new Image(); img.src = cv.toDataURL("image/png"); img.alt = "Mã QR liên kết Zalo"; img.style.cssText = "width:200px;height:200px;image-rendering:pixelated";
+      q.innerHTML = ""; q.appendChild(img);
+    } catch (e) { q.innerHTML = ""; }
+  });
+  const c = sh.querySelector("#zlChep");
+  if (c && m) c.onclick = async () => { try { await navigator.clipboard.writeText(ZL_TIEN_TO + " " + m.ma); toast("Đã sao chép"); } catch (e) { toast("Không sao chép được, chép tay dòng lệnh"); } };
+  const t = sh.querySelector("#zlTao");
+  if (t) t.onclick = async () => {
+    if (t.dataset.dang) return; t.dataset.dang = "1"; t.disabled = true;
+    const ma = zlTaoMa(), het = Date.now() + ZL_HAN_GIO * 3600000;
+    try {
+      const id = await zlBam(ma);
+      await FB.fs.doc("zaloMa/" + id).set({ staffId: s.id, email: FB.email, luc: Date.now(), hetHan: het, dung: false });
+      ZL_MA[s.id] = { ma, het };
+      ghiLs({ op: "them", col: "zaloMa", doc: s.id, loai: "Liên kết Zalo", ten: s.ten || s.id, mota: "Tạo mã liên kết Zalo cho " + (s.ten || s.id), villa: "" });
+      refreshSheet();
+    } catch (e) {
+      delete t.dataset.dang; t.disabled = false;
+      toast(e && e.code === "permission-denied" ? "Kho chưa cho tạo mã (luật Firestore chưa cập nhật). Báo anh Dần." : "Chưa tạo được mã, thử lại.");
+    }
+  };
+  const g = sh.querySelector("#zlGo");
+  if (g) g.onclick = () => twoStep(g, () => {
+    delete ZL_MA[s.id];
+    updDoc("staff/" + s.id, { zaloLienKet: null });
+    toast("Đã gỡ liên kết Zalo của " + (s.ten || "người này"));
+  });
+}
 </script>
 </body>
 </html>
