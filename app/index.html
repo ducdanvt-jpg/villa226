@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="226 Villa">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<script>const FB_BAN="2026-11-10 09:30";</script>
+<script>const FB_BAN="2026-11-15 20:16";</script>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -2628,12 +2628,12 @@ window.addEventListener("online",()=>{if(Date.now()-FB_CAP_NHAT.luc>120000)fbKie
 
 /* ---------- Liên kết Zalo với Bông (05/11/2026, làm giống Tiểu Mỹ bên Ngọc Tước) ----------
    Người có quyền tạo mã: chính nhân viên đó (đã đăng nhập app là đã xác minh), giám đốc, hoặc trưởng bộ phận
-   của người đó. App tạo mã 8 ký tự XXXX-XXXX, sống 24 giờ, dùng một lần; chỉ ghi BĂM của mã vào zaloMa/<băm>,
+   của người đó. App tạo mã 8 ký tự XXXX-XXXX, sống 4 giờ, dùng một lần; chỉ ghi BĂM của mã vào zaloMa/<băm>,
    không lưu mã gốc. Nhân viên nhắn riêng Bông "V226 KICHHOAT XXXX-XXXX" (hoặc chuyển tiếp ảnh QR).
    Bông kiểm lại quyền người tạo, ghi staff.zaloLienKet {duoi4, luc}; uid Zalo thật chỉ nằm ở máy chạy Bông.
    Gỡ liên kết: đặt staff.zaloLienKet = null, Bông thôi nhận người này. */
 const ZL_CHU = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";   // bỏ I, L, O, 0, 1 cho khỏi đọc nhầm
-const ZL_HAN_GIO = 24;
+const ZL_HAN_GIO = 4;
 const ZL_TIEN_TO = "V226 KICHHOAT";
 const ZL_MA = {};   // staffId -> {ma, het} mã vừa tạo trong phiên này (chỉ trong bộ nhớ)
 function zlTaoMa() {
