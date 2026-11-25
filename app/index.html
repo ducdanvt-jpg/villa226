@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="226 Villa">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<script>const FB_BAN="2026-11-15 20:16";</script>
+<script>const FB_BAN="2026-11-25 21:02";</script>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -1109,7 +1109,7 @@ function ganLichDatPhong(el){
   const cp=el.querySelector("#calPrev");if(cp)cp.onclick=()=>shiftM(-1);const cn=el.querySelector("#calNext");if(cn)cn.onclick=()=>shiftM(1);const cw=el.querySelector("#calNow");if(cw)cw.onclick=()=>{calMonth="";render()};}
 function renderTong(){
   const el=$("#tab-tong");const me=myStaff();const mgr=canManageAny();
-  let h="";
+  let h=fbDdThe();
   const vs=VILLAS.slice().sort((a,b)=>(a.thuTu||99)-(b.thuTu||99));
   if(!vs.length)h+='<div class="empty"><b>Chưa có villa nào</b>Vào tab Phòng để thêm villa và phòng.</div>';
   else h+='<div class="vgrid">'+vs.map(v=>{const s=villaSummary(v);
@@ -1138,7 +1138,7 @@ function renderTong(){
   h+='<div class="sec-h"><h2>Nhật ký hôm nay</h2>'+(canWrite!==false?'<button class="btn sm" id="btnNk">+ Ghi</button>':"")+'</div>';
   h+=nk.length?'<div class="card"><ul class="nk">'+nk.slice(0,20).map(nkRow).join("")+'</ul></div>':'<div class="empty"><b>Chưa có ghi chép hôm nay</b>Bàn giao ca, sự vụ, yêu cầu khách: ghi ngay khi phát sinh, không ghi dồn.</div>';
   wantProfiles(nk.map(x=>x.ai));
-  el.innerHTML=h;
+  el.innerHTML=h;fbDdGanThe(el);
   el.querySelectorAll(".vcard").forEach(c=>c.onclick=()=>{villaSel=c.dataset.villa;setTab("phong")});
   el.querySelectorAll(".bpc").forEach(c=>c.onclick=()=>openBoPhan(c.dataset.bp));
   const bmv=el.querySelector("#bnMoiVao");if(bmv)bmv.onclick=()=>setTab("nhanvien");
@@ -1910,9 +1910,10 @@ function renderDuLieu(){
   let h='<div class="sec-h"><h2>Dữ liệu</h2></div>';
   h+='<div class="card"><h3>Sao lưu</h3><div class="small muted" style="margin:6px 0 10px">Tải toàn bộ dữ liệu app (villa, phòng, việc, đặt phòng, sổ doanh thu, nhân viên, chủ đầu tư, nhật ký, ảnh) về máy thành một file JSON. Nên làm mỗi tuần.</div><div class="acts"><button class="btn p" id="fbXuat">Tải bản sao lưu</button></div></div>';
   if(FB.member.owner)h+='<div class="card"><h3>Nhập dữ liệu từ file</h3><div class="small muted" style="margin:6px 0 10px">Dùng file sao lưu hoặc file dữ liệu do em chuẩn bị. Mục trùng mã sẽ bị <b>ghi đè</b>, mục khác giữ nguyên, không xóa gì. Chỉ chủ app thấy mục này.</div><div class="acts"><label class="btn" style="cursor:pointer;justify-content:center">Chọn file để nhập<input type="file" id="fbNhap" accept="application/json,.json" hidden></label></div></div>';
+  h+=fbDdQuanLy();
   h+=fbLsKhung();
   h+='<div class="card"><h3>Tài khoản</h3><div class="small" style="margin:6px 0 10px">Đang đăng nhập: <b>'+esc(FB.email)+'</b> · Bản app <b>'+esc(fbBan()||"?")+'</b>'+(FB.nhoMatKhau&&FB.nhoMatKhau()?' · Đã nhớ mật khẩu trên máy này, đăng xuất là quên':'')+'</div><div class="acts"><button class="btn" id="fbDangXuat">Đăng xuất</button></div></div>';
-  el.innerHTML=h;fbBindTaiKhoan(el);fbLsGan(el);
+  el.innerHTML=h;fbBindTaiKhoan(el);fbDdGanQl(el);fbLsGan(el);
 }
 function fbBindTaiKhoan(el){
   const ac=el.querySelector("#btnAddCdt");if(ac)ac.onclick=()=>openCdtForm(null);
@@ -2737,6 +2738,120 @@ function fbEmailTrung(id, email) {
   const me = myStaff();
   if (window.FB && email === FB.email && (!me || me.id !== id)) { toast("Đây là email bạn đang dùng để đăng nhập, không gán cho người khác được."); return true; }
   return false;
+}
+
+/* ---------- Điểm danh wifi (25/11/2026) ----------
+   Nhân viên bấm Điểm danh khi đang bắt wifi của villa. App lấy IP công khai của mạng đang dùng rồi so với danh sách mạng
+   quản lý đã đăng ký (wifi/<id>). Khớp thì ghi diemdanh/<ngày>_<mã nhân viên>. IP nhà mạng đổi thì quản lý đăng ký lại.
+   Chủ app (FB.member.owner) và chủ đầu tư không thuộc diện điểm danh. */
+let DD_WIFI = [], DD_HOM = null, DD_DS = [], DD_BUSY = false, DD_NGAY_XEM = "";
+const ddNgay = () => ymd(new Date());
+const ddCoDien = () => !!window.FB && !laCdt() && !FB.member.owner && !!myStaff();
+function ddChuanIp(ip) {
+  ip = String(ip || "").trim().toLowerCase();
+  if (ip.includes(":")) return ip.split(":").slice(0, 4).join(":");   // IPv6: so 4 nhóm đầu (mạng /64)
+  return ip;
+}
+async function ddLayIp() {
+  const nguon = [
+    async () => (await (await fetch("https://api.ipify.org?format=json", { cache: "no-store" })).json()).ip,
+    async () => { const t = await (await fetch("https://www.cloudflare.com/cdn-cgi/trace", { cache: "no-store" })).text(); const m = /^ip=(.+)$/m.exec(t); return m && m[1]; },
+    async () => (await (await fetch("https://api64.ipify.org?format=json", { cache: "no-store" })).json()).ip,
+  ];
+  for (const f of nguon) {
+    try { const ip = await Promise.race([f(), new Promise((_, no) => setTimeout(() => no(0), 6000))]); if (ip) return String(ip).trim(); } catch (e) {}
+  }
+  return "";
+}
+async function ddTaiWifi() { try { const s = await db.collection("wifi").get(); DD_WIFI = s.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => String(a.ten).localeCompare(String(b.ten))); } catch (e) { console.error(e); } }
+async function ddTaiHomNay() {
+  const me = myStaff(); if (!me) return;
+  try { const d = await db.doc("diemdanh/" + ddNgay() + "_" + me.id).get(); DD_HOM = d.exists ? d.data() : false; } catch (e) { DD_HOM = false; }
+}
+/* thẻ ở đầu Tổng quan */
+function fbDdThe() {
+  if (!ddCoDien()) return "";
+  const me = myStaff();
+  if (DD_HOM === null && !DD_BUSY) { DD_BUSY = true; ddTaiHomNay().then(() => { DD_BUSY = false; if (tab === "tong") render(); }); }
+  let st = '<div class="small muted">Đang kiểm tra…</div>';
+  if (DD_HOM === false) st = '<div class="small" style="margin:6px 0 10px">Hôm nay bạn chưa điểm danh. Bật wifi của villa rồi bấm nút.</div><div class="acts"><button class="btn p" id="ddVao">Điểm danh vào ca</button></div>';
+  else if (DD_HOM) {
+    const co = DD_HOM.ra;
+    st = '<div class="small" style="margin:6px 0 10px">Đã vào ca lúc <b>' + esc(fmtHM(DD_HOM.vao)) + '</b>' + (DD_HOM.wifiTen ? ' · ' + esc(DD_HOM.wifiTen) : '') + (co ? ' · ra ca <b>' + esc(fmtHM(co)) + '</b>' : '') + '</div>' +
+      (co ? '' : '<div class="acts"><button class="btn" id="ddRa">Điểm danh ra ca</button></div>');
+  }
+  return '<div class="card" id="ddThe"><h3>Điểm danh · ' + esc(me.ten || "") + '</h3>' + st + '</div>';
+}
+function fbDdGanThe(el) {
+  const v = el.querySelector("#ddVao"), r = el.querySelector("#ddRa");
+  if (v) v.onclick = () => ddBam(v, "vao");
+  if (r) r.onclick = () => ddBam(r, "ra");
+}
+async function ddBam(btn, loai) {
+  const me = myStaff(); if (!me || btn.disabled) return;
+  btn.disabled = true; const lbl = btn.textContent; btn.textContent = "Đang kiểm tra wifi…";
+  try {
+    await ddTaiWifi();
+    if (!DD_WIFI.length) { toast("Chưa có mạng wifi nào được đăng ký. Nhờ quản lý thêm ở tab Dữ liệu."); return; }
+    const ip = await ddLayIp();
+    if (!ip) { toast("Không lấy được địa chỉ mạng. Kiểm tra kết nối rồi thử lại."); return; }
+    const w = DD_WIFI.find((x) => ddChuanIp(x.ip) === ddChuanIp(ip));
+    if (!w) { toast("Bạn chưa bắt wifi của villa (đang dùng 4G hoặc mạng khác). Bật wifi villa rồi thử lại."); return; }
+    const id = ddNgay() + "_" + me.id, t = new Date();
+    if (loai === "vao") {
+      const d = { id, ngay: ddNgay(), staffId: me.id, ten: me.ten || "", email: FB.email, villa: w.villa || me.villa || "", vao: t.toISOString(), vaoMs: t.getTime(), wifiId: w.id, wifiTen: w.ten || "", ip };
+      await db.doc("diemdanh/" + id).set(d); DD_HOM = d; toast("Đã điểm danh vào ca " + fmtHM(d.vao));
+    } else {
+      const u = { ra: t.toISOString(), raMs: t.getTime(), raWifi: w.ten || "", raIp: ip };
+      await db.doc("diemdanh/" + id).update(u); DD_HOM = { ...DD_HOM, ...u }; toast("Đã điểm danh ra ca " + fmtHM(u.ra));
+    }
+  } catch (e) { console.error(e); toast(e && e.code === "permission-denied" ? "Chưa điểm danh được: hôm nay đã điểm danh rồi, hoặc đồng hồ máy bị lệch." : "Chưa điểm danh được, thử lại."); }
+  finally { btn.disabled = false; btn.textContent = lbl; if (tab === "tong") render(); }
+}
+/* quản lý: mạng wifi + bảng điểm danh, nằm ở tab Dữ liệu */
+function fbDdQuanLy() {
+  if (!isMgr()) return "";
+  return '<div class="card" id="ddCard"><h3>Điểm danh wifi</h3><div class="small muted" style="margin:6px 0 10px">Nhân viên chỉ điểm danh được khi bắt đúng wifi villa đã đăng ký. Muốn thêm mạng: đứng ở villa, bắt wifi của villa, bấm "Thêm mạng đang kết nối". Nhà mạng đổi IP thì thêm lại.</div><div id="ddBody"><div class="small muted">Đang tải…</div></div></div>';
+}
+function fbDdGanQl(el) {
+  if (!isMgr() || !el.querySelector("#ddBody")) return;
+  Promise.all([ddTaiWifi(), ddTaiNgay(DD_NGAY_XEM || ddNgay())]).then(ddVeQl);
+}
+async function ddTaiNgay(n) { DD_NGAY_XEM = n; try { const s = await db.collection("diemdanh").where("ngay", "==", n).get(); DD_DS = s.docs.map((d) => d.data()); } catch (e) { console.error(e); DD_DS = []; } }
+function ddVeQl() {
+  const b = document.getElementById("ddBody"); if (!b) return;
+  let h = '<div class="small" style="margin-bottom:6px"><b>Mạng đã đăng ký</b></div>';
+  h += DD_WIFI.length ? DD_WIFI.map((w) => '<div class="row" style="justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid rgba(0,0,0,.08)"><div><b>' + esc(w.ten || "?") + '</b> <span class="small muted">' + esc(w.villa ? villaName(w.villa) : "Mọi villa") + ' · ' + esc(w.ip || "") + '</span></div><button class="btn sm" data-ddxoa="' + esc(w.id) + '">Xóa</button></div>').join("") : '<div class="small muted">Chưa có mạng nào.</div>';
+  h += '<div class="acts" style="margin-top:8px"><button class="btn p" id="ddThem">Thêm mạng đang kết nối</button></div>';
+  const ngay = DD_NGAY_XEM || ddNgay();
+  const co = new Map(DD_DS.map((d) => [d.staffId, d]));
+  h += '<div class="row" style="justify-content:space-between;align-items:center;margin:14px 0 6px;gap:8px"><div class="small"><b>Điểm danh ngày</b></div><input type="date" id="ddNgay" value="' + esc(ngay) + '"></div>';
+  const dd = DD_DS.slice().sort((a, b) => String(a.vao).localeCompare(String(b.vao)));
+  h += dd.length ? dd.map((d) => '<div style="padding:6px 0;border-top:1px solid rgba(0,0,0,.08)"><b>' + esc(d.ten || "?") + '</b> · vào ' + esc(fmtHM(d.vao)) + (d.ra ? ' · ra ' + esc(fmtHM(d.ra)) : '') + '<div class="small muted">' + esc(d.wifiTen || "") + (d.villa ? ' · ' + esc(villaName(d.villa)) : '') + '</div></div>').join("") : '<div class="small muted">Chưa ai điểm danh.</div>';
+  const chua = STAFF.filter((s) => s.hoatDong !== false && s.userId && !co.has(s.id) && !(FB.member.owner && s.userId === uid));
+  if (chua.length) h += '<div class="small muted" style="margin-top:10px">Chưa điểm danh (' + chua.length + '): ' + esc(chua.map((s) => s.ten).join(", ")) + '</div>';
+  b.innerHTML = h;
+  b.querySelector("#ddThem").onclick = ddThemMang;
+  b.querySelector("#ddNgay").onchange = async (e) => { if (e.target.value) { await ddTaiNgay(e.target.value); ddVeQl(); } };
+  b.querySelectorAll("[data-ddxoa]").forEach((x) => x.onclick = () => twoStep(x, async () => { try { await db.doc("wifi/" + x.dataset.ddxoa).delete(); await ddTaiWifi(); ddVeQl(); } catch (e) { toast("Chưa xóa được."); } }));
+}
+async function ddThemMang(ev) {
+  const btn = ev.target; btn.disabled = true; const lbl = btn.textContent; btn.textContent = "Đang lấy địa chỉ mạng…";
+  const ip = await ddLayIp(); btn.disabled = false; btn.textContent = lbl;
+  if (!ip) return toast("Không lấy được địa chỉ mạng, thử lại.");
+  const vs = VILLAS.slice().sort((a, b) => (a.thuTu || 99) - (b.thuTu || 99));
+  let h = sheetHead("Thêm mạng wifi", "Địa chỉ mạng đang dùng: <b>" + esc(ip) + "</b>");
+  h += '<div class="small muted" style="margin-bottom:8px">Hãy chắc máy đang bắt wifi của villa, không phải 4G. Nếu đang dùng 4G thì địa chỉ này là của nhà mạng điện thoại và người ngoài sẽ điểm danh nhầm được.</div>';
+  h += '<label class="f"><span>Tên mạng (vd: Wifi villa Roma)</span><input id="ddTen" maxlength="60"></label><label class="f"><span>Villa</span><select id="ddVilla">' + opt("", "Mọi villa", "") + vs.map((v) => opt(v.id, v.ten, "")).join("") + '</select></label>';
+  h += '<div class="acts"><button class="btn p" id="ddLuu">Lưu mạng này</button><button class="btn" id="ddHuy">Đóng</button></div>';
+  formSheet(h); $("#ddHuy").onclick = closeSheet;
+  $("#ddLuu").onclick = async () => {
+    const ten = $("#ddTen").value.trim(); if (!ten) return toast("Điền tên mạng.");
+    if (DD_WIFI.some((w) => ddChuanIp(w.ip) === ddChuanIp(ip))) return toast("Địa chỉ mạng này đã có trong danh sách.");
+    const id = "w" + Date.now().toString(36);
+    try { await db.doc("wifi/" + id).set({ id, ten, ip, villa: $("#ddVilla").value, tao: now(), email: FB.email }); closeSheet(); await ddTaiWifi(); ddVeQl(); toast("Đã thêm mạng " + ten); }
+    catch (e) { console.error(e); toast("Chưa lưu được."); }
+  };
 }
 </script>
 </body>
