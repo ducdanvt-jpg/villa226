@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="226 Villa">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<script>const FB_BAN="2026-11-25 21:02";</script>
+<script>const FB_BAN="2026-11-25 21:27";</script>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -2746,7 +2746,9 @@ function fbEmailTrung(id, email) {
    Chủ app (FB.member.owner) và chủ đầu tư không thuộc diện điểm danh. */
 let DD_WIFI = [], DD_HOM = null, DD_DS = [], DD_BUSY = false, DD_NGAY_XEM = "";
 const ddNgay = () => ymd(new Date());
-const ddCoDien = () => !!window.FB && !laCdt() && !FB.member.owner && !!myStaff();
+const DD_VP = ["giam-doc", "kinh-doanh", "ke-toan", "phat-trien", "nhan-su"];   // chỉ nhân viên văn phòng công ty 226 điểm danh
+const ddLaVp = (st) => !!st && DD_VP.includes(st.boPhan);
+const ddCoDien = () => !!window.FB && !laCdt() && !FB.member.owner && ddLaVp(myStaff());
 function ddChuanIp(ip) {
   ip = String(ip || "").trim().toLowerCase();
   if (ip.includes(":")) return ip.split(":").slice(0, 4).join(":");   // IPv6: so 4 nhóm đầu (mạng /64)
@@ -2811,7 +2813,7 @@ async function ddBam(btn, loai) {
 /* quản lý: mạng wifi + bảng điểm danh, nằm ở tab Dữ liệu */
 function fbDdQuanLy() {
   if (!isMgr()) return "";
-  return '<div class="card" id="ddCard"><h3>Điểm danh wifi</h3><div class="small muted" style="margin:6px 0 10px">Nhân viên chỉ điểm danh được khi bắt đúng wifi villa đã đăng ký. Muốn thêm mạng: đứng ở villa, bắt wifi của villa, bấm "Thêm mạng đang kết nối". Nhà mạng đổi IP thì thêm lại.</div><div id="ddBody"><div class="small muted">Đang tải…</div></div></div>';
+  return '<div class="card" id="ddCard"><h3>Điểm danh wifi</h3><div class="small muted" style="margin:6px 0 10px">Chỉ nhân viên văn phòng (Giám đốc, Kinh doanh, Kế toán, Phát triển, Nhân sự) điểm danh, và chỉ được khi bắt đúng wifi đã đăng ký. Muốn thêm mạng: đứng ở villa, bắt wifi của villa, bấm "Thêm mạng đang kết nối". Nhà mạng đổi IP thì thêm lại.</div><div id="ddBody"><div class="small muted">Đang tải…</div></div></div>';
 }
 function fbDdGanQl(el) {
   if (!isMgr() || !el.querySelector("#ddBody")) return;
@@ -2828,7 +2830,7 @@ function ddVeQl() {
   h += '<div class="row" style="justify-content:space-between;align-items:center;margin:14px 0 6px;gap:8px"><div class="small"><b>Điểm danh ngày</b></div><input type="date" id="ddNgay" value="' + esc(ngay) + '"></div>';
   const dd = DD_DS.slice().sort((a, b) => String(a.vao).localeCompare(String(b.vao)));
   h += dd.length ? dd.map((d) => '<div style="padding:6px 0;border-top:1px solid rgba(0,0,0,.08)"><b>' + esc(d.ten || "?") + '</b> · vào ' + esc(fmtHM(d.vao)) + (d.ra ? ' · ra ' + esc(fmtHM(d.ra)) : '') + '<div class="small muted">' + esc(d.wifiTen || "") + (d.villa ? ' · ' + esc(villaName(d.villa)) : '') + '</div></div>').join("") : '<div class="small muted">Chưa ai điểm danh.</div>';
-  const chua = STAFF.filter((s) => s.hoatDong !== false && s.userId && !co.has(s.id) && !(FB.member.owner && s.userId === uid));
+  const chua = STAFF.filter((s) => s.hoatDong !== false && ddLaVp(s) && s.userId && !co.has(s.id) && !(FB.member.owner && s.userId === uid));
   if (chua.length) h += '<div class="small muted" style="margin-top:10px">Chưa điểm danh (' + chua.length + '): ' + esc(chua.map((s) => s.ten).join(", ")) + '</div>';
   b.innerHTML = h;
   b.querySelector("#ddThem").onclick = ddThemMang;
