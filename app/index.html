@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="226 Villa">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<script>const FB_BAN="2026-11-27 10:19";</script>
+<script>const FB_BAN="2026-11-27 10:30";</script>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -2747,8 +2747,8 @@ function fbEmailTrung(id, email) {
 let DD_WIFI = [], DD_HOM = null, DD_DS = [], DD_BUSY = false, DD_NGAY_XEM = "";
 const ddNgay = () => ymd(new Date());
 const DD_VP = ["giam-doc", "kinh-doanh", "ke-toan", "phat-trien", "nhan-su"];   // chỉ nhân viên văn phòng công ty 226 điểm danh
-/* giờ vào ca công ty 8h30, du di đến 8h40: vào sau 8h40 là trễ, số phút trễ tính từ 8h30 */
-const DD_GIO_VAO = 8 * 60 + 30, DD_DU_DI = 10;
+/* giờ vào ca công ty 8h30, không du di: vào sau 8h30 là trễ, số phút trễ tính từ 8h30 */
+const DD_GIO_VAO = 8 * 60 + 30, DD_DU_DI = 0;
 function ddTre(iso) {
   const d = new Date(iso); if (isNaN(d)) return 0;
   const ph = d.getHours() * 60 + d.getMinutes();
@@ -2787,7 +2787,7 @@ function fbDdThe() {
   const me = myStaff();
   if (DD_HOM === null && !DD_BUSY) { DD_BUSY = true; ddTaiHomNay().then(() => { DD_BUSY = false; if (tab === "tong") render(); }); }
   let st = '<div class="small muted">Đang kiểm tra…</div>';
-  if (DD_HOM === false) st = '<div class="small" style="margin:6px 0 10px">Hôm nay bạn chưa điểm danh. Giờ vào ca 8h30, du di đến 8h40. Bật wifi công ty rồi bấm nút.</div><div class="acts"><button class="btn p" id="ddVao">Điểm danh vào ca</button></div>';
+  if (DD_HOM === false) st = '<div class="small" style="margin:6px 0 10px">Hôm nay bạn chưa điểm danh. Giờ vào ca 8h30, không du di. Bật wifi công ty rồi bấm nút.</div><div class="acts"><button class="btn p" id="ddVao">Điểm danh vào ca</button></div>';
   else if (DD_HOM) {
     const co = DD_HOM.ra;
     st = '<div class="small" style="margin:6px 0 10px">Đã vào ca lúc <b>' + esc(fmtHM(DD_HOM.vao)) + '</b>' + ddNhanTre(DD_HOM.vao) + (DD_HOM.wifiTen ? ' · ' + esc(DD_HOM.wifiTen) : '') + (co ? ' · ra ca <b>' + esc(fmtHM(co)) + '</b>' : '') + '</div>' +
@@ -2845,7 +2845,7 @@ function ddVeQl() {
   const chua = STAFF.filter((s) => s.hoatDong !== false && ddLaVp(s) && s.userId && !co.has(s.id));
   if (chua.length) h += '<div class="small muted" style="margin-top:10px">Chưa điểm danh (' + chua.length + '): ' + esc(chua.map((s) => s.ten).join(", ")) + '</div>';
   const tre = dd.filter((d) => ddTre(d.vao)).length;
-  if (tre) h = h.replace('<div class="small"><b>Điểm danh ngày</b></div>', '<div class="small"><b>Điểm danh ngày</b> · ' + tre + ' người trễ (sau 8h40)</div>');
+  if (tre) h = h.replace('<div class="small"><b>Điểm danh ngày</b></div>', '<div class="small"><b>Điểm danh ngày</b> · ' + tre + ' người trễ (sau 8h30)</div>');
   b.innerHTML = h;
   b.querySelector("#ddThem").onclick = ddThemMang;
   b.querySelector("#ddNgay").onchange = async (e) => { if (e.target.value) { await ddTaiNgay(e.target.value); ddVeQl(); } };
