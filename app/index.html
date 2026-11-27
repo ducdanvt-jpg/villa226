@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="226 Villa">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<script>const FB_BAN="2026-11-25 21:31";</script>
+<script>const FB_BAN="2026-11-27 08:20";</script>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -2765,6 +2765,9 @@ async function ddLayIp() {
   }
   return "";
 }
+/* địa chỉ của iCloud Private Relay (Apple) thay IP thật của wifi, đăng ký hay so với nó đều sai */
+const ddLaRelay = (ip) => /^172\.(22[4-9]|23\d)\./.test(ip) || /^104\.28\./.test(ip) || /^2a02:26f7:/i.test(ip) || /^2a09:bac/i.test(ip);
+const DD_RELAY = "iPhone đang bật iCloud Private Relay nên giấu địa chỉ thật của wifi. Vào Cài đặt > Wi-Fi > bấm (i) cạnh mạng villa > tắt \"Giới hạn theo dõi địa chỉ IP\" (hoặc Cài đặt > [tên bạn] > iCloud > Chuyển tiếp bảo mật > tắt), rồi thử lại.";
 async function ddTaiWifi() { try { const s = await db.collection("wifi").get(); DD_WIFI = s.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => String(a.ten).localeCompare(String(b.ten))); } catch (e) { console.error(e); } }
 async function ddTaiHomNay() {
   const me = myStaff(); if (!me) return;
@@ -2798,6 +2801,7 @@ async function ddBam(btn, loai) {
     const ip = await ddLayIp();
     if (!ip) { toast("Không lấy được địa chỉ mạng. Kiểm tra kết nối rồi thử lại."); return; }
     const w = DD_WIFI.find((x) => ddChuanIp(x.ip) === ddChuanIp(ip));
+    if (!w && ddLaRelay(ip)) { alert(DD_RELAY); return; }
     if (!w) { toast("Bạn chưa bắt wifi của villa (đang dùng 4G hoặc mạng khác). Bật wifi villa rồi thử lại."); return; }
     const id = ddNgay() + "_" + me.id, t = new Date();
     if (loai === "vao") {
@@ -2841,6 +2845,7 @@ async function ddThemMang(ev) {
   const btn = ev.target; btn.disabled = true; const lbl = btn.textContent; btn.textContent = "Đang lấy địa chỉ mạng…";
   const ip = await ddLayIp(); btn.disabled = false; btn.textContent = lbl;
   if (!ip) return toast("Không lấy được địa chỉ mạng, thử lại.");
+  if (ddLaRelay(ip)) return alert("Địa chỉ "+ip+" là của iCloud Private Relay, không phải wifi villa, nên chưa lưu. "+DD_RELAY);
   const vs = VILLAS.slice().sort((a, b) => (a.thuTu || 99) - (b.thuTu || 99));
   let h = sheetHead("Thêm mạng wifi", "Địa chỉ mạng đang dùng: <b>" + esc(ip) + "</b>");
   h += '<div class="small muted" style="margin-bottom:8px">Hãy chắc máy đang bắt wifi của villa, không phải 4G. Nếu đang dùng 4G thì địa chỉ này là của nhà mạng điện thoại và người ngoài sẽ điểm danh nhầm được.</div>';
