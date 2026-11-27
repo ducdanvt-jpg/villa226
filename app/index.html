@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="226 Villa">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<script>const FB_BAN="2026-11-27 08:20";</script>
+<script>const FB_BAN="2026-11-27 08:28";</script>
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -2747,6 +2747,14 @@ function fbEmailTrung(id, email) {
 let DD_WIFI = [], DD_HOM = null, DD_DS = [], DD_BUSY = false, DD_NGAY_XEM = "";
 const ddNgay = () => ymd(new Date());
 const DD_VP = ["giam-doc", "kinh-doanh", "ke-toan", "phat-trien", "nhan-su"];   // chỉ nhân viên văn phòng công ty 226 điểm danh
+/* giờ vào ca công ty 8h00, du di đến 8h10: vào sau 8h10 là trễ, số phút trễ tính từ 8h00 */
+const DD_GIO_VAO = 8 * 60, DD_DU_DI = 10;
+function ddTre(iso) {
+  const d = new Date(iso); if (isNaN(d)) return 0;
+  const ph = d.getHours() * 60 + d.getMinutes();
+  return ph > DD_GIO_VAO + DD_DU_DI ? ph - DD_GIO_VAO : 0;
+}
+const ddNhanTre = (iso) => { const m = ddTre(iso); return m ? ' <b style="color:var(--bad)">· trễ ' + (m >= 60 ? Math.floor(m / 60) + " giờ " + (m % 60 ? m % 60 + " phút" : "") : m + " phút") + '</b>' : ""; };
 const ddLaVp = (st) => !!st && DD_VP.includes(st.boPhan);
 const ddCoDien = () => !!window.FB && !laCdt() && (FB.member.owner ? !!myStaff() : ddLaVp(myStaff()));   // chủ app (đang thử) chỉ cần có hồ sơ nhân viên gắn tài khoản
 function ddChuanIp(ip) {
@@ -2779,10 +2787,10 @@ function fbDdThe() {
   const me = myStaff();
   if (DD_HOM === null && !DD_BUSY) { DD_BUSY = true; ddTaiHomNay().then(() => { DD_BUSY = false; if (tab === "tong") render(); }); }
   let st = '<div class="small muted">Đang kiểm tra…</div>';
-  if (DD_HOM === false) st = '<div class="small" style="margin:6px 0 10px">Hôm nay bạn chưa điểm danh. Bật wifi của villa rồi bấm nút.</div><div class="acts"><button class="btn p" id="ddVao">Điểm danh vào ca</button></div>';
+  if (DD_HOM === false) st = '<div class="small" style="margin:6px 0 10px">Hôm nay bạn chưa điểm danh. Giờ vào ca 8h00, du di đến 8h10. Bật wifi công ty rồi bấm nút.</div><div class="acts"><button class="btn p" id="ddVao">Điểm danh vào ca</button></div>';
   else if (DD_HOM) {
     const co = DD_HOM.ra;
-    st = '<div class="small" style="margin:6px 0 10px">Đã vào ca lúc <b>' + esc(fmtHM(DD_HOM.vao)) + '</b>' + (DD_HOM.wifiTen ? ' · ' + esc(DD_HOM.wifiTen) : '') + (co ? ' · ra ca <b>' + esc(fmtHM(co)) + '</b>' : '') + '</div>' +
+    st = '<div class="small" style="margin:6px 0 10px">Đã vào ca lúc <b>' + esc(fmtHM(DD_HOM.vao)) + '</b>' + ddNhanTre(DD_HOM.vao) + (DD_HOM.wifiTen ? ' · ' + esc(DD_HOM.wifiTen) : '') + (co ? ' · ra ca <b>' + esc(fmtHM(co)) + '</b>' : '') + '</div>' +
       (co ? '' : '<div class="acts"><button class="btn" id="ddRa">Điểm danh ra ca</button></div>');
   }
   return '<div class="card" id="ddThe"><h3>Điểm danh · ' + esc(me.ten || "") + '</h3>' + st + '</div>';
@@ -2833,9 +2841,11 @@ function ddVeQl() {
   const co = new Map(DD_DS.map((d) => [d.staffId, d]));
   h += '<div class="row" style="justify-content:space-between;align-items:center;margin:14px 0 6px;gap:8px"><div class="small"><b>Điểm danh ngày</b></div><input type="date" id="ddNgay" value="' + esc(ngay) + '"></div>';
   const dd = DD_DS.slice().sort((a, b) => String(a.vao).localeCompare(String(b.vao)));
-  h += dd.length ? dd.map((d) => '<div style="padding:6px 0;border-top:1px solid rgba(0,0,0,.08)"><b>' + esc(d.ten || "?") + '</b> · vào ' + esc(fmtHM(d.vao)) + (d.ra ? ' · ra ' + esc(fmtHM(d.ra)) : '') + '<div class="small muted">' + esc(d.wifiTen || "") + (d.villa ? ' · ' + esc(villaName(d.villa)) : '') + '</div></div>').join("") : '<div class="small muted">Chưa ai điểm danh.</div>';
+  h += dd.length ? dd.map((d) => '<div style="padding:6px 0;border-top:1px solid rgba(0,0,0,.08)"><b>' + esc(d.ten || "?") + '</b> · vào ' + esc(fmtHM(d.vao)) + ddNhanTre(d.vao) + (d.ra ? ' · ra ' + esc(fmtHM(d.ra)) : '') + '<div class="small muted">' + esc(d.wifiTen || "") + (d.villa ? ' · ' + esc(villaName(d.villa)) : '') + '</div></div>').join("") : '<div class="small muted">Chưa ai điểm danh.</div>';
   const chua = STAFF.filter((s) => s.hoatDong !== false && ddLaVp(s) && s.userId && !co.has(s.id));
   if (chua.length) h += '<div class="small muted" style="margin-top:10px">Chưa điểm danh (' + chua.length + '): ' + esc(chua.map((s) => s.ten).join(", ")) + '</div>';
+  const tre = dd.filter((d) => ddTre(d.vao)).length;
+  if (tre) h = h.replace('<div class="small"><b>Điểm danh ngày</b></div>', '<div class="small"><b>Điểm danh ngày</b> · ' + tre + ' người trễ (sau 8h10)</div>');
   b.innerHTML = h;
   b.querySelector("#ddThem").onclick = ddThemMang;
   b.querySelector("#ddNgay").onchange = async (e) => { if (e.target.value) { await ddTaiNgay(e.target.value); ddVeQl(); } };
